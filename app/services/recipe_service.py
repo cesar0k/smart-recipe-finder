@@ -1,5 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import not_
+
 from typing import List
 
 from models import Recipe
@@ -12,10 +14,31 @@ async def create_recipe(db: AsyncSession, *, recipe_in: RecipeCreate) -> Recipe:
     await db.refresh(db_recipe)
     return db_recipe
 
-async def get_all_recipes(db: AsyncSession, *, skip: int = 0, limit: int = 100) -> List[Recipe]:
-    query = select(Recipe).offset(skip).limit(limit)
+async def get_all_recipes(
+    db: AsyncSession, 
+    *, 
+    skip: int = 0, 
+    limit: int = 100,
+    include_str: str | None = None,
+    exclude_str: str | None = None
+) -> List[Recipe]:
+    query = select(Recipe)
+    
+    if include_str:
+        include_list = [item.strip() for item in include_str.split(",")]
+        for ingredient in include_list:
+            query = query.where(Recipe.ingredients.ilike(f"%{ingredient}%"))
+    
+    if exclude_str:
+        exclude_list = [item.strip() for item in exclude_str.split(",")]
+        for ingredient in exclude_list:
+            query = query.where(not_(Recipe.ingredients.ilike(f"%{ingredient}%")))
+            
+    query = query.offset(skip).limit(limit)
+    
     result = await db.execute(query)
     return result.scalars().all()
+        
 
 async def get_recipe_by_id(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
     query = select(Recipe).where(Recipe.id == recipe_id)

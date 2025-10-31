@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Any, AsyncGenerator
 
@@ -17,8 +17,20 @@ async def create_new_recipe(*, db: AsyncSession = Depends(get_db), recipe_in: Re
     return await recipe_service.create_recipe(db=db, recipe_in=recipe_in)
 
 @router.get("/", response_model=List[Recipe])
-async def read_recipes(*, db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100) -> Any:
-    return await recipe_service.get_all_recipes(db=db, skip=skip, limit=limit)
+async def read_recipes(
+    *, 
+    db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 100, 
+    include_ingredients: str | None = Query(None, description="Comma-separated ingredient to include"),
+    exclude_ingredients:str | None = Query(None, description="Comma-separated ingredient to exclude")
+) -> Any:
+    recipes = await recipe_service.get_all_recipes(
+        db=db,
+        skip=skip,
+        limit=limit,
+        include_str=include_ingredients,
+        exclude_str=exclude_ingredients
+    )
+    return recipes
 
 @router.get("/{recipe_id}", response_model=Recipe)
 async def read_recipe_by_id(*, db: AsyncSession = Depends(get_db), recipe_id: int) -> Any:
