@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 
 class RecipeBase(BaseModel):
     title: str
@@ -7,4 +6,4 @@ class RecipeBase(BaseModel):
     instructions: str
     cooking_time_in_minutes: int
     difficulty: str
-    cuisine: Optional[str]
+    cuisine: str | None = None

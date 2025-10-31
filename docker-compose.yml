@@ -10,7 +10,7 @@ services:
     volumes:
       - ./app:/app
     environment:
-      DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db/${MYSQL_DATABASE}
+      DATABASE_URL: mysql+asyncmy://${MYSQL_USER}:${MYSQL_PASSWORD}@db/${MYSQL_DATABASE}
     depends_on:
       db:
         condition: service_healthy
