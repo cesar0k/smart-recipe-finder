@@ -60,5 +60,5 @@ You can use this interface to explore, test, and interact with all the available
 Currently implemented features:
 - [x] Project setup with Docker and a scalable layered architecture.
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
-- [ ] Update and Delete operations for recipes.
+- [x] **Update** and **Delete** operations for recipes.
 - [ ] Advanced filtering and natural language search.
