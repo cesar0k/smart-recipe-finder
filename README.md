@@ -61,4 +61,4 @@ Currently implemented features:
 - [x] Project setup with Docker and a scalable layered architecture.
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
 - [x] **Update** and **Delete** operations for recipes.
-- [ ] Advanced filtering and natural language search.
+- [x] Advanced filtering and natural language search.
