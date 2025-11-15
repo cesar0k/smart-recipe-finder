@@ -2,5 +2,7 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 pymysql
-cryptography
 asyncmy
+cryptography
+alembic
+pydantic-settings

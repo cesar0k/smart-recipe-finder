@@ -55,3 +55,11 @@ async def delete_existing_recipe(*, db: AsyncSession = Depends(get_db), recipe_i
         raise HTTPException(status_code=404, detail="Recipe not found")
     
     return deleted_recipe
+
+@router.get(f"/search/", response_model=List[Recipe])
+async def search_recipes(
+    *,
+    db: AsyncSession = Depends(get_db),
+    q: str = Query(..., description="Search query for recipes using FTS")
+) -> Any:
+    return await recipe_service.search_recipes_by_fts(db=db, query_str=q)

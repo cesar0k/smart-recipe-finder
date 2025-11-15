@@ -1,16 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import not_
+from sqlalchemy import not_, text
 
 from typing import List
 
 from models import Recipe, Ingredient
 from schemas import RecipeCreate, RecipeUpdate
 
-
-async def _get_or_create_ingredients(
-    db: AsyncSession, ingredients_in: list[str]
-) -> List[Ingredient]:
+async def _get_or_create_ingredients(db: AsyncSession, ingredients_in: list[str]) -> List[Ingredient]:
     ingredient_objects = []
     unique_ingredient_names = {name.lower().strip() for name in ingredients_in}
 
@@ -107,3 +104,16 @@ async def delete_recipe(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
         await db.delete(db_recipe)
         await db.commit()
     return db_recipe
+
+async def search_recipes_by_fts(db: AsyncSession, *, query_str: str) -> List[Recipe]:
+    search_query = (
+        select(Recipe).
+        where(
+            text("MATCH(title, instructions) AGAINST(:query IN NATURAL LANGUAGE MODE)")
+        )
+        .params(query=query_str)
+    )
+    
+    result = await db.execute(search_query)
+    
+    return result.scalars().unique().all()
