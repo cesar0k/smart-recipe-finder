@@ -61,17 +61,7 @@ A comprehensive test suite has been newly implemented to ensure the reliability 
 
 To run the test suite, you first need to set up your test environment.
 
-### 1. Set Up Test Environment
-
-The tests require their own environment file. Create it by copying the example:
-
-```bash
-cp .env.test.example .env.test
-```
-
-The default values are pre-configured to work with the main application's default environment. The credentials in `.env.test` must match the credentials in the main `.env` file for the tests to connect to the database successfully.
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 
 Install the required dependencies, including those for testing:
 
@@ -79,7 +69,7 @@ Install the required dependencies, including those for testing:
 pip install -r requirements.txt
 ```
 
-### 3. Run Tests
+### 2. Run Tests
 
 Execute the test suite using `pytest`:
 

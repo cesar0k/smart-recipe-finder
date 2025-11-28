@@ -4,9 +4,12 @@ import asyncio
 from httpx import ASGITransport
 from typing import AsyncGenerator
 
+from alembic import command
+from alembic.config import Config
+
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, text, delete
+from sqlalchemy import create_engine, delete
 
 from app.models.base import Base
 from app.models.recipe import Recipe
@@ -22,28 +25,18 @@ def event_loop():
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_db():
-    SYNC_ADMIN_DB_URL = (
-        f"mysql+pymysql://root:{settings.MYSQL_ROOT_PASSWORD}@"
+    SYNC_TEST_DB_URL = (
+        f"mysql+pymysql://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@"
         f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DATABASE}"
     )
-    admin_engine = create_engine(SYNC_ADMIN_DB_URL)
-
-    Base.metadata.create_all(admin_engine)
-
-    with admin_engine.connect() as conn:
-        result = conn.execute(text(
-            "SELECT COUNT(1) IndexIsThere FROM INFORMATION_SCHEMA.STATISTICS "
-            "WHERE table_schema=DATABASE() AND table_name='recipes' AND index_name='ft_index';"
-        ))
-        index_exists = result.scalar()
-        
-        if not index_exists:
-            conn.execute(text("ALTER TABLE recipes ADD FULLTEXT INDEX ft_index (title, instructions)"))
-        conn.commit()
-
+    
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", SYNC_TEST_DB_URL)
+    
+    command.upgrade(alembic_cfg, "head")
     yield
-
-    admin_engine.dispose()
+    
+    command.downgrade(alembic_cfg, "base")
 
 @pytest.fixture(scope="session")
 async def db_engine():
