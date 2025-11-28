@@ -1,0 +1,137 @@
+[
+  {
+    "id": 1,
+    "title": "Classic Spaghetti Carbonara",
+    "ingredients": ["spaghetti", "eggs", "guanciale", "pecorino romano", "black pepper"],
+    "instructions": "Boil pasta. Fry guanciale. Mix eggs and cheese. Combine off heat to create creamy sauce.",
+    "cooking_time_in_minutes": 25,
+    "difficulty": "medium",
+    "cuisine": "Italian"
+  },
+  {
+    "id": 2,
+    "title": "Vegan Lentil Burger",
+    "ingredients": ["lentils", "flour", "onion", "garlic", "cumin", "bun"],
+    "instructions": "Mash cooked lentils. Mix with spices and flour. Form patties and fry. Serve on a bun.",
+    "cooking_time_in_minutes": 40,
+    "difficulty": "medium",
+    "cuisine": "American"
+  },
+  {
+    "id": 3,
+    "title": "Grandma's Chicken Noodle Soup",
+    "ingredients": ["chicken breast", "egg noodles", "carrots", "celery", "chicken broth"],
+    "instructions": "Simmer chicken in broth. Add vegetables and noodles. Cook until tender. Perfect for cold days.",
+    "cooking_time_in_minutes": 60,
+    "difficulty": "easy",
+    "cuisine": "American"
+  },
+  {
+    "id": 4,
+    "title": "Spicy Thai Green Curry",
+    "ingredients": ["coconut milk", "green curry paste", "bamboo shoots", "tofu", "thai basil", "chili"],
+    "instructions": "Fry curry paste. Add coconut milk and vegetables. Simmer. Serve with jasmine rice.",
+    "cooking_time_in_minutes": 35,
+    "difficulty": "hard",
+    "cuisine": "Thai"
+  },
+  {
+    "id": 5,
+    "title": "High-Protein Post-Workout Smoothie",
+    "ingredients": ["whey protein", "banana", "milk", "peanut butter"],
+    "instructions": "Blend all ingredients until smooth. Drink immediately after gym.",
+    "cooking_time_in_minutes": 5,
+    "difficulty": "easy",
+    "cuisine": "Modern"
+  },
+  {
+    "id": 6,
+    "title": "Ratatouille",
+    "ingredients": ["aubergine", "zucchini", "bell pepper", "tomato", "herbs de provence"],
+    "instructions": "Slice vegetables thinly. Layer in a dish. Bake slowly until tender. A french classic.",
+    "cooking_time_in_minutes": 90,
+    "difficulty": "medium",
+    "cuisine": "French"
+  },
+  {
+    "id": 7,
+    "title": "Japanese Sushi Rolls (Maki)",
+    "ingredients": ["sushi rice", "nori", "fresh salmon", "cucumber", "wasabi"],
+    "instructions": "Cook rice with vinegar. Place nori on bamboo mat. Spread rice, add fish. Roll tightly.",
+    "cooking_time_in_minutes": 50,
+    "difficulty": "hard",
+    "cuisine": "Japanese"
+  },
+  {
+    "id": 8,
+    "title": "Texas Beef Brisket",
+    "ingredients": ["beef brisket", "salt", "pepper", "paprika", "bbq sauce"],
+    "instructions": "Rub meat with spices. Smoke low and slow for 12 hours. Slice against the grain.",
+    "cooking_time_in_minutes": 720,
+    "difficulty": "hard",
+    "cuisine": "American"
+  },
+  {
+    "id": 9,
+    "title": "Fresh Caprese Salad",
+    "ingredients": ["mozzarella", "tomato", "fresh basil", "balsamic glaze", "olive oil"],
+    "instructions": "Slice tomatoes and cheese. Arrange on plate with basil. Drizzle with oil and balsamic.",
+    "cooking_time_in_minutes": 10,
+    "difficulty": "easy",
+    "cuisine": "Italian"
+  },
+  {
+    "id": 10,
+    "title": "Chocolate Lava Cake",
+    "ingredients": ["dark chocolate", "butter", "sugar", "eggs", "flour"],
+    "instructions": "Melt chocolate and butter. Whisk eggs and sugar. Bake in ramekins until center is still wiggly.",
+    "cooking_time_in_minutes": 20,
+    "difficulty": "hard",
+    "cuisine": "French"
+  },
+  {
+    "id": 11,
+    "title": "Guacamole Dip",
+    "ingredients": ["avocado", "lime", "cilantro", "onion", "jalapeno"],
+    "instructions": "Mash avocados. Mix with chopped onion, cilantro and lime juice. Serve with chips.",
+    "cooking_time_in_minutes": 10,
+    "difficulty": "easy",
+    "cuisine": "Mexican"
+  },
+  {
+    "id": 12,
+    "title": "Oatmeal with Honey",
+    "ingredients": ["oats", "water", "honey", "cinnamon"],
+    "instructions": "Boil water. Add oats. Cook for 5 minutes. Top with honey.",
+    "cooking_time_in_minutes": 10,
+    "difficulty": "easy",
+    "cuisine": "British"
+  },
+  {
+    "id": 13,
+    "title": "Fish and Chips",
+    "ingredients": ["cod fillet", "potatoes", "flour", "beer", "oil"],
+    "instructions": "Make beer batter. Dip fish. Deep fry fish and sliced potatoes until golden.",
+    "cooking_time_in_minutes": 40,
+    "difficulty": "medium",
+    "cuisine": "British"
+  },
+  {
+    "id": 14,
+    "title": "Mushroom Risotto",
+    "ingredients": ["arborio rice", "mushrooms", "white wine", "parmesan", "onion"],
+    "instructions": "Sauté onions. Add rice and wine. Gradually add broth while stirring constantly.",
+    "cooking_time_in_minutes": 45,
+    "difficulty": "hard",
+    "cuisine": "Italian"
+  },
+  {
+    "id": 15,
+    "title": "Lemonade",
+    "ingredients": ["lemon", "sugar", "water", "ice", "mint"],
+    "instructions": "Squeeze lemons. Dissolve sugar in water. Mix and add ice.",
+    "cooking_time_in_minutes": 10,
+    "difficulty": "easy",
+    "cuisine": "International"
+  }
+]

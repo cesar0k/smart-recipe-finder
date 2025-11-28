@@ -1,0 +1,402 @@
+[
+  {
+    "id": 1,
+    "description": "Simple Include: Find recipes with 'eggs'",
+    "include_ingredients": "eggs",
+    "exclude_ingredients": "",
+    "should_contain": ["Classic Spaghetti Carbonara", "Chocolate Lava Cake"],
+    "should_not_contain": ["Grandma's Chicken Noodle Soup", "Vegan Lentil Burger"]
+  },
+  {
+    "id": 2,
+    "description": "Simple Include: Find recipes with 'avocado'",
+    "include_ingredients": "avocado",
+    "exclude_ingredients": "",
+    "should_contain": ["Guacamole Dip"],
+    "should_not_contain": ["Fresh Caprese Salad"]
+  },
+  {
+    "id": 3,
+    "description": "Multiple Include (AND logic): 'flour' AND 'eggs'",
+    "include_ingredients": "flour, eggs",
+    "exclude_ingredients": "",
+    "should_contain": ["Chocolate Lava Cake"],
+    "should_not_contain": ["Classic Spaghetti Carbonara", "Fish and Chips", "Vegan Lentil Burger"]
+  },
+  {
+    "id": 4,
+    "description": "Multiple Include: 'onion' AND 'garlic'",
+    "include_ingredients": "onion, garlic",
+    "exclude_ingredients": "",
+    "should_contain": ["Vegan Lentil Burger"],
+    "should_not_contain": ["Guacamole Dip", "Mushroom Risotto"]
+  },
+  {
+    "id": 5,
+    "description": "Simple Exclude: No 'meat' (beef brisket)",
+    "include_ingredients": "",
+    "exclude_ingredients": "beef brisket",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Texas Beef Brisket"]
+  },
+  {
+    "id": 6,
+    "description": "Simple Exclude: No 'sugar'",
+    "include_ingredients": "",
+    "exclude_ingredients": "sugar",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Chocolate Lava Cake", "Lemonade"]
+  },
+  {
+    "id": 7,
+    "description": "Complex: Include 'rice', Exclude 'fish' (salmon)",
+    "include_ingredients": "sushi rice",
+    "exclude_ingredients": "fresh salmon",
+    "should_contain": [],
+    "should_not_contain": ["Japanese Sushi Rolls (Maki)"]
+  },
+  {
+    "id": 8,
+    "description": "Complex: Include 'tomato', Exclude 'cheese' (mozzarella)",
+    "include_ingredients": "tomato",
+    "exclude_ingredients": "mozzarella",
+    "should_contain": ["Ratatouille"],
+    "should_not_contain": ["Fresh Caprese Salad"]
+  },
+  {
+    "id": 9,
+    "description": "Complex: Include 'flour', Exclude 'chocolate' (Lava Cake should stick out)",
+    "include_ingredients": "flour",
+    "exclude_ingredients": "dark chocolate",
+    "should_contain": ["Vegan Lentil Burger", "Fish and Chips"],
+    "should_not_contain": ["Chocolate Lava Cake"]
+  },
+  {
+    "id": 10,
+    "description": "Edge Case: Case Insensitivity 'EgGs'",
+    "include_ingredients": "EgGs",
+    "exclude_ingredients": "",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": []
+  },
+  {
+    "id": 11,
+    "description": "Edge Case: Whitespace padding '  onion  '",
+    "include_ingredients": "  onion  ",
+    "exclude_ingredients": "",
+    "should_contain": ["Vegan Lentil Burger", "Guacamole Dip", "Mushroom Risotto"],
+    "should_not_contain": []
+  },
+  {
+    "id": 12,
+    "description": "Edge Case: Empty strings shouldn't crash or filter all",
+    "include_ingredients": "",
+    "exclude_ingredients": "",
+    "should_contain": ["Classic Spaghetti Carbonara", "Lemonade"],
+    "should_not_contain": []
+  },
+  {
+    "id": 13,
+    "description": "Strict Matching: 'egg' (singular) should NOT match 'eggs' (plural) in strict mode",
+    "include_ingredients": "egg",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Classic Spaghetti Carbonara", "Chocolate Lava Cake"]
+  },
+  {
+    "id": 14,
+    "description": "Strict Matching: 'egg noodles' check. Include 'eggs' should NOT find 'egg noodles'",
+    "include_ingredients": "eggs",
+    "exclude_ingredients": "",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Grandma's Chicken Noodle Soup"]
+  },
+  {
+    "id": 15,
+    "description": "Conflict: Include 'onion' AND Exclude 'onion' -> Should allow nothing",
+    "include_ingredients": "onion",
+    "exclude_ingredients": "onion",
+    "should_contain": [],
+    "should_not_contain": ["Vegan Lentil Burger", "Guacamole Dip"]
+  },
+  {
+    "id": 16,
+    "description": "Non-existent ingredient: Include 'unicorn'",
+    "include_ingredients": "unicorn",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Classic Spaghetti Carbonara"]
+  },
+  {
+    "id": 17,
+    "description": "Non-existent exclude: Exclude 'kryptonite' -> Should affect nothing",
+    "include_ingredients": "lemon",
+    "exclude_ingredients": "kryptonite",
+    "should_contain": ["Lemonade"],
+    "should_not_contain": []
+  },
+  {
+    "id": 18,
+    "description": "Include list with spacing: 'flour,  sugar'",
+    "include_ingredients": "flour,  sugar",
+    "exclude_ingredients": "",
+    "should_contain": ["Chocolate Lava Cake"],
+    "should_not_contain": ["Vegan Lentil Burger"]
+  },
+  {
+    "id": 19,
+    "description": "Ingredient subset: 'curry paste' vs 'green curry paste'. If strict, 'curry paste' finds nothing.",
+    "include_ingredients": "curry paste",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Spicy Thai Green Curry"]
+  },
+  {
+    "id": 20,
+    "description": "Correct full name: 'green curry paste'",
+    "include_ingredients": "green curry paste",
+    "exclude_ingredients": "",
+    "should_contain": ["Spicy Thai Green Curry"],
+    "should_not_contain": []
+  },
+  {
+    "id": 21,
+    "description": "Exclude common item: 'salt'. Should remove Brisket and Pasta Dough (if added)",
+    "include_ingredients": "",
+    "exclude_ingredients": "salt",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Texas Beef Brisket"]
+  },
+  {
+    "id": 22,
+    "description": "Include 'water'",
+    "include_ingredients": "water",
+    "exclude_ingredients": "",
+    "should_contain": ["Oatmeal with Honey", "Lemonade"],
+    "should_not_contain": []
+  },
+  {
+    "id": 23,
+    "description": "Include 'water', exclude 'sugar'",
+    "include_ingredients": "water",
+    "exclude_ingredients": "sugar",
+    "should_contain": ["Oatmeal with Honey"],
+    "should_not_contain": ["Lemonade"]
+  },
+  {
+    "id": 24,
+    "description": "Include 'potatoes'",
+    "include_ingredients": "potatoes",
+    "exclude_ingredients": "",
+    "should_contain": ["Fish and Chips"],
+    "should_not_contain": ["Ratatouille"]
+  },
+  {
+    "id": 25,
+    "description": "Include 'chicken breast'",
+    "include_ingredients": "chicken breast",
+    "exclude_ingredients": "",
+    "should_contain": ["Grandma's Chicken Noodle Soup"],
+    "should_not_contain": ["Spicy Thai Green Curry"]
+  },
+  {
+    "id": 26,
+    "description": "Include 'lime', exclude 'cilantro'",
+    "include_ingredients": "lime",
+    "exclude_ingredients": "cilantro",
+    "should_contain": [],
+    "should_not_contain": ["Guacamole Dip"]
+  },
+  {
+    "id": 27,
+    "description": "Include 'mozzarella'",
+    "include_ingredients": "mozzarella",
+    "exclude_ingredients": "",
+    "should_contain": ["Fresh Caprese Salad"],
+    "should_not_contain": []
+  },
+  {
+    "id": 28,
+    "description": "Exclude 'flour'",
+    "include_ingredients": "",
+    "exclude_ingredients": "flour",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Vegan Lentil Burger", "Chocolate Lava Cake", "Fish and Chips"]
+  },
+  {
+    "id": 29,
+    "description": "Include 'milk'",
+    "include_ingredients": "milk",
+    "exclude_ingredients": "",
+    "should_contain": ["High-Protein Post-Workout Smoothie"],
+    "should_not_contain": ["Spicy Thai Green Curry"] 
+  },
+  {
+    "id": 30,
+    "description": "Include 'coconut milk'",
+    "include_ingredients": "coconut milk",
+    "exclude_ingredients": "",
+    "should_contain": ["Spicy Thai Green Curry"],
+    "should_not_contain": ["High-Protein Post-Workout Smoothie"]
+  },
+  {
+    "id": 31,
+    "description": "Include 'honey'",
+    "include_ingredients": "honey",
+    "exclude_ingredients": "",
+    "should_contain": ["Oatmeal with Honey"],
+    "should_not_contain": []
+  },
+  {
+    "id": 32,
+    "description": "Include 'beer'",
+    "include_ingredients": "beer",
+    "exclude_ingredients": "",
+    "should_contain": ["Fish and Chips"],
+    "should_not_contain": []
+  },
+  {
+    "id": 33,
+    "description": "Include 'tofu'",
+    "include_ingredients": "tofu",
+    "exclude_ingredients": "",
+    "should_contain": ["Spicy Thai Green Curry"],
+    "should_not_contain": []
+  },
+  {
+    "id": 34,
+    "description": "Include 'zucchini', exclude 'eggplant' (aubergine in db)",
+    "include_ingredients": "zucchini",
+    "exclude_ingredients": "aubergine",
+    "should_contain": [],
+    "should_not_contain": ["Ratatouille"]
+  },
+  {
+    "id": 35,
+    "description": "Include 'butter', exclude 'flour'",
+    "include_ingredients": "butter",
+    "exclude_ingredients": "flour",
+    "should_contain": [],
+    "should_not_contain": ["Chocolate Lava Cake"]
+  },
+  {
+    "id": 36,
+    "description": "Include 'spaghetti'",
+    "include_ingredients": "spaghetti",
+    "exclude_ingredients": "",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": []
+  },
+  {
+    "id": 37,
+    "description": "Include 'banana'",
+    "include_ingredients": "banana",
+    "exclude_ingredients": "",
+    "should_contain": ["High-Protein Post-Workout Smoothie"],
+    "should_not_contain": []
+  },
+  {
+    "id": 38,
+    "description": "Include 'cucumber'",
+    "include_ingredients": "cucumber",
+    "exclude_ingredients": "",
+    "should_contain": ["Japanese Sushi Rolls (Maki)"],
+    "should_not_contain": []
+  },
+  {
+    "id": 39,
+    "description": "Exclude 'oil'",
+    "include_ingredients": "",
+    "exclude_ingredients": "oil",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Fish and Chips"]
+  },
+  {
+    "id": 40,
+    "description": "Exclude 'olive oil'",
+    "include_ingredients": "",
+    "exclude_ingredients": "olive oil",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Fresh Caprese Salad"]
+  },
+  {
+    "id": 41,
+    "description": "Include 'mint'",
+    "include_ingredients": "mint",
+    "exclude_ingredients": "",
+    "should_contain": ["Lemonade"],
+    "should_not_contain": []
+  },
+  {
+    "id": 42,
+    "description": "Include 'wasabi'",
+    "include_ingredients": "wasabi",
+    "exclude_ingredients": "",
+    "should_contain": ["Japanese Sushi Rolls (Maki)"],
+    "should_not_contain": []
+  },
+  {
+    "id": 43,
+    "description": "Include 'parmesan'",
+    "include_ingredients": "parmesan",
+    "exclude_ingredients": "",
+    "should_contain": ["Mushroom Risotto"],
+    "should_not_contain": []
+  },
+  {
+    "id": 44,
+    "description": "Include 'white wine'",
+    "include_ingredients": "white wine",
+    "exclude_ingredients": "",
+    "should_contain": ["Mushroom Risotto"],
+    "should_not_contain": []
+  },
+  {
+    "id": 45,
+    "description": "Include 'mushrooms'",
+    "include_ingredients": "mushrooms",
+    "exclude_ingredients": "",
+    "should_contain": ["Mushroom Risotto"],
+    "should_not_contain": []
+  },
+  {
+    "id": 46,
+    "description": "Include 'cilantro', exclude 'onion'",
+    "include_ingredients": "cilantro",
+    "exclude_ingredients": "onion",
+    "should_contain": [],
+    "should_not_contain": ["Guacamole Dip"]
+  },
+  {
+    "id": 47,
+    "description": "Include 'cumin'",
+    "include_ingredients": "cumin",
+    "exclude_ingredients": "",
+    "should_contain": ["Vegan Lentil Burger"],
+    "should_not_contain": []
+  },
+  {
+    "id": 48,
+    "description": "Include 'bun'",
+    "include_ingredients": "bun",
+    "exclude_ingredients": "",
+    "should_contain": ["Vegan Lentil Burger"],
+    "should_not_contain": []
+  },
+  {
+    "id": 49,
+    "description": "Exclude 'water'",
+    "include_ingredients": "",
+    "exclude_ingredients": "water",
+    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_not_contain": ["Oatmeal with Honey", "Lemonade"]
+  },
+  {
+    "id": 50,
+    "description": "Massive Include: 'eggs, flour, butter, sugar, dark chocolate'",
+    "include_ingredients": "eggs, flour, butter, sugar, dark chocolate",
+    "exclude_ingredients": "",
+    "should_contain": ["Chocolate Lava Cake"],
+    "should_not_contain": []
+  }
+]
