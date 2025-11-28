@@ -1,0 +1,42 @@
+{
+    "include_exclude_testcases": [
+        {
+            "id": 1,
+            "description": "Include potato: Must find Gratin, must NOT find Pasta",
+            "include_ingredients": "potatoes",
+            "exclude_ingredients": "",
+            "should_contain": ["Vegetarian Potato Gratin with Cheese"],
+            "should_not_contain": ["Simple Homemade Pasta Dough"]
+        },
+        {
+            "id": 2,
+            "description": "Exclude eggs: Must find Bruschetta, must NOT find Pasta (which has eggs)",
+            "include_ingredients": "",
+            "exclude_ingredients": "eggs",
+            "should_contain": ["Quick Italian Bruschetta with Cherry Tomatoes"],
+            "should_not_contain": ["Simple Homemade Pasta Dough"]
+        },
+        {
+            "id": 3,
+            "description": "Complex: Include cheese, exclude eggs. Must find Gratin, NOT Carbonara",
+            "include_ingredients": "cheese",
+            "exclude_ingredients": "eggs",
+            "should_contain": ["Vegetarian Potato Gratin with Cheese"],
+            "should_not_contain": ["Classic Italian Pasta Carbonara"] 
+        }
+    ],
+    "natural_search_testcases": [
+        {
+            "id": 1,
+            "query": "Quick Italian recipes",
+            "should_contain": ["Quick Italian Bruschetta with Cherry Tomatoes"],
+            "should_not_contain": ["Slow-Cooked Beef Stew"]
+        },
+        {
+            "id": 2,
+            "query": "What can I cook with eggs and flour?",
+            "should_contain": ["Simple Homemade Pasta Dough"],
+            "should_not_contain": [] 
+        }
+    ]
+}

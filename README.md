@@ -55,6 +55,28 @@ Once the application is running, the interactive API documentation (powered by S
 
 You can use this interface to explore, test, and interact with all the available API endpoints.
 
+## Testing
+
+A comprehensive test suite has been newly implemented to ensure the reliability and correctness of the API endpoints.
+
+To run the test suite, you first need to set up your test environment.
+
+### 1. Install Dependencies
+
+Install the required dependencies, including those for testing:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Run Tests
+
+Execute the test suite using `pytest`:
+
+```bash
+docker-compose exec app pytest
+```
+
 ## Project Status
 
 Currently implemented features:
@@ -62,3 +84,4 @@ Currently implemented features:
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
 - [x] **Update** and **Delete** operations for recipes.
 - [x] Advanced filtering and natural language search.
+- [x] Comprehensive test suite.

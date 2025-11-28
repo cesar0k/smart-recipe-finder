@@ -1,0 +1,84 @@
+[
+  {
+    "title": "Quick Italian Bruschetta with Cherry Tomatoes",
+    "ingredients": [
+      "fresh basil",
+      "cherry tomatoes",
+      "baguette",
+      "garlic",
+      "olive oil"
+    ],
+    "instructions": "A classic Italian appetizer that is quick to prepare. Toast slices of baguette. Rub with garlic. Top with a mix of chopped tomatoes, basil, and olive oil. Serve immediately. A perfect quick recipe for any occasion.",
+    "cooking_time_in_minutes": 20,
+    "difficulty": "easy",
+    "cuisine": "Italian"
+  },
+  {
+    "title": "Vegetarian Potato Gratin with Cheese",
+    "ingredients": [
+      "garlic",
+      "potatoes",
+      "nutmeg",
+      "gruyere cheese",
+      "cream"
+    ],
+    "instructions": "A classic vegetarian dish. Thinly slice potatoes and layer them in a baking dish. Pour over a mixture of cream, garlic, and nutmeg. Top generously with grated cheese. Bake until golden and bubbly. A comforting recipe for a cold day.",
+    "cooking_time_in_minutes": 70,
+    "difficulty": "medium",
+    "cuisine": "French"
+  },
+  {
+    "title": "Simple Homemade Pasta Dough",
+    "ingredients": [
+      "eggs",
+      "salt",
+      "flour"
+    ],
+    "instructions": "The foundation of many great meals starts with simple ingredients. To cook this, combine flour and salt on a clean surface. Make a well in the center and crack the eggs into it. Gently whisk the eggs and gradually incorporate the flour to form a dough. Knead until smooth.",
+    "cooking_time_in_minutes": 25,
+    "difficulty": "medium",
+    "cuisine": "Italian"
+  },
+  {
+    "title": "Healthy Chicken and Avocado Salad",
+    "ingredients": [
+      "cherry tomatoes",
+      "lettuce",
+      "chicken breast",
+      "avocado",
+      "lime"
+    ],
+    "instructions": "A perfect healthy recipe for light lunches. Grill the chicken breast and slice it. Combine with fresh lettuce, cherry tomatoes, and diced avocado. Squeeze lime juice over the top. This is a very nutritious meal.",
+    "cooking_time_in_minutes": 25,
+    "difficulty": "easy",
+    "cuisine": "International"
+  },
+  {
+    "title": "One-Pan Lemon Herb Roasted Chicken",
+    "ingredients": [
+      "olive oil",
+      "potatoes",
+      "lemon",
+      "chicken thighs",
+      "rosemary"
+    ],
+    "instructions": "An incredibly easy recipe, perfect for beginner cooks. Everything is cooked in one pan. Toss chicken and potatoes with olive oil, lemon slices, and rosemary. Roast until the chicken is cooked through and the potatoes are tender. Minimal cleanup required.",
+    "cooking_time_in_minutes": 45,
+    "difficulty": "easy",
+    "cuisine": "American"
+  },
+  {
+    "title": "Slow-Cooked Beef Stew",
+    "ingredients": [
+      "beef broth",
+      "onions",
+      "beef",
+      "carrots",
+      "red wine"
+    ],
+    "instructions": "A hearty and rich stew that takes time to develop its flavors. Brown the beef in a large pot. Sauté the vegetables. Deglaze with red wine and add the broth. Simmer for several hours until the beef is tender.",
+    "cooking_time_in_minutes": 180,
+    "difficulty": "hard",
+    "cuisine": "French"
+  }
+]

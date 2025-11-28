@@ -2,15 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Any, AsyncGenerator
 
-from db.session import AsyncSessionLocal
-from schemas import Recipe, RecipeCreate, RecipeUpdate
-from services import recipe_service
+from app.db.session import AsyncSessionLocal, get_db
+from app.schemas import Recipe, RecipeCreate, RecipeUpdate
+from app.services import recipe_service
 
 router = APIRouter()
-
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
-        yield session
 
 @router.post("/", response_model=Recipe, status_code=201)
 async def create_new_recipe(*, db: AsyncSession = Depends(get_db), recipe_in: RecipeCreate) -> Any:

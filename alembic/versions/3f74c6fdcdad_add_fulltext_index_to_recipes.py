@@ -25,4 +25,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index('ft_index', table_name='recipes', mysql_drop_ft=True)
+    op.drop_index('ft_index', table_name='recipes')
