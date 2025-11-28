@@ -55,6 +55,38 @@ Once the application is running, the interactive API documentation (powered by S
 
 You can use this interface to explore, test, and interact with all the available API endpoints.
 
+## Testing
+
+A comprehensive test suite has been newly implemented to ensure the reliability and correctness of the API endpoints.
+
+To run the test suite, you first need to set up your test environment.
+
+### 1. Set Up Test Environment
+
+The tests require their own environment file. Create it by copying the example:
+
+```bash
+cp .env.test.example .env.test
+```
+
+The default values are pre-configured to work with the main application's default environment. The credentials in `.env.test` must match the credentials in the main `.env` file for the tests to connect to the database successfully.
+
+### 2. Install Dependencies
+
+Install the required dependencies, including those for testing:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run Tests
+
+Execute the test suite using `pytest`:
+
+```bash
+docker-compose exec app pytest
+```
+
 ## Project Status
 
 Currently implemented features:
@@ -62,3 +94,4 @@ Currently implemented features:
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
 - [x] **Update** and **Delete** operations for recipes.
 - [x] Advanced filtering and natural language search.
+- [x] Comprehensive test suite.

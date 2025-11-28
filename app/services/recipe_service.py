@@ -4,8 +4,8 @@ from sqlalchemy import not_, text
 
 from typing import List
 
-from models import Recipe, Ingredient
-from schemas import RecipeCreate, RecipeUpdate
+from app.models import Recipe, Ingredient
+from app.schemas import RecipeCreate, RecipeUpdate
 
 async def _get_or_create_ingredients(db: AsyncSession, ingredients_in: list[str]) -> List[Ingredient]:
     ingredient_objects = []

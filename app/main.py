@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
-from api.v1.api import api_router
-from db.session import engine
-from models import Base
+from app.api.v1.api import api_router
+from app.core.config import settings
+from app.db.session import engine
+from app.models import Base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

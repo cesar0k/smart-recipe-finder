@@ -6,3 +6,8 @@ asyncmy
 cryptography
 alembic
 pydantic-settings
+nest_asyncio
+pytest
+pytest-asyncio
+httpx
+pytest-dotenv
