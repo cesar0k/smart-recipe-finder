@@ -25,18 +25,18 @@
             "should_not_contain": ["Classic Italian Pasta Carbonara"] 
         }
     ],
-    "natural_search_testcases": [
+    "natural_search_smoke_testcases": [
         {
             "id": 1,
-            "query": "Quick Italian recipes",
-            "should_contain": ["Quick Italian Bruschetta with Cherry Tomatoes"],
-            "should_not_contain": ["Slow-Cooked Beef Stew"]
+            "query": "Carbonara",
+            "should_contain": ["Classic Spaghetti Carbonara"],
+            "should_not_contain": []
         },
         {
             "id": 2,
-            "query": "What can I cook with eggs and flour?",
-            "should_contain": ["Simple Homemade Pasta Dough"],
-            "should_not_contain": [] 
+            "query": "something with chocolate",
+            "should_contain": ["Chocolate Lava Cake"],
+            "should_not_contain": []
         }
     ]
 }

@@ -1,6 +1,7 @@
 import pytest
 import httpx
 import asyncio
+import os
 from httpx import ASGITransport
 from typing import AsyncGenerator
 
@@ -10,12 +11,19 @@ from alembic.config import Config
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, delete
+from sqlalchemy_utils import database_exists, drop_database, create_database
 
 from app.models.base import Base
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from app.models.recipe_ingredient_association import recipe_ingredient_association
 from app.core.config import settings
+
+TEST_DB_NAME = "recipes_test_db"
+
+@pytest.fixture(scope="session", autouse=True)
+def set_test_settings():
+    os.environ["MYSQL_DATABASE"] = TEST_DB_NAME
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -26,9 +34,12 @@ def event_loop():
 @pytest.fixture(scope="session", autouse=True)
 def prepare_db():
     SYNC_TEST_DB_URL = (
-        f"mysql+pymysql://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@"
-        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DATABASE}"
+        f"mysql+pymysql://root:{settings.MYSQL_ROOT_PASSWORD}@"
+        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{TEST_DB_NAME}"
     )
+    if database_exists(SYNC_TEST_DB_URL):
+        drop_database(SYNC_TEST_DB_URL)
+    create_database(SYNC_TEST_DB_URL)
     
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("sqlalchemy.url", SYNC_TEST_DB_URL)
@@ -36,7 +47,7 @@ def prepare_db():
     command.upgrade(alembic_cfg, "head")
     yield
     
-    command.downgrade(alembic_cfg, "base")
+    drop_database(SYNC_TEST_DB_URL)
 
 @pytest.fixture(scope="session")
 async def db_engine():

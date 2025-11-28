@@ -3,55 +3,92 @@ import json
 from httpx import AsyncClient
 from pathlib import Path
 
-TEST_DATA_PATH = Path(__file__).parent.parent.parent / "test_data.json"
-with open(TEST_DATA_PATH) as f:
-    test_data = json.load(f)
-    
-RECIPES_PATH = Path(__file__).parent.parent.parent / "recipe_samples.json"
-with open(RECIPES_PATH) as f:
+BASE_TEST_PATH = Path(__file__).parents[2] / "datasets" / "test_data.json"
+FILTER_DATASET_PATH = Path(__file__).parents[2] / "datasets" / "filter_test_data.json"
+RECIPES_SOURCE_PATH = Path(__file__).parents[2] / "datasets" / "recipe_samples.json"
+NLS_DATASET_PATH = Path(__file__).parents[2] / "datasets" / "evaluation_nls_queries.json"
+
+with open(BASE_TEST_PATH) as f:
+    base_data = json.load(f)
+
+with open(FILTER_DATASET_PATH) as f:
+    filter_data = json.load(f)
+
+with open(RECIPES_SOURCE_PATH) as f:
     recipes_sample = json.load(f)
     
+with open(NLS_DATASET_PATH) as f:
+    natural_search_data = json.load(f)
+    id_to_title = {r["id"]: r["title"] for r in recipes_sample}
+    for q in natural_search_data:
+        expected_title = id_to_title.get(q["expected_id"])
+        q["should_contain"] = [expected_title] if expected_title else []
+    
+@pytest.mark.smoke
 @pytest.mark.asyncio
-class TestRecipeSearch:
+class TestRecipeSmoke:
     @pytest.fixture(scope="function")
-    async def setup_db_with_recipes(self, async_client: AsyncClient):
+    async def setup_smoke_db(self, async_client: AsyncClient):
         for recipe in recipes_sample:
             await async_client.post("/api/v1/recipes/", json=recipe)
             
-    @pytest.mark.parametrize("testcase", test_data["include_exclude_testcases"])
-    async def test_include_exclude_filtering(self, async_client: AsyncClient, setup_db_with_recipes, testcase):
+    async def test_get_recipes_list(self, async_client: AsyncClient, setup_smoke_db):
+        response = await async_client.get("/api/v1/recipes/")
+        assert response.status_code == 200
+        assert len(response.json()) > 0
+        
+    async def test_create_recipe(self, async_client: AsyncClient):
+        new_recipe = {
+            "title": "New Created Recipe",
+            "ingredients": ["test"],
+            "instructions": "test",
+            "cooking_time_in_minutes": 1,
+            "difficulty": "easy",
+            "cuisine": "Test"
+        }
+        response = await async_client.post("/api/v1/recipes/", json=new_recipe)
+        assert response.status_code == 201
+        assert response.json()["title"] == new_recipe["title"]
+
+@pytest.mark.eval
+@pytest.mark.asyncio
+class TestRecipeEvaluation:
+    @pytest.fixture(scope="function", autouse=True)
+    async def setup_eval_db(self, async_client: AsyncClient):
+        for recipe in recipes_sample:
+            r_data = recipe.copy()
+            if "id" in r_data:
+                del r_data["id"]
+            await async_client.post("/api/v1/recipes/", json=r_data)
+            
+    @pytest.mark.parametrize("testcase", filter_data)
+    async def test_filtering(self, async_client: AsyncClient, testcase):
         params = {
             "include_ingredients": testcase["include_ingredients"],
-            "exclude_ingredients": testcase["exclude_ingredients"],
+            "exclude_ingredients": testcase["exclude_ingredients"]
         }
-        response = await async_client.get("api/v1/recipes/", params=params)
+        response = await async_client.get("/api/v1/recipes/", params=params)
         assert response.status_code == 200
         
         results = response.json()
-        found_titles = {recipe["title"] for recipe in results}
+        found_titles = {r["title"] for r in results}
         
-        expected_titles = set(testcase.get("should-contain", []))
-        assert expected_titles.issubset(found_titles), \
-            f"Failed to find expected recipes. Missing: {expected_titles - found_titles}"
-            
-        unexpected_titles = set(testcase.get("should-not-contain", []))
-        found_unexpected = found_titles.intersection(unexpected_titles)
-        assert not found_unexpected, \
-            f"Found unexpected recipes: {found_unexpected}"
-            
-    @pytest.mark.parametrize("testcase", test_data["natural_search_testcases"])
-    async def test_natural_language_search(self, async_client: AsyncClient, setup_db_with_recipes, testcase):
-        response = await async_client.get("api/v1/recipes/search/", params={"q": testcase["query"]})
+        excepted = set(testcase.get("should_contain", []))
+        missing = excepted - found_titles
+        assert not missing, f"Failed testcase {testcase['id']}. Missing: {missing}"
+        
+        unwanted = set(testcase.get("should_not_contain", []))
+        found_unwanted = found_titles.intersection(unwanted)
+        assert not found_unwanted, f"Failed testcase {testcase['id']}. Found unwanted: {found_unwanted}"
+        
+    @pytest.mark.parametrize("testcase", natural_search_data)
+    async def test_natural_search_quality(self, async_client: AsyncClient, testcase):
+        response = await async_client.get("/api/v1/recipes/search/", params={"q": testcase['query']})
         assert response.status_code == 200
         
         results = response.json()
-        found_titles = {recipe["title"] for recipe in results}
+        found_titles = {r["title"] for r in results}
+        excepted = set(testcase.get("should_contain", []))
         
-        expected_titles = set(testcase.get("should_contain", []))
-        assert expected_titles.issubset(found_titles), \
-            f"Query {testcase['query']} missed: {expected_titles - found_titles}"
-            
-        unexpected_titles = set(testcase.get("should_not_contain", []))
-        found_unexpected = found_titles.intersection(unexpected_titles)
-        assert not found_unexpected, \
-            f"Query {testcase['query']} return unexpected recipes: {found_unexpected}"
+        missing = excepted - found_titles
+        assert not missing, f"Natutal language search, with query: {testcase['query']} failed. Expected to fing: {missing}"

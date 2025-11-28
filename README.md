@@ -71,10 +71,30 @@ pip install -r requirements.txt
 
 ### 2. Run Tests
 
-Execute the test suite using `pytest`:
+The project includes a comprehensive test suite covering various functionalities. You can run different sets of tests as follows:
+
+#### Full Tests
+
+To run the entire test suite, execute `pytest` without any specific markers:
 
 ```bash
 docker-compose exec app pytest
+```
+
+#### Smoke Tests
+
+Smoke tests are a subset of tests designed to quickly verify that the most important functions of the application are working correctly. To run only the smoke tests execute:
+
+```bash
+docker-compose exec app pytest -m smoke
+```
+
+#### Evaluation Tests
+
+Evaluation tests are designed to assess specific aspects of the application, often involving dedicated datasets or complex scenarios. To run only the evaluation tests execute:
+
+```bash
+docker-compose exec app pytest -m eval
 ```
 
 ## Project Status
