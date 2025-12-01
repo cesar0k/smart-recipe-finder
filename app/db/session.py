@@ -7,7 +7,7 @@ from app.core.config import settings
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_async_engine(settings.ASYNC_DATABASE_URL, echo=True, pool_pre_ping=True)
+engine = create_async_engine(settings.ASYNC_DATABASE_URL, pool_pre_ping=True)
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     class_=AsyncSession,
