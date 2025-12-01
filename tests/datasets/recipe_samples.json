@@ -133,5 +133,50 @@
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
     "cuisine": "International"
+  },
+  {
+    "id": 16,
+    "title": "Fluffy Pancakes",
+    "ingredients": ["flour", "milk", "eggs", "baking powder", "maple syrup"],
+    "instructions": "Mix batter until lumps are gone. Cook on a hot griddle. Stack and serve with syrup.",
+    "cooking_time_in_minutes": 20,
+    "difficulty": "easy",
+    "cuisine": "American"
+  },
+  {
+    "id": 17,
+    "title": "Caesar Salad",
+    "ingredients": ["romaine lettuce", "croutons", "parmesan", "caesar dressing", "chicken"],
+    "instructions": "Toss lettuce with dressing. Add croutons and cheese. Top with grilled chicken.",
+    "cooking_time_in_minutes": 15,
+    "difficulty": "easy",
+    "cuisine": "International"
+  },
+  {
+    "id": 18,
+    "title": "Beef Wellington",
+    "ingredients": ["beef tenderloin", "puff pastry", "mushrooms", "prosciutto", "mustard"],
+    "instructions": "Sear beef. Coat with mustard and mushroom duxelles. Wrap in prosciutto and pastry. Bake.",
+    "cooking_time_in_minutes": 120,
+    "difficulty": "hard",
+    "cuisine": "British"
+  },
+  {
+    "id": 19,
+    "title": "Tofu Stir Fry",
+    "ingredients": ["tofu", "soy sauce", "ginger", "bell pepper", "broccoli"],
+    "instructions": "Press tofu. Stir fry vegetables with ginger. Add tofu and sauce. Serve hot.",
+    "cooking_time_in_minutes": 25,
+    "difficulty": "easy",
+    "cuisine": "Asian"
+  },
+  {
+    "id": 20,
+    "title": "Fruit Salad",
+    "ingredients": ["apple", "banana", "grapes", "orange", "yogurt"],
+    "instructions": "Chop all fruits into cubes. Mix in a bowl. Optionally serve with yogurt or mint.",
+    "cooking_time_in_minutes": 10,
+    "difficulty": "easy",
+    "cuisine": "International"
   }
 ]
