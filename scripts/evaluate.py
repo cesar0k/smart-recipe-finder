@@ -22,6 +22,8 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
     passed = 0
     total = len(queries)
     latencies = []
+    total_reciprocal_rank = 0.0
+    zero_results_count = 0
     
     category_stats = {}
     
@@ -37,15 +39,21 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
                 
             start_time = time.time()
             results = await search_func(db=db, query_str=query_text)
-            found_titles = [r.title for r in results]
             end_time = time.time()
             latencies.append((end_time - start_time) * 1000)
+
+            if not results:
+                zero_results_count += 1
             
-            is_hit = expected_title in found_titles
+            found_titles = [r.title for r in results]
+            
+            is_passed = expected_title in found_titles
             category_stats[category]["total"] += 1
-            if is_hit:
+            if is_passed:
                 passed += 1
                 category_stats[category]["passed"] += 1
+                rank = found_titles.index(expected_title) + 1
+                total_reciprocal_rank += 1.0 / rank
             else:
                 # Extended log
                 # print(f"Missed: '{query_text}', category: {category}, found titles: {found_titles}")
@@ -55,6 +63,8 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
                 
     accuracy = (passed / total) * 100
     avg_latency = mean(latencies)
+    mean_reciprocal_rank = total_reciprocal_rank / total if total > 0 else 0.0
+    zero_result_rate = (zero_results_count / total) * 100 if total > 0 else 0.0
     
     print(f"By category:")
     for cat, stats in category_stats.items():
@@ -62,9 +72,11 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
         print(f" - {cat}: {cat_acc:.2f}% ({stats['passed']}/{stats['total']} queries passed)")
     print(f"Overall Accuracy: {accuracy}% ({passed}/{total})")
     print(f"Average latency: {avg_latency:.5f} ms")
+    print(f"Mean Reciprocal Rank (MRR): {mean_reciprocal_rank:.5f}")
+    print(f"Zero Result Rate (ZRR): {zero_result_rate:.2f}%")
     print("----------------------------------------------------------------")
     
-    return accuracy
+    return accuracy, mean_reciprocal_rank, zero_result_rate
 
 async def evaluate_filters(method_name, filter_func, filter_queries):
     print(f"Evaluating filter with {method_name}")
@@ -119,7 +131,7 @@ async def main():
         
     id_to_title = {r['id']: r['title'] for r in recipes}
     
-    await evaluate_nls_method(
+    accuracy, mrr, zrr = await evaluate_nls_method(
         "MySQL Full-Text Search",
         recipe_service.search_recipes_by_fts,
         nls_queries,
