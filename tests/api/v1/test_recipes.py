@@ -3,13 +3,9 @@ import json
 from httpx import AsyncClient
 from pathlib import Path
 
-BASE_TEST_PATH = Path(__file__).parents[2] / "datasets" / "test_data.json"
 FILTER_DATASET_PATH = Path(__file__).parents[2] / "datasets" / "filter_test_data.json"
 RECIPES_SOURCE_PATH = Path(__file__).parents[2] / "datasets" / "recipe_samples.json"
 NLS_DATASET_PATH = Path(__file__).parents[2] / "datasets" / "evaluation_nls_queries.json"
-
-with open(BASE_TEST_PATH) as f:
-    base_data = json.load(f)
 
 with open(FILTER_DATASET_PATH) as f:
     filter_data = json.load(f)
@@ -32,7 +28,7 @@ class TestRecipeOperations:
         "instructions": "Mix and cook.",
         "cooking_time_in_minutes": 30,
         "difficulty": "medium",
-        "cuisine": "TestCuisine"
+        "cuisine": "SomeCuisine"
     }
 
     @pytest.fixture
@@ -70,8 +66,9 @@ class TestRecipeOperations:
         data = response.json()
         assert data["title"] == existing_recipe["title"]
 
-    async def test_get_recipe_not_found(self, async_client: AsyncClient):
-        response = await async_client.get("/api/v1/recipes/999999")
+    async def test_get_recipe_not_found(self, async_client: AsyncClient, existing_recipe):
+        recipe_id = existing_recipe["id"]
+        response = await async_client.get(f"/api/v1/recipes/{recipe_id + 1}")
         assert response.status_code == 404
 
     async def test_update_recipe_partial(self, async_client: AsyncClient, existing_recipe):
@@ -100,9 +97,10 @@ class TestRecipeOperations:
         actual_ingredients = {ing["name"] for ing in data["ingredients"]}
         assert actual_ingredients == set(new_ingredients)
 
-    async def test_update_recipe_not_found(self, async_client: AsyncClient):
+    async def test_update_recipe_not_found(self, async_client: AsyncClient, existing_recipe):
+        recipe_id = existing_recipe["id"]
         update_payload = {"title": "Ghost Recipe"}
-        response = await async_client.patch("/api/v1/recipes/999999", json=update_payload)
+        response = await async_client.patch(f"/api/v1/recipes/{recipe_id + 1}", json=update_payload)
         assert response.status_code == 404
 
     async def test_delete_recipe(self, async_client: AsyncClient, existing_recipe):
@@ -113,8 +111,9 @@ class TestRecipeOperations:
         get_response = await async_client.get(f"/api/v1/recipes/{recipe_id}")
         assert get_response.status_code == 404
         
-    async def test_delete_recipe_not_found(self, async_client: AsyncClient):
-        response = await async_client.delete("/api/v1/recipes/999999")
+    async def test_delete_recipe_not_found(self, async_client: AsyncClient, existing_recipe):
+        recipe_id = existing_recipe["id"]
+        response = await async_client.delete(f"/api/v1/recipes/{recipe_id + 1}")
         assert response.status_code == 404
 
 @pytest.mark.eval
@@ -146,7 +145,7 @@ class TestRecipeEvaluation:
         
         unwanted = set(testcase.get("should_not_contain", []))
         found_unwanted = found_titles.intersection(unwanted)
-        assert not found_unwanted, f"Failed testcase {testcase['id']}. Found unwanted: {found_unwanted}"
+        assert not found_unwanted, f"Failed filter testcase: {testcase['id']}. Found unwanted: {found_unwanted}"
         
     @pytest.mark.parametrize("testcase", natural_search_data)
     async def test_natural_search_quality(self, async_client: AsyncClient, testcase):
