@@ -1,402 +1,402 @@
 [
   {
     "id": 1,
-    "description": "Simple Strict: Include 'eggs'. Should find Carbonara, Lava Cake, Pancakes.",
-    "include_ingredients": "eggs",
+    "description": "TRAP: Include 'ice'. Should find Lemonade. Should NOT find 'Rice' (Sushi, Risotto) or 'Juice' (Guacamole instructions).",
+    "include_ingredients": "ice",
     "exclude_ingredients": "",
-    "should_contain": ["Classic Spaghetti Carbonara", "Chocolate Lava Cake", "Fluffy Pancakes"],
-    "should_not_contain": ["Vegan Lentil Burger"]
+    "should_contain": ["Lemonade"],
+    "should_not_contain": ["Japanese Sushi Rolls (Maki)", "Mushroom Risotto", "Guacamole Dip"]
   },
   {
     "id": 2,
-    "description": "Simple Strict: Include 'avocado'. Should find Guacamole, Chicken Salad.",
-    "include_ingredients": "avocado",
-    "exclude_ingredients": "",
-    "should_contain": ["Guacamole Dip", "Healthy Chicken and Avocado Salad"],
-    "should_not_contain": []
+    "description": "TRAP: Exclude 'ice'. Should NOT remove 'Rice' dishes.",
+    "include_ingredients": "",
+    "exclude_ingredients": "ice",
+    "should_contain": ["Mushroom Risotto", "Japanese Sushi Rolls (Maki)"],
+    "should_not_contain": ["Lemonade"]
   },
   {
     "id": 3,
-    "description": "Simple Exclude: Exclude 'flour'. Should NOT find Pancakes, Fish&Chips, Cake, Burger, Dough.",
-    "include_ingredients": "",
-    "exclude_ingredients": "flour",
-    "should_contain": ["Classic Spaghetti Carbonara"],
-    "should_not_contain": ["Fluffy Pancakes", "Fish and Chips", "Chocolate Lava Cake", "Vegan Lentil Burger", "Simple Homemade Pasta Dough"]
+    "description": "TRAP: Include 'nut'. Should find NOTHING (we have peanut and coconut, but no raw nuts). Naive search finds both.",
+    "include_ingredients": "nut",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["High-Protein Post-Workout Smoothie", "Spicy Thai Green Curry", "Vegetarian Potato Gratin with Cheese"]
   },
   {
     "id": 4,
-    "description": "TRICKY: Singular 'egg' vs Plural 'eggs'. Strict equality fails here.",
-    "include_ingredients": "egg",
+    "description": "TRAP: Include 'pea'. Should find NOTHING. Naive finds 'Peanut' and 'Chickpea' (if present) and 'Pear'.",
+    "include_ingredients": "pea",
     "exclude_ingredients": "",
-    "should_contain": ["Classic Spaghetti Carbonara"], 
-    "should_not_contain": []
+    "should_contain": [],
+    "should_not_contain": ["High-Protein Post-Workout Smoothie"]
   },
   {
     "id": 5,
-    "description": "TRICKY: Partial match 'chocolate' vs 'dark chocolate'. Strict equality fails here.",
-    "include_ingredients": "chocolate",
+    "description": "TRAP: Include 'on'. Naive finds OniON, LemON, SalmON, BacON, CinnamON.",
+    "include_ingredients": "on",
     "exclude_ingredients": "",
-    "should_contain": ["Chocolate Lava Cake"],
-    "should_not_contain": []
+    "should_contain": [],
+    "should_not_contain": ["Vegan Lentil Burger", "Lemonade", "Japanese Sushi Rolls (Maki)", "Oatmeal with Honey"]
   },
   {
     "id": 6,
-    "description": "TRICKY: General 'pepper' vs 'black pepper'/'bell pepper'. Strict equality fails.",
-    "include_ingredients": "pepper",
-    "exclude_ingredients": "",
-    "should_contain": ["Classic Spaghetti Carbonara", "Ratatouille", "Tofu Stir Fry"],
-    "should_not_contain": []
+    "description": "TRAP: Exclude 'oil'. Should remove Fish&Chips and Caprese. Should NOT remove 'Boiled' items (instructions) or 'Soil'.",
+    "include_ingredients": "",
+    "exclude_ingredients": "oil",
+    "should_contain": ["Classic Spaghetti Carbonara", "Oatmeal with Honey"],
+    "should_not_contain": ["Fish and Chips", "Fresh Caprese Salad"]
   },
   {
     "id": 7,
-    "description": "TRICKY: Ingredient inside phrase. 'noodle' vs 'egg noodles'.",
-    "include_ingredients": "noodle",
+    "description": "TRAP: Include 'rum'. Should find NOTHING. Naive finds 'Drumstick' (if chicken drumstick existed) or 'Crumb'.",
+    "include_ingredients": "rum",
     "exclude_ingredients": "",
-    "should_contain": ["Grandma's Chicken Noodle Soup"],
+    "should_contain": [],
     "should_not_contain": []
   },
   {
     "id": 8,
-    "description": "TRICKY: 'rice' vs 'sushi rice'/'arborio rice'/'jasmine rice'.",
-    "include_ingredients": "rice",
-    "exclude_ingredients": "",
-    "should_contain": ["Japanese Sushi Rolls (Maki)", "Mushroom Risotto"],
-    "should_not_contain": []
-  },
-  {
-    "id": 9,
-    "description": "Multiple AND: 'flour' AND 'milk'.",
-    "include_ingredients": "flour, milk",
-    "exclude_ingredients": "",
-    "should_contain": ["Fluffy Pancakes"],
-    "should_not_contain": ["Simple Homemade Pasta Dough", "High-Protein Post-Workout Smoothie"]
-  },
-  {
-    "id": 10,
-    "description": "Multiple AND: 'tomato' AND 'mozzarella'.",
-    "include_ingredients": "tomato, mozzarella",
-    "exclude_ingredients": "",
-    "should_contain": ["Fresh Caprese Salad"],
-    "should_not_contain": ["Ratatouille"]
-  },
-  {
-    "id": 11,
-    "description": "Exclude strict: Exclude 'sugar'.",
-    "include_ingredients": "",
-    "exclude_ingredients": "sugar",
-    "should_contain": ["Classic Spaghetti Carbonara"],
-    "should_not_contain": ["Chocolate Lava Cake", "Lemonade", "Fruit Salad"]
-  },
-  {
-    "id": 12,
-    "description": "Include & Exclude: Include 'chicken', Exclude 'croutons'.",
-    "include_ingredients": "chicken",
-    "exclude_ingredients": "croutons",
-    "should_contain": ["Caesar Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 13,
-    "description": "TRICKY Case Sensitivity: 'BaNaNa'. Should work if logic handles lower().",
-    "include_ingredients": "BaNaNa",
-    "exclude_ingredients": "",
-    "should_contain": ["High-Protein Post-Workout Smoothie", "Fruit Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 14,
-    "description": "TRICKY Spacing: '  garlic  '. Should work if logic handles strip().",
-    "include_ingredients": "  garlic  ",
-    "exclude_ingredients": "",
-    "should_contain": ["Vegan Lentil Burger", "Quick Italian Bruschetta with Cherry Tomatoes"],
-    "should_not_contain": []
-  },
-  {
-    "id": 15,
-    "description": "TRICKY: 'curry' vs 'green curry paste'.",
-    "include_ingredients": "curry",
-    "exclude_ingredients": "",
-    "should_contain": ["Spicy Thai Green Curry"],
-    "should_not_contain": []
-  },
-  {
-    "id": 16,
-    "description": "Exact match: 'soy sauce'.",
-    "include_ingredients": "soy sauce",
-    "exclude_ingredients": "",
-    "should_contain": ["Tofu Stir Fry"],
-    "should_not_contain": []
-  },
-  {
-    "id": 17,
-    "description": "TRICKY: Exclude 'oil'. DB has 'olive oil' and 'oil'. Strict exclude misses 'olive oil'.",
-    "include_ingredients": "",
-    "exclude_ingredients": "oil",
-    "should_contain": [],
-    "should_not_contain": ["Fish and Chips", "Fresh Caprese Salad"]
-  },
-  {
-    "id": 18,
-    "description": "Include 'tofu', Exclude 'meat' (implicit check).",
-    "include_ingredients": "tofu",
-    "exclude_ingredients": "chicken, beef",
-    "should_contain": ["Spicy Thai Green Curry", "Tofu Stir Fry"],
-    "should_not_contain": []
-  },
-  {
-    "id": 19,
-    "description": "Include 'baking powder'.",
-    "include_ingredients": "baking powder",
-    "exclude_ingredients": "",
-    "should_contain": ["Fluffy Pancakes"],
-    "should_not_contain": []
-  },
-  {
-    "id": 20,
-    "description": "Include 'yogurt'.",
-    "include_ingredients": "yogurt",
-    "exclude_ingredients": "",
-    "should_contain": ["Fruit Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 21,
-    "description": "Include 'salt'. Many recipes have salt.",
-    "include_ingredients": "salt",
-    "exclude_ingredients": "",
-    "should_contain": ["Texas Beef Brisket", "Simple Homemade Pasta Dough"],
-    "should_not_contain": []
-  },
-  {
-    "id": 22,
-    "description": "Exclude 'salt'. Testing common ingredient exclusion.",
-    "include_ingredients": "",
-    "exclude_ingredients": "salt",
-    "should_contain": ["Fruit Salad"],
-    "should_not_contain": ["Texas Beef Brisket"]
-  },
-  {
-    "id": 23,
-    "description": "Include 'ice'.",
-    "include_ingredients": "ice",
-    "exclude_ingredients": "",
-    "should_contain": ["Lemonade"],
-    "should_not_contain": []
-  },
-  {
-    "id": 24,
-    "description": "Include 'mint'.",
-    "include_ingredients": "mint",
-    "exclude_ingredients": "",
-    "should_contain": ["Lemonade"],
-    "should_not_contain": []
-  },
-  {
-    "id": 25,
-    "description": "TRICKY: 'fillet' vs 'cod fillet'.",
-    "include_ingredients": "fillet",
-    "exclude_ingredients": "",
-    "should_contain": ["Fish and Chips"],
-    "should_not_contain": []
-  },
-  {
-    "id": 26,
-    "description": "Include 'beer'.",
-    "include_ingredients": "beer",
-    "exclude_ingredients": "",
-    "should_contain": ["Fish and Chips"],
-    "should_not_contain": []
-  },
-  {
-    "id": 27,
-    "description": "Include 'cinnamon'.",
-    "include_ingredients": "cinnamon",
-    "exclude_ingredients": "",
-    "should_contain": ["Oatmeal with Honey"],
-    "should_not_contain": []
-  },
-  {
-    "id": 28,
-    "description": "Include 'honey'.",
-    "include_ingredients": "honey",
-    "exclude_ingredients": "",
-    "should_contain": ["Oatmeal with Honey"],
-    "should_not_contain": []
-  },
-  {
-    "id": 29,
-    "description": "Include 'oats'.",
-    "include_ingredients": "oats",
-    "exclude_ingredients": "",
-    "should_contain": ["Oatmeal with Honey"],
-    "should_not_contain": []
-  },
-  {
-    "id": 30,
-    "description": "Include 'lettuce' (romaine lettuce).",
-    "include_ingredients": "lettuce",
-    "exclude_ingredients": "",
-    "should_contain": ["Caesar Salad", "Healthy Chicken and Avocado Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 31,
-    "description": "Include 'mustard'.",
-    "include_ingredients": "mustard",
-    "exclude_ingredients": "",
-    "should_contain": ["Beef Wellington"],
-    "should_not_contain": []
-  },
-  {
-    "id": 32,
-    "description": "Include 'puff pastry'.",
-    "include_ingredients": "puff pastry",
-    "exclude_ingredients": "",
-    "should_contain": ["Beef Wellington"],
-    "should_not_contain": []
-  },
-  {
-    "id": 33,
-    "description": "Include 'prosciutto'.",
-    "include_ingredients": "prosciutto",
-    "exclude_ingredients": "",
-    "should_contain": ["Beef Wellington"],
-    "should_not_contain": []
-  },
-  {
-    "id": 34,
-    "description": "Include 'ginger'.",
-    "include_ingredients": "ginger",
-    "exclude_ingredients": "",
-    "should_contain": ["Tofu Stir Fry"],
-    "should_not_contain": []
-  },
-  {
-    "id": 35,
-    "description": "Include 'broccoli'.",
-    "include_ingredients": "broccoli",
-    "exclude_ingredients": "",
-    "should_contain": ["Tofu Stir Fry"],
-    "should_not_contain": []
-  },
-  {
-    "id": 36,
-    "description": "Include 'apple'.",
-    "include_ingredients": "apple",
-    "exclude_ingredients": "",
-    "should_contain": ["Fruit Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 37,
-    "description": "Include 'orange'.",
-    "include_ingredients": "orange",
-    "exclude_ingredients": "",
-    "should_contain": ["Fruit Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 38,
-    "description": "Include 'grapes'.",
-    "include_ingredients": "grapes",
-    "exclude_ingredients": "",
-    "should_contain": ["Fruit Salad"],
-    "should_not_contain": []
-  },
-  {
-    "id": 39,
-    "description": "Multiple AND: 'flour, milk, eggs'.",
-    "include_ingredients": "flour, milk, eggs",
-    "exclude_ingredients": "",
-    "should_contain": ["Fluffy Pancakes"],
-    "should_not_contain": []
-  },
-  {
-    "id": 40,
-    "description": "Complex: Include 'chicken', Exclude 'noodles'.",
-    "include_ingredients": "chicken",
-    "exclude_ingredients": "noodles",
-    "should_contain": ["Caesar Salad", "Healthy Chicken and Avocado Salad"],
-    "should_not_contain": ["Grandma's Chicken Noodle Soup"]
-  },
-  {
-    "id": 41,
-    "description": "TRICKY: 'onion' vs 'onions' (if any). Our DB has singular/mass mostly.",
-    "include_ingredients": "onion",
-    "exclude_ingredients": "",
-    "should_contain": ["Vegan Lentil Burger", "Guacamole Dip", "Mushroom Risotto"],
-    "should_not_contain": []
-  },
-  {
-    "id": 42,
-    "description": "TRICKY: 'chili' vs 'chillies'.",
+    "description": "TRAP: Include 'chili'. Should find Curry. Should NOT find 'Chilled' items.",
     "include_ingredients": "chili",
     "exclude_ingredients": "",
     "should_contain": ["Spicy Thai Green Curry"],
     "should_not_contain": []
   },
   {
-    "id": 43,
-    "description": "TRICKY: 'parmesan cheese' vs 'parmesan'.",
-    "include_ingredients": "parmesan cheese",
+    "id": 9,
+    "description": "TRAP: Include 'ore'. Should find NOTHING. Naive finds 'Oregano' (if present) or 'More'.",
+    "include_ingredients": "ore",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Mushroom Risotto", "Caesar Salad"]
+    "should_not_contain": []
+  },
+  {
+    "id": 10,
+    "description": "TRAP: Include 'car'. Should find NOTHING. Naive finds 'Carrot' and 'Carbonara'.",
+    "include_ingredients": "car",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Grandma's Chicken Noodle Soup", "Classic Spaghetti Carbonara"]
+  },
+  {
+    "id": 11,
+    "description": "TRAP: Include 'tea'. Should find NOTHING. Naive finds 'Steak' (if present) or 'Steam'.",
+    "include_ingredients": "tea",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 12,
+    "description": "TRAP: Exclude 'fat'. Should find NOTHING to exclude by name. Naive excludes 'Low-fat'.",
+    "include_ingredients": "",
+    "exclude_ingredients": "fat",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 13,
+    "description": "TRAP: Include 'gin'. Should find NOTHING. Naive finds 'Ginger', 'Aubergine', 'Virgin'.",
+    "include_ingredients": "gin",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Ratatouille"]
+  },
+  {
+    "id": 14,
+    "description": "TRAP: Include 'bar'. Should find NOTHING. Naive finds 'Barley', 'Barbecue'.",
+    "include_ingredients": "bar",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 15,
+    "description": "TRAP: Include 'cod'. Should find Fish&Chips. Should NOT find 'Avocado' (avo-cod-o?? No, but close substrings happen).",
+    "include_ingredients": "cod",
+    "exclude_ingredients": "",
+    "should_contain": ["Fish and Chips"],
+    "should_not_contain": ["Guacamole Dip"]
+  },
+  {
+    "id": 16,
+    "description": "TRAP: Include 'egg'. Should find Carbonara, Cake, Dough. Should NOT find 'Eggplant' (Aubergine is used in DB, but if Eggplant was used...).",
+    "include_ingredients": "egg",
+    "exclude_ingredients": "",
+    "should_contain": ["Classic Spaghetti Carbonara", "Chocolate Lava Cake"],
+    "should_not_contain": []
+  },
+  {
+    "id": 17,
+    "description": "TRAP: Exclude 'bread'. Should exclude nothing (we have 'bun', 'baguette'). Naive might miss synonyms.",
+    "include_ingredients": "",
+    "exclude_ingredients": "bread",
+    "should_contain": ["Vegan Lentil Burger"],
+    "should_not_contain": []
+  },
+  {
+    "id": 18,
+    "description": "TRAP: Include 'apple'. Should find NOTHING. Naive finds 'Pineapple'.",
+    "include_ingredients": "apple",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 19,
+    "description": "TRAP: Include 'mango'. Should find NOTHING. Naive finds 'Mango' inside 'Mangosteen' if present.",
+    "include_ingredients": "mango",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 20,
+    "description": "TRAP: Include 'lime'. Finds Guac. Should NOT find 'Slime' (hypothetical).",
+    "include_ingredients": "lime",
+    "exclude_ingredients": "",
+    "should_contain": ["Guacamole Dip"],
+    "should_not_contain": []
+  },
+  {
+    "id": 21,
+    "description": "TRAP: Include 'men'. Should find NOTHING. Naive finds 'Ramen', 'Fermented'.",
+    "include_ingredients": "men",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 22,
+    "description": "TRAP: Include 'curry'. Finds Green Curry. Should find 'Curry powder' if present.",
+    "include_ingredients": "curry",
+    "exclude_ingredients": "",
+    "should_contain": ["Spicy Thai Green Curry"],
+    "should_not_contain": []
+  },
+  {
+    "id": 23,
+    "description": "TRAP: Include 'milk'. Finds Smoothie. Should NOT find 'Coconut milk' (culinary distinction) or 'Buttermilk'.",
+    "include_ingredients": "milk",
+    "exclude_ingredients": "",
+    "should_contain": ["High-Protein Post-Workout Smoothie"],
+    "should_not_contain": ["Spicy Thai Green Curry"]
+  },
+  {
+    "id": 24,
+    "description": "TRAP: Include 'coke'. Should find NOTHING. Naive finds 'Coke' inside 'Cooked'?? No.",
+    "include_ingredients": "coke",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 25,
+    "description": "TRAP: Include 'ale'. Should find NOTHING. Naive finds 'Kale', 'Pale ale' (Beer).",
+    "include_ingredients": "ale",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Fish and Chips"]
+  },
+  {
+    "id": 26,
+    "description": "TRAP: Include 'ash'. Should find NOTHING. Naive finds 'Squash', 'Mash', 'Hash'.",
+    "include_ingredients": "ash",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Vegan Lentil Burger", "Guacamole Dip"]
+  },
+  {
+    "id": 27,
+    "description": "TRAP: Include 'berry'. Should find NOTHING. Naive finds 'Strawberry', 'Raspberry'.",
+    "include_ingredients": "berry",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 28,
+    "description": "TRAP: Include 'age'. Should find NOTHING. Naive finds 'Cabbage', 'Sausage', 'Sage'.",
+    "include_ingredients": "age",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 29,
+    "description": "TRAP: Include 'fun'. Should find NOTHING. Naive finds 'Fungi'.",
+    "include_ingredients": "fun",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 30,
+    "description": "TRAP: Include 'chi'. Should find NOTHING. Naive finds 'Chicken', 'Chili', 'Chips', 'Kimchi'.",
+    "include_ingredients": "chi",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Grandma's Chicken Noodle Soup", "Fish and Chips", "Spicy Thai Green Curry"]
+  },
+  {
+    "id": 31,
+    "description": "TRAP: Exclude 'chi'. Should remove NOTHING based on substring alone. Should not remove 'Chicken'.",
+    "include_ingredients": "",
+    "exclude_ingredients": "chi",
+    "should_contain": ["Grandma's Chicken Noodle Soup", "Fish and Chips"],
+    "should_not_contain": []
+  },
+  {
+    "id": 32,
+    "description": "TRAP: Include 'bee'. Should find NOTHING. Naive finds 'Beef', 'Beer', 'Beet'.",
+    "include_ingredients": "bee",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Texas Beef Brisket", "Fish and Chips"]
+  },
+  {
+    "id": 33,
+    "description": "TRAP: Include 'pan'. Should find NOTHING. Naive finds 'Pancake', 'Marzipan', 'Pancetta'.",
+    "include_ingredients": "pan",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 34,
+    "description": "TRAP: Include 'pot'. Should find NOTHING. Naive finds 'Potato'.",
+    "include_ingredients": "pot",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Fish and Chips", "Vegetarian Potato Gratin with Cheese"]
+  },
+  {
+    "id": 35,
+    "description": "TRAP: Include 'ato'. Should find NOTHING. Naive finds 'Potato', 'Tomato'.",
+    "include_ingredients": "ato",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Ratatouille", "Fresh Caprese Salad"]
+  },
+  {
+    "id": 36,
+    "description": "TRAP: Include 'pump'. Should find NOTHING. Naive finds 'Pumpkin'.",
+    "include_ingredients": "pump",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 37,
+    "description": "TRAP: Include 'pine'. Should find NOTHING. Naive finds 'Pineapple'.",
+    "include_ingredients": "pine",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 38,
+    "description": "TRAP: Include 'butter'. Finds Cake, Smoothie. Should NOT find 'Butternut squash'.",
+    "include_ingredients": "butter",
+    "exclude_ingredients": "",
+    "should_contain": ["Chocolate Lava Cake", "High-Protein Post-Workout Smoothie"],
+    "should_not_contain": []
+  },
+  {
+    "id": 39,
+    "description": "TRAP: Exclude 'cat'. Should exclude NOTHING. Naive excludes 'Catfish', 'Catsup'.",
+    "include_ingredients": "",
+    "exclude_ingredients": "cat",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 40,
+    "description": "TRAP: Include 'dog'. Should find NOTHING. Naive finds 'Hotdog'.",
+    "include_ingredients": "dog",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 41,
+    "description": "TRAP: Include 'burger'. Should find Vegan Burger. Should NOT find 'Hamburger' (as ingredient).",
+    "include_ingredients": "burger",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 42,
+    "description": "TRAP: Include 'shake'. Should find NOTHING. Naive finds 'Milkshake'.",
+    "include_ingredients": "shake",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 43,
+    "description": "TRAP: Include 'cream'. Finds Gratin. Should NOT find 'Ice cream' (if added) or 'Sour cream' (if separate).",
+    "include_ingredients": "cream",
+    "exclude_ingredients": "",
+    "should_contain": ["Vegetarian Potato Gratin with Cheese"],
+    "should_not_contain": []
   },
   {
     "id": 44,
-    "description": "Empty include strings.",
-    "include_ingredients": ", , ",
+    "description": "TRAP: Include 'fry'. Should find NOTHING. Naive finds 'Fry' (verb in instructions, but we search ingredients).",
+    "include_ingredients": "fry",
     "exclude_ingredients": "",
-    "should_contain": ["Classic Spaghetti Carbonara"],
+    "should_contain": [],
     "should_not_contain": []
   },
   {
     "id": 45,
-    "description": "Non-existent: 'kryptonite'.",
-    "include_ingredients": "kryptonite",
+    "description": "TRAP: Include 'star'. Should find NOTHING. Naive finds 'Starch', 'Mustard', 'Custard'?? No.",
+    "include_ingredients": "star",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Classic Spaghetti Carbonara"]
+    "should_not_contain": []
   },
   {
     "id": 46,
-    "description": "Conflict: Include 'tofu', Exclude 'tofu'.",
-    "include_ingredients": "tofu",
-    "exclude_ingredients": "tofu",
+    "description": "TRAP: Include 'of'. Should find NOTHING. Naive finds 'Hearts of palm', 'Cream of tartar'.",
+    "include_ingredients": "of",
+    "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Tofu Stir Fry", "Spicy Thai Green Curry"]
+    "should_not_contain": []
   },
   {
     "id": 47,
-    "description": "Include 'water'.",
-    "include_ingredients": "water",
+    "description": "TRAP: Include 'and'. Should find NOTHING. Naive finds 'Salt and pepper'.",
+    "include_ingredients": "and",
     "exclude_ingredients": "",
-    "should_contain": ["Oatmeal with Honey", "Lemonade"],
+    "should_contain": [],
     "should_not_contain": []
   },
   {
     "id": 48,
-    "description": "Exclude 'water'.",
-    "include_ingredients": "",
-    "exclude_ingredients": "water",
-    "should_contain": ["Classic Spaghetti Carbonara"],
-    "should_not_contain": ["Lemonade"]
+    "description": "TRAP: Include 'or'. Should find NOTHING. Naive finds 'Orange', 'Pork', 'Corn'.",
+    "include_ingredients": "or",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": ["Vegan Lentil Burger", "Classic Spaghetti Carbonara"]
   },
   {
     "id": 49,
-    "description": "Include 'maple syrup'.",
-    "include_ingredients": "maple syrup",
+    "description": "TRAP: Include 'in'. Should find NOTHING. Naive finds 'Cumin', 'Cinnamon', 'Zucchini', 'Wine'.",
+    "include_ingredients": "in",
     "exclude_ingredients": "",
-    "should_contain": ["Fluffy Pancakes"],
-    "should_not_contain": []
+    "should_contain": [],
+    "should_not_contain": ["Vegan Lentil Burger", "Oatmeal with Honey", "Ratatouille", "Mushroom Risotto"]
   },
   {
     "id": 50,
-    "description": "Include 'balsamic glaze'.",
-    "include_ingredients": "balsamic glaze",
+    "description": "TRAP: Include 'it'. Should find NOTHING. Naive finds 'Fruit', 'Pita', 'White wine'.",
+    "include_ingredients": "it",
     "exclude_ingredients": "",
-    "should_contain": ["Fresh Caprese Salad"],
-    "should_not_contain": []
+    "should_contain": [],
+    "should_not_contain": ["Mushroom Risotto"]
   }
 ]

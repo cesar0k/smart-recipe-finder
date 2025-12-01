@@ -19,7 +19,7 @@ RECIPES_PATH = BASE_PATH / "tests/datasets/recipe_samples.json"
 async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
     print(f"Evaluating '{method_name}'")
     
-    hits = 0
+    passed = 0
     total = len(queries)
     latencies = []
     
@@ -33,7 +33,7 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
             category = q.get("category", "unknown")
             
             if category not in category_stats:
-                category_stats[category] = {"total": 0, "hits": 0}
+                category_stats[category] = {"total": 0, "passed": 0}
                 
             start_time = time.time()
             results = await search_func(db=db, query_str=query_text)
@@ -44,23 +44,70 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
             is_hit = expected_title in found_titles
             category_stats[category]["total"] += 1
             if is_hit:
-                hits += 1
-                category_stats[category]["hits"] += 1
+                passed += 1
+                category_stats[category]["passed"] += 1
             else:
-                pass
+                # Extended log
                 # print(f"Missed: '{query_text}', category: {category}, found titles: {found_titles}")
                 
-    accuracy = (hits / total) * 100
+                # Or pass
+                pass
+                
+    accuracy = (passed / total) * 100
     avg_latency = mean(latencies)
     
-    print(f"By Category:")
+    print(f"By category:")
     for cat, stats in category_stats.items():
-        cat_acc = (stats['hits'] / stats['total']) * 100
-        print(f" - {cat}: {cat_acc:.2f}% ({stats['hits']} / {stats['total']})")
-    print(f"Overall Accuracy: {accuracy}% ({hits}/{total})")
+        cat_acc = (stats['passed'] / stats['total']) * 100
+        print(f" - {cat}: {cat_acc:.2f}% ({stats['passed']}/{stats['total']} queries passed)")
+    print(f"Overall Accuracy: {accuracy}% ({passed}/{total})")
     print(f"Average latency: {avg_latency:.5f} ms")
+    print("----------------------------------------------------------------")
     
     return accuracy
+
+async def evaluate_filters(method_name, filter_func, filter_queries):
+    print(f"Evaluating filter with {method_name}")
+    
+    passed = 0
+    total = len(filter_queries)
+    latencies = []
+    
+    async with AsyncSessionLocal() as db:
+        for case in filter_queries:
+            start_time = time.time()
+            results = await filter_func(
+                db=db,
+                include_str = case["include_ingredients"],
+                exclude_str = case["exclude_ingredients"]
+            )
+            found_titles = {r.title for r in results}
+            end_time = time.time()
+            latencies.append((end_time - start_time) * 1000)
+            
+            expected = set(case.get("should_contain", []))
+            unwanted = set(case.get("should_not_contain", []))
+            
+            missing = expected - found_titles
+            found_unwanted = found_titles.intersection(unwanted)
+            
+            if not missing and not found_unwanted:
+                passed += 1
+            else:
+                # Extended log
+                print(f" Filter testcase {case['id']} failed.")
+                if missing: print(f"  - missing: {missing}")
+                if found_unwanted: print(f"  - found unwanted: {found_unwanted}")
+                
+                # Or pass
+                # pass
+                
+    accuracy = (passed / total) * 100
+    avg_latency = mean(latencies)
+    
+    print(f"Filter accuracy: {accuracy:.2f}% ({passed}/{total} queries passed)")
+    print(f"Average latency: {avg_latency:.5f} ms")
+    print("----------------------------------------------------------------")
 
 async def main():
     with open(NLS_QUIERIES_PATH) as f:
@@ -77,6 +124,12 @@ async def main():
         recipe_service.search_recipes_by_fts,
         nls_queries,
         id_to_title
+    )
+    
+    await evaluate_filters(
+        "Naive String Matching (SQL Like operator)",
+        recipe_service.get_all_recipes,
+        filter_queries
     )
     
 if __name__ == "__main__":
