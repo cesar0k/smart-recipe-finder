@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     MYSQL_PORT: int = 3306
     
     CHROMA_HOST: str = "chroma"
-    CHROMA_PORT: int = 3306
+    CHROMA_PORT: int = 8000
     
     @model_validator(mode="after")
     def check_required_field_are_set(self):
