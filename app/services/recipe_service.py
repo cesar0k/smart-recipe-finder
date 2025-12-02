@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import not_, text, or_, and_
+from sqlalchemy import text, or_
 
 from typing import Sequence, cast, Any
 import inflect
