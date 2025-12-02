@@ -40,10 +40,15 @@ def prepare_db():
         drop_database(SYNC_TEST_DB_URL)
     create_database(SYNC_TEST_DB_URL)
     
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", SYNC_TEST_DB_URL)
+    TEST_ASYNC_DATABASE_URL = (
+        f"mysql+asyncmy://root:{settings.MYSQL_ROOT_PASSWORD}@"
+        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{TEST_DB_NAME}"
+    )
     
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", TEST_ASYNC_DATABASE_URL)
     command.upgrade(alembic_cfg, "head")
+    
     yield
     
     drop_database(SYNC_TEST_DB_URL)
@@ -51,8 +56,8 @@ def prepare_db():
 @pytest.fixture(scope="session")
 async def db_engine():
     TEST_ASYNC_DATABASE_URL = (
-        f"mysql+asyncmy://{settings.MYSQL_USER}:{settings.MYSQL_PASSWORD}@"
-        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{settings.MYSQL_DATABASE}"
+        f"mysql+asyncmy://root:{settings.MYSQL_ROOT_PASSWORD}@"
+        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{TEST_DB_NAME}"
     )
     engine = create_async_engine(TEST_ASYNC_DATABASE_URL, pool_pre_ping=True)
     yield engine

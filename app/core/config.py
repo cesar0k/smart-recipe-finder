@@ -5,12 +5,16 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
     
     APP_PORT: int = 8000
+    
     MYSQL_ROOT_PASSWORD: str = ""
     MYSQL_DATABASE: str = ""
     MYSQL_USER: str = ""
     MYSQL_PASSWORD: str = ""
     MYSQL_HOST: str = "db"
     MYSQL_PORT: int = 3306
+    
+    CHROMA_HOST: str = "chroma"
+    CHROMA_PORT: int = 3306
     
     @model_validator(mode="after")
     def check_required_field_are_set(self):

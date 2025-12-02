@@ -1,4 +1,15 @@
 services:
+  chroma:
+    image: chromadb/chroma
+    container_name: smart_recipe_finder_chroma_db
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+    networks:
+      - default
   app:
     build: .
     container_name: smart-recipe-finder
@@ -12,6 +23,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      chroma:
+        condition: service_started
 
   db:
     image: mysql:8.0
@@ -30,3 +43,4 @@ services:
   
 volumes:
   mysql_data:
+  chroma_data:
