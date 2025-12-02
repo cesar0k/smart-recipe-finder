@@ -97,11 +97,29 @@ Evaluation tests are designed to assess specific aspects of the application, oft
 docker-compose exec app pytest -m eval
 ```
 
+## Evaluation & Benchmarking
+
+One of the core goals of this project is to quantitatively compare different search and filtering methods.
+
+### Metrics Implemented
+- **Accuracy:** Percentage of queries where the target recipe was found.
+- **Latency:** Average execution time per query.
+- **Mean Reciprocal Rank (MRR):** Measures ranking quality (how high the relevant recipe appears).
+- **ZRR (Zero Result Rate):** Percentage of queries returning no results.
+
+### How to Run Benchmarks
+**Run Evaluation Script**:
+```bash
+docker-compose exec app python scripts/evaluate.py
+```
+
 ## Project Status
 
 Currently implemented features:
 - [x] Project setup with Docker and a scalable layered architecture.
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
 - [x] **Update** and **Delete** operations for recipes.
-- [x] Advanced filtering and natural language search.
+- [x] **Smart Filtering Logic (Refactored)**
+- [x] Full-text search.
 - [x] Comprehensive test suite.
+- [ ] Vector Search Implementation
