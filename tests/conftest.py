@@ -8,8 +8,7 @@ from typing import AsyncGenerator
 from alembic import command
 from alembic.config import Config
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import create_engine, delete
 from sqlalchemy_utils import database_exists, drop_database, create_database
 
@@ -69,7 +68,7 @@ async def async_client(db_engine):
         await conn.execute(delete(Ingredient))
         await conn.execute(delete(Recipe))
 
-    TestSessionLocal = sessionmaker(
+    TestSessionLocal = async_sessionmaker(
         bind=db_engine, class_=AsyncSession, expire_on_commit=False
     )
 

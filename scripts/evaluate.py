@@ -17,6 +17,7 @@ FILTER_QUERIES_PATH = BASE_PATH / "tests/datasets/filter_test_data.json"
 RECIPES_PATH = BASE_PATH / "tests/datasets/recipe_samples.json"
 
 async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
+    print("----------------------------------------------------------------")
     print(f"Evaluating '{method_name}'")
     
     passed = 0
@@ -139,7 +140,7 @@ async def main():
     )
     
     await evaluate_filters(
-        "Naive String Matching (SQL Like operator)",
+        "Smart Word Boundary Filter",
         recipe_service.get_all_recipes,
         filter_queries
     )

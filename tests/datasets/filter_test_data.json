@@ -4,16 +4,27 @@
     "description": "TRAP: Include 'ice'. Should find Lemonade. Should NOT find 'Rice' (Sushi, Risotto) or 'Juice' (Guacamole instructions).",
     "include_ingredients": "ice",
     "exclude_ingredients": "",
-    "should_contain": ["Lemonade"],
-    "should_not_contain": ["Japanese Sushi Rolls (Maki)", "Mushroom Risotto", "Guacamole Dip"]
+    "should_contain": [
+      "Lemonade"
+    ],
+    "should_not_contain": [
+      "Japanese Sushi Rolls (Maki)",
+      "Mushroom Risotto",
+      "Guacamole Dip"
+    ]
   },
   {
     "id": 2,
     "description": "TRAP: Exclude 'ice'. Should NOT remove 'Rice' dishes.",
     "include_ingredients": "",
     "exclude_ingredients": "ice",
-    "should_contain": ["Mushroom Risotto", "Japanese Sushi Rolls (Maki)"],
-    "should_not_contain": ["Lemonade"]
+    "should_contain": [
+      "Mushroom Risotto",
+      "Japanese Sushi Rolls (Maki)"
+    ],
+    "should_not_contain": [
+      "Lemonade"
+    ]
   },
   {
     "id": 3,
@@ -21,7 +32,11 @@
     "include_ingredients": "nut",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["High-Protein Post-Workout Smoothie", "Spicy Thai Green Curry", "Vegetarian Potato Gratin with Cheese"]
+    "should_not_contain": [
+      "High-Protein Post-Workout Smoothie",
+      "Spicy Thai Green Curry",
+      "Vegetarian Potato Gratin with Cheese"
+    ]
   },
   {
     "id": 4,
@@ -29,7 +44,9 @@
     "include_ingredients": "pea",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["High-Protein Post-Workout Smoothie"]
+    "should_not_contain": [
+      "High-Protein Post-Workout Smoothie"
+    ]
   },
   {
     "id": 5,
@@ -37,15 +54,26 @@
     "include_ingredients": "on",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Vegan Lentil Burger", "Lemonade", "Japanese Sushi Rolls (Maki)", "Oatmeal with Honey"]
+    "should_not_contain": [
+      "Vegan Lentil Burger",
+      "Lemonade",
+      "Japanese Sushi Rolls (Maki)",
+      "Oatmeal with Honey"
+    ]
   },
   {
     "id": 6,
     "description": "TRAP: Exclude 'oil'. Should remove Fish&Chips and Caprese. Should NOT remove 'Boiled' items (instructions) or 'Soil'.",
     "include_ingredients": "",
     "exclude_ingredients": "oil",
-    "should_contain": ["Classic Spaghetti Carbonara", "Oatmeal with Honey"],
-    "should_not_contain": ["Fish and Chips", "Fresh Caprese Salad"]
+    "should_contain": [
+      "Classic Spaghetti Carbonara",
+      "Oatmeal with Honey"
+    ],
+    "should_not_contain": [
+      "Fish and Chips",
+      "Fresh Caprese Salad"
+    ]
   },
   {
     "id": 7,
@@ -60,7 +88,9 @@
     "description": "TRAP: Include 'chili'. Should find Curry. Should NOT find 'Chilled' items.",
     "include_ingredients": "chili",
     "exclude_ingredients": "",
-    "should_contain": ["Spicy Thai Green Curry"],
+    "should_contain": [
+      "Spicy Thai Green Curry"
+    ],
     "should_not_contain": []
   },
   {
@@ -77,7 +107,10 @@
     "include_ingredients": "car",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Grandma's Chicken Noodle Soup", "Classic Spaghetti Carbonara"]
+    "should_not_contain": [
+      "Grandma's Chicken Noodle Soup",
+      "Classic Spaghetti Carbonara"
+    ]
   },
   {
     "id": 11,
@@ -101,7 +134,9 @@
     "include_ingredients": "gin",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Ratatouille"]
+    "should_not_contain": [
+      "Ratatouille"
+    ]
   },
   {
     "id": 14,
@@ -116,15 +151,22 @@
     "description": "TRAP: Include 'cod'. Should find Fish&Chips. Should NOT find 'Avocado' (avo-cod-o?? No, but close substrings happen).",
     "include_ingredients": "cod",
     "exclude_ingredients": "",
-    "should_contain": ["Fish and Chips"],
-    "should_not_contain": ["Guacamole Dip"]
+    "should_contain": [
+      "Fish and Chips"
+    ],
+    "should_not_contain": [
+      "Guacamole Dip"
+    ]
   },
   {
     "id": 16,
     "description": "TRAP: Include 'egg'. Should find Carbonara, Cake, Dough. Should NOT find 'Eggplant' (Aubergine is used in DB, but if Eggplant was used...).",
     "include_ingredients": "egg",
     "exclude_ingredients": "",
-    "should_contain": ["Classic Spaghetti Carbonara", "Chocolate Lava Cake"],
+    "should_contain": [
+      "Classic Spaghetti Carbonara",
+      "Chocolate Lava Cake"
+    ],
     "should_not_contain": []
   },
   {
@@ -132,7 +174,9 @@
     "description": "TRAP: Exclude 'bread'. Should exclude nothing (we have 'bun', 'baguette'). Naive might miss synonyms.",
     "include_ingredients": "",
     "exclude_ingredients": "bread",
-    "should_contain": ["Vegan Lentil Burger"],
+    "should_contain": [
+      "Vegan Lentil Burger"
+    ],
     "should_not_contain": []
   },
   {
@@ -156,7 +200,9 @@
     "description": "TRAP: Include 'lime'. Finds Guac. Should NOT find 'Slime' (hypothetical).",
     "include_ingredients": "lime",
     "exclude_ingredients": "",
-    "should_contain": ["Guacamole Dip"],
+    "should_contain": [
+      "Guacamole Dip"
+    ],
     "should_not_contain": []
   },
   {
@@ -172,7 +218,9 @@
     "description": "TRAP: Include 'curry'. Finds Green Curry. Should find 'Curry powder' if present.",
     "include_ingredients": "curry",
     "exclude_ingredients": "",
-    "should_contain": ["Spicy Thai Green Curry"],
+    "should_contain": [
+      "Spicy Thai Green Curry"
+    ],
     "should_not_contain": []
   },
   {
@@ -180,8 +228,12 @@
     "description": "TRAP: Include 'milk'. Finds Smoothie. Should NOT find 'Coconut milk' (culinary distinction) or 'Buttermilk'.",
     "include_ingredients": "milk",
     "exclude_ingredients": "",
-    "should_contain": ["High-Protein Post-Workout Smoothie"],
-    "should_not_contain": ["Spicy Thai Green Curry"]
+    "should_contain": [
+      "High-Protein Post-Workout Smoothie"
+    ],
+    "should_not_contain": [
+      "Spicy Thai Green Curry"
+    ]
   },
   {
     "id": 24,
@@ -197,7 +249,9 @@
     "include_ingredients": "ale",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Fish and Chips"]
+    "should_not_contain": [
+      "Fish and Chips"
+    ]
   },
   {
     "id": 26,
@@ -205,7 +259,10 @@
     "include_ingredients": "ash",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Vegan Lentil Burger", "Guacamole Dip"]
+    "should_not_contain": [
+      "Vegan Lentil Burger",
+      "Guacamole Dip"
+    ]
   },
   {
     "id": 27,
@@ -237,14 +294,21 @@
     "include_ingredients": "chi",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Grandma's Chicken Noodle Soup", "Fish and Chips", "Spicy Thai Green Curry"]
+    "should_not_contain": [
+      "Grandma's Chicken Noodle Soup",
+      "Fish and Chips",
+      "Spicy Thai Green Curry"
+    ]
   },
   {
     "id": 31,
     "description": "TRAP: Exclude 'chi'. Should remove NOTHING based on substring alone. Should not remove 'Chicken'.",
     "include_ingredients": "",
     "exclude_ingredients": "chi",
-    "should_contain": ["Grandma's Chicken Noodle Soup", "Fish and Chips"],
+    "should_contain": [
+      "Grandma's Chicken Noodle Soup",
+      "Fish and Chips"
+    ],
     "should_not_contain": []
   },
   {
@@ -253,7 +317,10 @@
     "include_ingredients": "bee",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Texas Beef Brisket", "Fish and Chips"]
+    "should_not_contain": [
+      "Texas Beef Brisket",
+      "Fish and Chips"
+    ]
   },
   {
     "id": 33,
@@ -269,7 +336,10 @@
     "include_ingredients": "pot",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Fish and Chips", "Vegetarian Potato Gratin with Cheese"]
+    "should_not_contain": [
+      "Fish and Chips",
+      "Vegetarian Potato Gratin with Cheese"
+    ]
   },
   {
     "id": 35,
@@ -277,7 +347,10 @@
     "include_ingredients": "ato",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Ratatouille", "Fresh Caprese Salad"]
+    "should_not_contain": [
+      "Ratatouille",
+      "Fresh Caprese Salad"
+    ]
   },
   {
     "id": 36,
@@ -300,7 +373,10 @@
     "description": "TRAP: Include 'butter'. Finds Cake, Smoothie. Should NOT find 'Butternut squash'.",
     "include_ingredients": "butter",
     "exclude_ingredients": "",
-    "should_contain": ["Chocolate Lava Cake", "High-Protein Post-Workout Smoothie"],
+    "should_contain": [
+      "Chocolate Lava Cake",
+      "High-Protein Post-Workout Smoothie"
+    ],
     "should_not_contain": []
   },
   {
@@ -340,7 +416,9 @@
     "description": "TRAP: Include 'cream'. Finds Gratin. Should NOT find 'Ice cream' (if added) or 'Sour cream' (if separate).",
     "include_ingredients": "cream",
     "exclude_ingredients": "",
-    "should_contain": ["Vegetarian Potato Gratin with Cheese"],
+    "should_contain": [
+      "Vegetarian Potato Gratin with Cheese"
+    ],
     "should_not_contain": []
   },
   {
@@ -381,7 +459,10 @@
     "include_ingredients": "or",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Vegan Lentil Burger", "Classic Spaghetti Carbonara"]
+    "should_not_contain": [
+      "Vegan Lentil Burger",
+      "Classic Spaghetti Carbonara"
+    ]
   },
   {
     "id": 49,
@@ -389,7 +470,12 @@
     "include_ingredients": "in",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Vegan Lentil Burger", "Oatmeal with Honey", "Ratatouille", "Mushroom Risotto"]
+    "should_not_contain": [
+      "Vegan Lentil Burger",
+      "Oatmeal with Honey",
+      "Ratatouille",
+      "Mushroom Risotto"
+    ]
   },
   {
     "id": 50,
@@ -397,6 +483,8 @@
     "include_ingredients": "it",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": ["Mushroom Risotto"]
+    "should_not_contain": [
+      "Mushroom Risotto"
+    ]
   }
 ]
