@@ -1,0 +1,30 @@
+{
+  "name": "Smart Recipe Finder Dev",
+  
+  "dockerComposeFile": "../docker-compose.yml",
+  
+  "service": "app",
+  
+  "workspaceFolder": "/app",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylance",
+        "njpwerner.autodocstring"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        
+        "editor.formatOnSave": true,
+        "python.analysis.typeCheckingMode": "basic"
+      }
+    }
+  },
+
+  "postCreateCommand": "apt-get update && apt-get install -y git",
+
+  "remoteUser": "root"
+}
