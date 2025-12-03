@@ -97,6 +97,18 @@ Evaluation tests are designed to assess specific aspects of the application, oft
 docker-compose exec app pytest -m eval
 ```
 
+## Seeding the Database
+
+To populate your database with sample recipe data, you can use the `seed_db.py` script. This is particularly useful for development and testing purposes.
+
+To seed the database, run the following command:
+
+```bash
+docker-compose exec app python scripts/seed_db.py
+```
+
+This script will add a predefined set of recipes to your database, which you can then query via the API.
+
 ## Evaluation & Benchmarking
 
 One of the core goals of this project is to quantitatively compare different search and filtering methods.
@@ -122,4 +134,5 @@ Currently implemented features:
 - [x] **Smart Filtering Logic (Refactored)**
 - [x] Full-text search.
 - [x] Comprehensive test suite.
+- [x] Script for evaluating search and filtering methods.
 - [ ] Vector Search Implementation
