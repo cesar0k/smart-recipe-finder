@@ -9,20 +9,20 @@ from alembic import command
 from alembic.config import Config
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy import create_engine, delete
+from sqlalchemy import delete
 from sqlalchemy_utils import database_exists, drop_database, create_database
 
 from app.models.base import Base
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from app.models.recipe_ingredient_association import recipe_ingredient_association
-from app.core.config import settings
+from tests.test_config import test_settings
 
-TEST_DB_NAME = "recipes_test_db"
+TEST_DB_NAME = test_settings.TEST_DB_NAME
 
 @pytest.fixture(scope="session", autouse=True)
 def set_test_settings():
-    os.environ["MYSQL_DATABASE"] = TEST_DB_NAME
+    os.environ["DB_NAME"] = TEST_DB_NAME
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -32,34 +32,21 @@ def event_loop():
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_db():
-    SYNC_TEST_DB_URL = (
-        f"mysql+pymysql://root:{settings.MYSQL_ROOT_PASSWORD}@"
-        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{TEST_DB_NAME}"
-    )
-    if database_exists(SYNC_TEST_DB_URL):
-        drop_database(SYNC_TEST_DB_URL)
-    create_database(SYNC_TEST_DB_URL)
-    
-    TEST_ASYNC_DATABASE_URL = (
-        f"mysql+asyncmy://root:{settings.MYSQL_ROOT_PASSWORD}@"
-        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{TEST_DB_NAME}"
-    )
+    if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
+        drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    create_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
     
     alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", TEST_ASYNC_DATABASE_URL)
+    alembic_cfg.set_main_option("sqlalchemy.url", test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
     command.upgrade(alembic_cfg, "head")
     
     yield
     
-    drop_database(SYNC_TEST_DB_URL)
+    drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
 
 @pytest.fixture(scope="session")
 async def db_engine():
-    TEST_ASYNC_DATABASE_URL = (
-        f"mysql+asyncmy://root:{settings.MYSQL_ROOT_PASSWORD}@"
-        f"{settings.MYSQL_HOST}:{settings.MYSQL_PORT}/{TEST_DB_NAME}"
-    )
-    engine = create_async_engine(TEST_ASYNC_DATABASE_URL, pool_pre_ping=True)
+    engine = create_async_engine(test_settings.ASYNC_TEST_DATABASE_ADMIN_URL, pool_pre_ping=True)
     yield engine
     await engine.dispose()
 

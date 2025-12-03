@@ -3,7 +3,7 @@ services:
     image: chromadb/chroma
     container_name: smart_recipe_finder_chroma_db
     ports:
-      - "8001:8000"
+      - "${CHROMA_PORT:-8001}:8000"
     volumes:
       - chroma_data:/chroma/chroma
     environment:
@@ -28,19 +28,24 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: smart-recipe-finder-db-mysql
+    container_name: smart-recipe-finder-db
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-      interval: 5s
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}", "-D", "${DB_NAME}", "-e", "SELECT 1"]
+      interval: 3s
       timeout: 5s
-      retries: 5
+      retries: 10
     env_file:
       - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${MYSQL_PORT:-3007}:3306"
+      - "${DB_EXTERNAL_PORT:-3007}:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
   
 volumes:
-  mysql_data:
+  db_data:
   chroma_data:
