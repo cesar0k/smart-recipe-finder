@@ -50,13 +50,13 @@ Use Docker Compose to build the images and start the services in detached mode (
 docker-compose up --build -d
 ```
 
-The API service will now be running and accessible at `http://localhost:8000`.
+The API service will now be running and accessible at `http://localhost:8001`.
 
 ## API Documentation
 
 Once the application is running, the interactive API documentation (powered by Swagger UI) is available at:
 
-[**http://localhost:8000/docs**](http://localhost:8000/docs)
+[**http://localhost:8001/docs**](http://localhost:8001/docs)
 
 You can use this interface to explore, test, and interact with all the available API endpoints.
 
@@ -66,9 +66,9 @@ A comprehensive test suite has been newly implemented to ensure the reliability 
 
 To run the test suite, you first need to set up your test environment.
 
-### 1. Install Dependencies
+### 1. Install Dependencies (Optional)
 
-Install the required dependencies, including those for testing:
+Dependencies are already installed inside the Docker container. You only need to run this step if you intend to execute tests or scripts directly on your host machine (outside the Docker container):
 
 ```bash
 pip install -r requirements.txt
