@@ -3,7 +3,7 @@ import json
 import sys
 import os
 from pathlib import Path
-from sqlalchemy import text, delete
+from sqlalchemy import delete
 
 sys.path.append(os.getcwd())
 
@@ -13,12 +13,16 @@ from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from app.models.recipe_ingredient_association import recipe_ingredient_association
+from app.core.vector_store import vector_store
 
-BASE_DIR = Path(__file__).parent.parent
-RECIPES_PATH = BASE_DIR / "tests/datasets/recipe_samples.json"
+BASE_DIR = Path(__file__).parents[1]
+RECIPES_PATH = BASE_DIR / "datasets" / "recipe_samples.json"
 
 async def seed():
     print("Seeding database...")
+    
+    print("Cleaning Vector Store...")
+    vector_store.clear() 
     
     async with AsyncSessionLocal() as db:
         print(" - Cleaning old data...")

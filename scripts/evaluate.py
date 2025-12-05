@@ -4,17 +4,66 @@ import time
 import json
 import asyncio
 from pathlib import Path
+from typing import Sequence
 from statistics import mean
 
 sys.path.append(os.getcwd())
 
-from app.db.session import AsyncSessionLocal
+from app.db.session import AsyncSessionLocal, AsyncSession
 from app.services import recipe_service
+from app.models.recipe import Recipe
+from app.models.ingredient import Ingredient
 
-BASE_PATH = Path(__file__).parent.parent
-NLS_QUIERIES_PATH = BASE_PATH / "tests/datasets/evaluation_nls_queries.json"
-FILTER_QUERIES_PATH = BASE_PATH / "tests/datasets/filter_test_data.json"
-RECIPES_PATH = BASE_PATH / "tests/datasets/recipe_samples.json"
+from sqlalchemy import text, not_
+from sqlalchemy.future import select
+
+BASE_PATH = Path(__file__).resolve().parent.parent
+DATASETS_PATH = BASE_PATH / "datasets"
+
+NLS_QUIERIES_PATH = DATASETS_PATH / "evaluation_nls_queries.json"
+FILTER_QUERIES_PATH = DATASETS_PATH / "filter_test_data.json"
+RECIPES_PATH = DATASETS_PATH / "recipe_samples.json"
+
+async def legacy_search_recipes(db: AsyncSession, *, query_str: str) -> Sequence[Recipe]:
+    search_query = (
+        select(Recipe).
+        where(
+            text("MATCH(title, instructions) AGAINST(:query IN NATURAL LANGUAGE MODE)")
+        )
+        .params(query=query_str)
+    )
+    
+    result = await db.execute(search_query)
+    
+    return result.scalars().unique().all()
+
+async def legacy_get_all_recipes(
+    db: AsyncSession,
+    *,
+    skip: int = 0,
+    limit: int = 100,
+    include_str: str | None = None,
+    exclude_str: str | None = None,
+) -> Sequence[Recipe]:
+    query = select(Recipe)
+    
+    if include_str:
+        include_list = [item.strip() for item in include_str.split(",")]
+        for ingredient in include_list:
+            query = query.where(
+                Recipe.ingredients.any(Ingredient.name.ilike(f"%{ingredient}%"))
+            )
+    if exclude_str:
+        exclude_list = [item.strip() for item in exclude_str.split(",")]
+        for ingredient in exclude_list:
+            query = query.where(
+                not_(Recipe.ingredients.any(Ingredient.name.ilike(f"%{ingredient}%")))
+            )
+            
+    query = query.offset(skip).limit(limit)
+
+    result = await db.execute(query)
+    return result.scalars().unique().all()
 
 async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
     print("----------------------------------------------------------------")
@@ -132,11 +181,24 @@ async def main():
         
     id_to_title = {r['id']: r['title'] for r in recipes}
     
-    accuracy, mrr, zrr = await evaluate_nls_method(
+    await evaluate_nls_method(
         "MySQL Full-Text Search",
-        recipe_service.search_recipes_by_fts,
+        legacy_search_recipes,
         nls_queries,
         id_to_title
+    )
+    
+    await evaluate_nls_method(
+        "Vector search",
+        recipe_service.search_recipes_by_vector,
+        nls_queries,
+        id_to_title
+    )
+    
+    await evaluate_filters(
+        "Naive String Matching (SQL Like operator)",
+        legacy_get_all_recipes,
+        filter_queries
     )
     
     await evaluate_filters(

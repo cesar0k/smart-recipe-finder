@@ -28,7 +28,7 @@
   },
   {
     "id": 3,
-    "description": "TRAP: Include 'nut'. Should find NOTHING (we have peanut and coconut, but no raw nuts). Naive search finds both.",
+    "description": "TRAP: Include 'nut'. Should find NOTHING (peanut, coconut, nutmeg are substrings). Naive search finds them.",
     "include_ingredients": "nut",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -40,7 +40,7 @@
   },
   {
     "id": 4,
-    "description": "TRAP: Include 'pea'. Should find NOTHING. Naive finds 'Peanut' and 'Chickpea' (if present) and 'Pear'.",
+    "description": "TRAP: Include 'pea'. Should find NOTHING. Naive finds 'Peanut'.",
     "include_ingredients": "pea",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -63,7 +63,7 @@
   },
   {
     "id": 6,
-    "description": "TRAP: Exclude 'oil'. Should remove Fish&Chips and Caprese. Should NOT remove 'Boiled' items (instructions) or 'Soil'.",
+    "description": "TRAP: Exclude 'oil'. Should remove Fish&Chips and Caprese. Should NOT remove 'Boiled' items (instructions).",
     "include_ingredients": "",
     "exclude_ingredients": "oil",
     "should_contain": [
@@ -77,7 +77,7 @@
   },
   {
     "id": 7,
-    "description": "TRAP: Include 'rum'. Should find NOTHING. Naive finds 'Drumstick' (if chicken drumstick existed) or 'Crumb'.",
+    "description": "TRAP: Include 'rum'. Should find NOTHING.",
     "include_ingredients": "rum",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -85,7 +85,7 @@
   },
   {
     "id": 8,
-    "description": "TRAP: Include 'chili'. Should find Curry. Should NOT find 'Chilled' items.",
+    "description": "TRAP: Include 'chili'. Should find Curry.",
     "include_ingredients": "chili",
     "exclude_ingredients": "",
     "should_contain": [
@@ -95,7 +95,7 @@
   },
   {
     "id": 9,
-    "description": "TRAP: Include 'ore'. Should find NOTHING. Naive finds 'Oregano' (if present) or 'More'.",
+    "description": "TRAP: Include 'ore'. Should find NOTHING.",
     "include_ingredients": "ore",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -114,7 +114,7 @@
   },
   {
     "id": 11,
-    "description": "TRAP: Include 'tea'. Should find NOTHING. Naive finds 'Steak' (if present) or 'Steam'.",
+    "description": "TRAP: Include 'tea'. Should find NOTHING.",
     "include_ingredients": "tea",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -122,7 +122,7 @@
   },
   {
     "id": 12,
-    "description": "TRAP: Exclude 'fat'. Should find NOTHING to exclude by name. Naive excludes 'Low-fat'.",
+    "description": "TRAP: Exclude 'fat'. Should find NOTHING to exclude by name.",
     "include_ingredients": "",
     "exclude_ingredients": "fat",
     "should_contain": [],
@@ -130,17 +130,18 @@
   },
   {
     "id": 13,
-    "description": "TRAP: Include 'gin'. Should find NOTHING. Naive finds 'Ginger', 'Aubergine', 'Virgin'.",
+    "description": "TRAP: Include 'gin'. Should find NOTHING. Naive finds 'Ginger', 'Aubergine'.",
     "include_ingredients": "gin",
     "exclude_ingredients": "",
     "should_contain": [],
     "should_not_contain": [
-      "Ratatouille"
+      "Ratatouille",
+      "Tofu Stir Fry"
     ]
   },
   {
     "id": 14,
-    "description": "TRAP: Include 'bar'. Should find NOTHING. Naive finds 'Barley', 'Barbecue'.",
+    "description": "TRAP: Include 'bar'. Should find NOTHING.",
     "include_ingredients": "bar",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -148,7 +149,7 @@
   },
   {
     "id": 15,
-    "description": "TRAP: Include 'cod'. Should find Fish&Chips. Should NOT find 'Avocado' (avo-cod-o?? No, but close substrings happen).",
+    "description": "TRAP: Include 'cod'. Should find Fish&Chips. Should NOT find 'Avocado'.",
     "include_ingredients": "cod",
     "exclude_ingredients": "",
     "should_contain": [
@@ -160,18 +161,21 @@
   },
   {
     "id": 16,
-    "description": "TRAP: Include 'egg'. Should find Carbonara, Cake, Dough. Should NOT find 'Eggplant' (Aubergine is used in DB, but if Eggplant was used...).",
+    "description": "TRAP: Include 'egg'. Should find Carbonara, Cake, Pancakes, Soup (noodles).",
     "include_ingredients": "egg",
     "exclude_ingredients": "",
     "should_contain": [
       "Classic Spaghetti Carbonara",
-      "Chocolate Lava Cake"
+      "Chocolate Lava Cake",
+      "Fluffy Pancakes"
     ],
-    "should_not_contain": []
+    "should_not_contain": [
+      "Ratatouille"
+    ]
   },
   {
     "id": 17,
-    "description": "TRAP: Exclude 'bread'. Should exclude nothing (we have 'bun', 'baguette'). Naive might miss synonyms.",
+    "description": "TRAP: Exclude 'bread'. Should exclude nothing.",
     "include_ingredients": "",
     "exclude_ingredients": "bread",
     "should_contain": [
@@ -181,15 +185,17 @@
   },
   {
     "id": 18,
-    "description": "TRAP: Include 'apple'. Should find NOTHING. Naive finds 'Pineapple'.",
+    "description": "TRAP: Include 'apple'. Should find Fruit Salad.",
     "include_ingredients": "apple",
     "exclude_ingredients": "",
-    "should_contain": [],
+    "should_contain": [
+      "Fruit Salad"
+    ],
     "should_not_contain": []
   },
   {
     "id": 19,
-    "description": "TRAP: Include 'mango'. Should find NOTHING. Naive finds 'Mango' inside 'Mangosteen' if present.",
+    "description": "TRAP: Include 'mango'. Should find NOTHING.",
     "include_ingredients": "mango",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -197,7 +203,7 @@
   },
   {
     "id": 20,
-    "description": "TRAP: Include 'lime'. Finds Guac. Should NOT find 'Slime' (hypothetical).",
+    "description": "TRAP: Include 'lime'. Finds Guac.",
     "include_ingredients": "lime",
     "exclude_ingredients": "",
     "should_contain": [
@@ -207,7 +213,7 @@
   },
   {
     "id": 21,
-    "description": "TRAP: Include 'men'. Should find NOTHING. Naive finds 'Ramen', 'Fermented'.",
+    "description": "TRAP: Include 'men'. Should find NOTHING.",
     "include_ingredients": "men",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -215,7 +221,7 @@
   },
   {
     "id": 22,
-    "description": "TRAP: Include 'curry'. Finds Green Curry. Should find 'Curry powder' if present.",
+    "description": "TRAP: Include 'curry'. Finds Green Curry.",
     "include_ingredients": "curry",
     "exclude_ingredients": "",
     "should_contain": [
@@ -225,11 +231,12 @@
   },
   {
     "id": 23,
-    "description": "TRAP: Include 'milk'. Finds Smoothie. Should NOT find 'Coconut milk' (culinary distinction) or 'Buttermilk'.",
+    "description": "TRAP: Include 'milk'. Finds Smoothie, Pancakes. Should NOT find 'Coconut milk'.",
     "include_ingredients": "milk",
     "exclude_ingredients": "",
     "should_contain": [
-      "High-Protein Post-Workout Smoothie"
+      "High-Protein Post-Workout Smoothie",
+      "Fluffy Pancakes"
     ],
     "should_not_contain": [
       "Spicy Thai Green Curry"
@@ -237,7 +244,7 @@
   },
   {
     "id": 24,
-    "description": "TRAP: Include 'coke'. Should find NOTHING. Naive finds 'Coke' inside 'Cooked'?? No.",
+    "description": "TRAP: Include 'coke'. Should find NOTHING.",
     "include_ingredients": "coke",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -245,7 +252,7 @@
   },
   {
     "id": 25,
-    "description": "TRAP: Include 'ale'. Should find NOTHING. Naive finds 'Kale', 'Pale ale' (Beer).",
+    "description": "TRAP: Include 'ale'. Should find NOTHING.",
     "include_ingredients": "ale",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -255,7 +262,7 @@
   },
   {
     "id": 26,
-    "description": "TRAP: Include 'ash'. Should find NOTHING. Naive finds 'Squash', 'Mash', 'Hash'.",
+    "description": "TRAP: Include 'ash'. Should find NOTHING. Naive finds 'Squash', 'Mash'.",
     "include_ingredients": "ash",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -266,7 +273,7 @@
   },
   {
     "id": 27,
-    "description": "TRAP: Include 'berry'. Should find NOTHING. Naive finds 'Strawberry', 'Raspberry'.",
+    "description": "TRAP: Include 'berry'. Should find NOTHING.",
     "include_ingredients": "berry",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -274,7 +281,7 @@
   },
   {
     "id": 28,
-    "description": "TRAP: Include 'age'. Should find NOTHING. Naive finds 'Cabbage', 'Sausage', 'Sage'.",
+    "description": "TRAP: Include 'age'. Should find NOTHING.",
     "include_ingredients": "age",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -282,7 +289,7 @@
   },
   {
     "id": 29,
-    "description": "TRAP: Include 'fun'. Should find NOTHING. Naive finds 'Fungi'.",
+    "description": "TRAP: Include 'fun'. Should find NOTHING.",
     "include_ingredients": "fun",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -290,7 +297,7 @@
   },
   {
     "id": 30,
-    "description": "TRAP: Include 'chi'. Should find NOTHING. Naive finds 'Chicken', 'Chili', 'Chips', 'Kimchi'.",
+    "description": "TRAP: Include 'chi'. Should find NOTHING. Naive finds 'Chicken', 'Chili', 'Chips'.",
     "include_ingredients": "chi",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -302,7 +309,7 @@
   },
   {
     "id": 31,
-    "description": "TRAP: Exclude 'chi'. Should remove NOTHING based on substring alone. Should not remove 'Chicken'.",
+    "description": "TRAP: Exclude 'chi'. Should remove NOTHING based on substring alone.",
     "include_ingredients": "",
     "exclude_ingredients": "chi",
     "should_contain": [
@@ -313,7 +320,7 @@
   },
   {
     "id": 32,
-    "description": "TRAP: Include 'bee'. Should find NOTHING. Naive finds 'Beef', 'Beer', 'Beet'.",
+    "description": "TRAP: Include 'bee'. Should find NOTHING. Naive finds 'Beef', 'Beer'.",
     "include_ingredients": "bee",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -324,11 +331,13 @@
   },
   {
     "id": 33,
-    "description": "TRAP: Include 'pan'. Should find NOTHING. Naive finds 'Pancake', 'Marzipan', 'Pancetta'.",
+    "description": "TRAP: Include 'pan'. Should find NOTHING. Naive finds 'Pancakes'.",
     "include_ingredients": "pan",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": []
+    "should_not_contain": [
+      "Fluffy Pancakes"
+    ]
   },
   {
     "id": 34,
@@ -349,12 +358,13 @@
     "should_contain": [],
     "should_not_contain": [
       "Ratatouille",
-      "Fresh Caprese Salad"
+      "Fresh Caprese Salad",
+      "Vegetarian Potato Gratin with Cheese"
     ]
   },
   {
     "id": 36,
-    "description": "TRAP: Include 'pump'. Should find NOTHING. Naive finds 'Pumpkin'.",
+    "description": "TRAP: Include 'pump'. Should find NOTHING.",
     "include_ingredients": "pump",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -362,7 +372,7 @@
   },
   {
     "id": 37,
-    "description": "TRAP: Include 'pine'. Should find NOTHING. Naive finds 'Pineapple'.",
+    "description": "TRAP: Include 'pine'. Should find NOTHING.",
     "include_ingredients": "pine",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -370,7 +380,7 @@
   },
   {
     "id": 38,
-    "description": "TRAP: Include 'butter'. Finds Cake, Smoothie. Should NOT find 'Butternut squash'.",
+    "description": "TRAP: Include 'butter'. Finds Cake, Smoothie.",
     "include_ingredients": "butter",
     "exclude_ingredients": "",
     "should_contain": [
@@ -381,7 +391,7 @@
   },
   {
     "id": 39,
-    "description": "TRAP: Exclude 'cat'. Should exclude NOTHING. Naive excludes 'Catfish', 'Catsup'.",
+    "description": "TRAP: Exclude 'cat'. Should exclude NOTHING.",
     "include_ingredients": "",
     "exclude_ingredients": "cat",
     "should_contain": [],
@@ -389,7 +399,7 @@
   },
   {
     "id": 40,
-    "description": "TRAP: Include 'dog'. Should find NOTHING. Naive finds 'Hotdog'.",
+    "description": "TRAP: Include 'dog'. Should find NOTHING.",
     "include_ingredients": "dog",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -397,15 +407,17 @@
   },
   {
     "id": 41,
-    "description": "TRAP: Include 'burger'. Should find Vegan Burger. Should NOT find 'Hamburger' (as ingredient).",
+    "description": "TRAP: Include 'burger'. Should find NOTHING (ingredient search, not title).",
     "include_ingredients": "burger",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": []
+    "should_not_contain": [
+      "Vegan Lentil Burger"
+    ]
   },
   {
     "id": 42,
-    "description": "TRAP: Include 'shake'. Should find NOTHING. Naive finds 'Milkshake'.",
+    "description": "TRAP: Include 'shake'. Should find NOTHING.",
     "include_ingredients": "shake",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -413,17 +425,19 @@
   },
   {
     "id": 43,
-    "description": "TRAP: Include 'cream'. Finds Gratin. Should NOT find 'Ice cream' (if added) or 'Sour cream' (if separate).",
+    "description": "TRAP: Include 'cream'. Finds Gratin (it has cream).",
     "include_ingredients": "cream",
     "exclude_ingredients": "",
     "should_contain": [
       "Vegetarian Potato Gratin with Cheese"
     ],
-    "should_not_contain": []
+    "should_not_contain": [
+      "High-Protein Post-Workout Smoothie"
+    ]
   },
   {
     "id": 44,
-    "description": "TRAP: Include 'fry'. Should find NOTHING. Naive finds 'Fry' (verb in instructions, but we search ingredients).",
+    "description": "TRAP: Include 'fry'. Should find NOTHING.",
     "include_ingredients": "fry",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -431,23 +445,27 @@
   },
   {
     "id": 45,
-    "description": "TRAP: Include 'star'. Should find NOTHING. Naive finds 'Starch', 'Mustard', 'Custard'?? No.",
+    "description": "TRAP: Include 'star'. Should find NOTHING. Naive finds 'Mustard'.",
     "include_ingredients": "star",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": []
+    "should_not_contain": [
+      "Beef Wellington"
+    ]
   },
   {
     "id": 46,
-    "description": "TRAP: Include 'of'. Should find NOTHING. Naive finds 'Hearts of palm', 'Cream of tartar'.",
+    "description": "TRAP: Include 'of'. Should find NOTHING. Naive finds 'Tofu'.",
     "include_ingredients": "of",
     "exclude_ingredients": "",
     "should_contain": [],
-    "should_not_contain": []
+    "should_not_contain": [
+      "Tofu Stir Fry"
+    ]
   },
   {
     "id": 47,
-    "description": "TRAP: Include 'and'. Should find NOTHING. Naive finds 'Salt and pepper'.",
+    "description": "TRAP: Include 'and'. Should find NOTHING.",
     "include_ingredients": "and",
     "exclude_ingredients": "",
     "should_contain": [],
@@ -455,36 +473,34 @@
   },
   {
     "id": 48,
-    "description": "TRAP: Include 'or'. Should find NOTHING. Naive finds 'Orange', 'Pork', 'Corn'.",
+    "description": "TRAP: Include 'or'. Should find NOTHING. Naive finds 'Orange', 'Corn'.",
     "include_ingredients": "or",
     "exclude_ingredients": "",
     "should_contain": [],
     "should_not_contain": [
-      "Vegan Lentil Burger",
-      "Classic Spaghetti Carbonara"
+      "Fruit Salad"
     ]
   },
   {
     "id": 49,
-    "description": "TRAP: Include 'in'. Should find NOTHING. Naive finds 'Cumin', 'Cinnamon', 'Zucchini', 'Wine'.",
+    "description": "TRAP: Include 'in'. Should find NOTHING. Naive finds 'Cumin', 'Zucchini', 'Wine'.",
     "include_ingredients": "in",
     "exclude_ingredients": "",
     "should_contain": [],
     "should_not_contain": [
       "Vegan Lentil Burger",
-      "Oatmeal with Honey",
       "Ratatouille",
       "Mushroom Risotto"
     ]
   },
   {
     "id": 50,
-    "description": "TRAP: Include 'it'. Should find NOTHING. Naive finds 'Fruit', 'Pita', 'White wine'.",
+    "description": "TRAP: Include 'it'. Should find NOTHING. Naive finds 'Fruit'.",
     "include_ingredients": "it",
     "exclude_ingredients": "",
     "should_contain": [],
     "should_not_contain": [
-      "Mushroom Risotto"
+      "Fruit Salad"
     ]
   }
 ]

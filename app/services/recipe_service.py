@@ -1,12 +1,15 @@
+import inflect
+from typing import Sequence, Any, List, cast
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import text, or_
+from sqlalchemy import or_
 
-from typing import Sequence, cast, Any
-import inflect
-
-from app.models import Recipe, Ingredient
+from app.models import Recipe, Ingredient, recipe_ingredient_association
 from app.schemas import RecipeCreate, RecipeUpdate
+from app.core.vector_store import vector_store
+
+p = inflect.engine()
 
 async def _get_or_create_ingredients(db: AsyncSession, ingredients_in: list[str]) -> Sequence[Ingredient]:
     ingredient_objects = []
@@ -51,22 +54,70 @@ def _build_ingredient_filter(model_columm, term: str):
         model_columm.like(f"% {term} %")
     )
 
+def _create_semantic_document(recipe: Recipe):
+    time_description = "Standard cooking time"
+    t = cast(int, recipe.cooking_time_in_minutes)
+    if t <= 15:
+        time_description = "Very quick, instant meal"
+    elif t <= 30:
+        time_description = "Quick, standard meal"
+    elif t > 120:
+        time_description = "Slow cooked, long preparation"
+        
+    ingredients_list = ", ".join(i.name for i in recipe.ingredients)
+    
+    doc_to_embed = (
+        f"Title: {recipe.title}. "
+        f"Ingredients: {ingredients_list}. "
+        f"Instructions: {recipe.instructions}. "
+        f"Cooking time: {t} minutes ({time_description}). "
+        f"Difficulty: {recipe.difficulty}. "
+        f"Cuisine: {recipe.cuisine}."
+    )
+    
+    metadata = {
+        "title": recipe.title,
+        "cooking_time": recipe.cooking_time_in_minutes,
+        "difficulty": recipe.difficulty,
+        "cuisine": recipe.cuisine or ""
+    }
+    
+    return doc_to_embed, metadata
+
 async def create_recipe(db: AsyncSession, *, recipe_in: RecipeCreate) -> Recipe:
     recipe_data = recipe_in.model_dump(exclude={"ingredients"})
     ingredient_names = recipe_in.ingredients
 
     db_recipe = Recipe(**recipe_data)
     db.add(db_recipe)
-    await db.commit()
-    await db.refresh(db_recipe)
+
+    await db.flush() 
 
     ingredient_objects = await _get_or_create_ingredients(db, ingredient_names)
-    db_recipe.ingredients = ingredient_objects
-    await db.commit()    
-    await db.refresh(db_recipe, attribute_names=["ingredients"])
-    return db_recipe
+    
+    if ingredient_objects:
+        rows_to_insert = [
+            {"recipe_id": db_recipe.id, "ingredient_id": ing.id}
+            for ing in ingredient_objects
+        ]
+        stmt = recipe_ingredient_association.insert().values(rows_to_insert)
+        await db.execute(stmt)
 
-p = inflect.engine()
+    await db.commit()    
+    
+    await db.refresh(db_recipe)
+    await db.refresh(db_recipe, attribute_names=["ingredients"])
+    
+    text, meta = _create_semantic_document(db_recipe)
+    
+    await vector_store.upsert_recipe(
+        recipe_id=cast(int, db_recipe.id),
+        title=cast(str, db_recipe.title),
+        full_text=text,
+        metadata=meta
+    )
+    
+    return db_recipe
 
 async def get_all_recipes(
     db: AsyncSession,
@@ -121,15 +172,38 @@ async def update_recipe(
     if "ingredients" in update_data:
         ingredient_names = update_data.pop("ingredients")
         ingredient_objects = await _get_or_create_ingredients(db, ingredient_names)
-        db_recipe.ingredients = ingredient_objects
-
+        
+        delete_stmt = recipe_ingredient_association.delete().where(
+            recipe_ingredient_association.c.recipe_id == db_recipe.id
+        )
+        await db.execute(delete_stmt)
+        
+        if ingredient_objects:
+            rows_to_insert = [
+                {"recipe_id": db_recipe.id, "ingredient_id": ing.id}
+                for ing in ingredient_objects
+            ]
+            insert_stmt = recipe_ingredient_association.insert().values(rows_to_insert)
+            await db.execute(insert_stmt)
 
     for field, value in update_data.items():
         setattr(db_recipe, field, value)
 
     db.add(db_recipe)
     await db.commit()
+    
     await db.refresh(db_recipe)
+    await db.refresh(db_recipe, attribute_names=["ingredients"])
+    
+    text, meta = _create_semantic_document(db_recipe)
+    
+    await vector_store.upsert_recipe(
+        recipe_id=cast(int, db_recipe.id),
+        title=cast(str, db_recipe.title),
+        full_text=text,
+        metadata=meta
+    )
+    
     return db_recipe
 
 async def delete_recipe(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
@@ -137,17 +211,24 @@ async def delete_recipe(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
     if db_recipe:
         await db.delete(db_recipe)
         await db.commit()
+        
+        await vector_store.delete_recipe(recipe_id)
     return db_recipe
 
-async def search_recipes_by_fts(db: AsyncSession, *, query_str: str) -> Sequence[Recipe]:
-    search_query = (
-        select(Recipe).
-        where(
-            text("MATCH(title, instructions) AGAINST(:query IN NATURAL LANGUAGE MODE)")
-        )
-        .params(query=query_str)
-    )
+async def search_recipes_by_vector(db: AsyncSession, *, query_str: str) -> List[Recipe]:
+    recipe_ids = await vector_store.search(query=query_str, n_results=5)
     
-    result = await db.execute(search_query)
+    if not recipe_ids:
+        return []
     
-    return result.scalars().unique().all()
+    query = select(Recipe).where(Recipe.id.in_(recipe_ids))
+    result = await db.execute(query)
+    recipes = result.scalars().unique().all()
+    
+    recipes_map = {cast(int, r.id): r for r in recipes}
+    ordered_recipes = []
+    for rid in recipe_ids:
+        if rid in recipes_map:
+            ordered_recipes.append(recipes_map[rid])
+            
+    return ordered_recipes

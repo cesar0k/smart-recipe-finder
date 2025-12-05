@@ -1,0 +1,308 @@
+[
+  {
+    "id": 1,
+    "query": "Morning grain bowl hot",
+    "expected_id": 12,
+    "category": "semantic_description"
+  },
+  {
+    "id": 2,
+    "query": "Sour yellow juice",
+    "expected_id": 15,
+    "category": "semantic_visual"
+  },
+  {
+    "id": 3,
+    "query": "Meatless patty on a bun",
+    "expected_id": 2,
+    "category": "semantic_synonym"
+  },
+  {
+    "id": 4,
+    "query": "Grandma's flu remedy",
+    "expected_id": 3,
+    "category": "abstract_concept"
+  },
+  {
+    "id": 5,
+    "query": "Gym recovery drink",
+    "expected_id": 5,
+    "category": "abstract_usage"
+  },
+  {
+    "id": 6,
+    "query": "Stew with eggplant and zucchini",
+    "expected_id": 6,
+    "category": "synonym_ingredient"
+  },
+  {
+    "id": 7,
+    "query": "Raw fish rolls",
+    "expected_id": 7,
+    "category": "semantic_description"
+  },
+  {
+    "id": 8,
+    "query": "Slow smoked meat",
+    "expected_id": 8,
+    "category": "semantic_process"
+  },
+  {
+    "id": 9,
+    "query": "Mozzarella and basil starter",
+    "expected_id": 9,
+    "category": "ingredient_context"
+  },
+  {
+    "id": 10,
+    "query": "Guilty pleasure chocolate dessert",
+    "expected_id": 10,
+    "category": "abstract_emotion"
+  },
+  {
+    "id": 11,
+    "query": "Green dip for chips",
+    "expected_id": 11,
+    "category": "semantic_visual"
+  },
+  {
+    "id": 12,
+    "query": "British seaside classic",
+    "expected_id": 13,
+    "category": "cultural_reference"
+  },
+  {
+    "id": 13,
+    "query": "Creamy rice with fungi",
+    "expected_id": 14,
+    "category": "synonym_scientific"
+  },
+  {
+    "id": 14,
+    "query": "Flat breakfast cakes with syrup",
+    "expected_id": 16,
+    "category": "semantic_description"
+  },
+  {
+    "id": 15,
+    "query": "Salad with croutons and white dressing",
+    "expected_id": 17,
+    "category": "ingredient_description"
+  },
+  {
+    "id": 16,
+    "query": "Fancy meat wrapped in dough",
+    "expected_id": 18,
+    "category": "semantic_description"
+  },
+  {
+    "id": 17,
+    "query": "Soy bean curd with veggies",
+    "expected_id": 19,
+    "category": "synonym_ingredient"
+  },
+  {
+    "id": 18,
+    "query": "Vitamin C mix in a bowl",
+    "expected_id": 20,
+    "category": "abstract_nutrient"
+  },
+  {
+    "id": 19,
+    "query": "Spicy coconut curry soup",
+    "expected_id": 4,
+    "category": "semantic_mistake"
+  },
+  {
+    "id": 20,
+    "query": "Italian bacon pasta",
+    "expected_id": 1,
+    "category": "synonym_ingredient"
+  },
+  {
+    "id": 21,
+    "query": "Breakfast without eggs",
+    "expected_id": 12,
+    "category": "negation"
+  },
+  {
+    "id": 22,
+    "query": "Something sweet but not cake",
+    "expected_id": 20,
+    "category": "negation_complex"
+  },
+  {
+    "id": 23,
+    "query": "Dinner no meat",
+    "expected_id": 6,
+    "category": "negation"
+  },
+  {
+    "id": 24,
+    "query": "Cilantro sauce",
+    "expected_id": 11,
+    "category": "synonym"
+  },
+  {
+    "id": 25,
+    "query": "Aubergine stew",
+    "expected_id": 6,
+    "category": "direct_ingredient"
+  },
+  {
+    "id": 26,
+    "query": "Porridge",
+    "expected_id": 12,
+    "category": "synonym"
+  },
+  {
+    "id": 27,
+    "query": "Lentil sandwich",
+    "expected_id": 2,
+    "category": "synonym"
+  },
+  {
+    "id": 28,
+    "query": "Pasta with cured pork cheek",
+    "expected_id": 1,
+    "category": "definition"
+  },
+  {
+    "id": 29,
+    "query": "Liquid salad",
+    "expected_id": 11,
+    "category": "metaphor"
+  },
+  {
+    "id": 30,
+    "query": "Solid soup",
+    "expected_id": 14,
+    "category": "metaphor"
+  },
+  {
+    "id": 31,
+    "query": "Japanese rice dish",
+    "expected_id": 7,
+    "category": "broad"
+  },
+  {
+    "id": 32,
+    "query": "French fries and fish",
+    "expected_id": 13,
+    "category": "reordering"
+  },
+  {
+    "id": 33,
+    "query": "Healthy green stuff",
+    "expected_id": 11,
+    "category": "vague"
+  },
+  {
+    "id": 34,
+    "query": "Refreshing summer beverage",
+    "expected_id": 15,
+    "category": "semantic_abstract"
+  },
+  {
+    "id": 35,
+    "query": "Food for a hangover",
+    "expected_id": 2,
+    "category": "contextual_slang"
+  },
+  {
+    "id": 36,
+    "query": "Romantic dinner date food",
+    "expected_id": 14,
+    "category": "contextual_mood"
+  },
+  {
+    "id": 37,
+    "query": "Protein shake",
+    "expected_id": 5,
+    "category": "synonym"
+  },
+  {
+    "id": 38,
+    "query": "Bean burger",
+    "expected_id": 2,
+    "category": "synonym"
+  },
+  {
+    "id": 39,
+    "query": "Cold citrus drink",
+    "expected_id": 15,
+    "category": "semantic_trick"
+  },
+  {
+    "id": 40,
+    "query": "Hot vegetable mix",
+    "expected_id": 6,
+    "category": "semantic_trick"
+  },
+  {
+    "id": 41,
+    "query": "Cow meat BBQ",
+    "expected_id": 8,
+    "category": "synonym_childish"
+  },
+  {
+    "id": 42,
+    "query": "Choco explosion",
+    "expected_id": 10,
+    "category": "marketing_slang"
+  },
+  {
+    "id": 43,
+    "query": "Avocado sauce",
+    "expected_id": 11,
+    "category": "misleading"
+  },
+  {
+    "id": 44,
+    "query": "Pasta with white sauce",
+    "expected_id": 1,
+    "category": "visual_desc"
+  },
+  {
+    "id": 45,
+    "query": "Asian noodles",
+    "expected_id": 4,
+    "category": "broad"
+  },
+  {
+    "id": 46,
+    "query": "Yellow curved fruit snack",
+    "expected_id": 5,
+    "category": "riddle"
+  },
+  {
+    "id": 47,
+    "query": "Salty ocean meat fried",
+    "expected_id": 13,
+    "category": "riddle"
+  },
+  {
+    "id": 48,
+    "query": "Grain boiled in h2o",
+    "expected_id": 12,
+    "category": "chemical"
+  },
+  {
+    "id": 49,
+    "query": "Very complicated beef dish",
+    "expected_id": 18,
+    "category": "difficulty_desc"
+  },
+  {
+    "id": 50,
+    "query": "Simple morning drink",
+    "expected_id": 5,
+    "category": "semantic"
+  },
+  {
+    "id": 51,
+    "query": "Cheesy potato bake",
+    "expected_id": 21,
+    "category": "semantic_description"
+  }
+]

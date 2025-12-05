@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     
     CHROMA_HOST: str = "chroma"
     CHROMA_PORT: int = 8000
+    CHROMA_COLLECTION_NAME: str = ""
+    
+    HF_TOKEN: str = ""
     
     @model_validator(mode="after")
     def check_required_field_are_set(self):
@@ -27,6 +30,8 @@ class Settings(BaseSettings):
             missing_fields.append("DB_USER")
         if not self.DB_PASSWORD:
             missing_fields.append("DB_PASSWORD")
+        if not self.CHROMA_COLLECTION_NAME:
+            missing_fields.append("CHROMA_COLLECTION_NAME")
     
         if missing_fields:
             raise ValueError(f"Missing required environment variables: {','.join(missing_fields)}")

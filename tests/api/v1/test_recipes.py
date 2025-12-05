@@ -3,9 +3,17 @@ import json
 from httpx import AsyncClient
 from pathlib import Path
 
-FILTER_DATASET_PATH = Path(__file__).parents[2] / "datasets" / "filter_test_data.json"
-RECIPES_SOURCE_PATH = Path(__file__).parents[2] / "datasets" / "recipe_samples.json"
-NLS_DATASET_PATH = Path(__file__).parents[2] / "datasets" / "evaluation_nls_queries.json"
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy import delete
+from app.services import recipe_service
+from app.schemas import RecipeCreate
+from app.models import *
+
+BASE_DIR = Path(__file__).parents[3]
+
+FILTER_DATASET_PATH = BASE_DIR / "datasets" / "filter_test_data.json"
+RECIPES_SOURCE_PATH = BASE_DIR / "datasets" / "recipe_samples.json"
+NLS_DATASET_PATH = BASE_DIR / "datasets" / "evaluation_nls_queries.json"
 
 with open(FILTER_DATASET_PATH) as f:
     filter_data = json.load(f)
@@ -116,17 +124,36 @@ class TestRecipeOperations:
         response = await async_client.delete(f"/api/v1/recipes/{recipe_id + 1}")
         assert response.status_code == 404
 
+@pytest.mark.no_db_cleanup
 @pytest.mark.eval
 @pytest.mark.asyncio
 class TestRecipeEvaluation:
-    @pytest.fixture(scope="function", autouse=True)
-    async def setup_eval_db(self, async_client: AsyncClient):
-        for recipe in recipes_sample:
-            r_data = recipe.copy()
-            if "id" in r_data:
-                del r_data["id"]
-            await async_client.post("/api/v1/recipes/", json=r_data)
+    @pytest.fixture(scope="class", autouse=True)
+    async def setup_search_db(self, db_engine, test_vector_store):
+        original_store = recipe_service.vector_store
+        recipe_service.vector_store = test_vector_store
+        
+        TestSessionLocal = async_sessionmaker(
+            bind=db_engine, class_=AsyncSession, expire_on_commit=False
+        )
+        
+        async with TestSessionLocal() as session:
+            await session.execute(delete(recipe_ingredient_association))
+            await session.execute(delete(Ingredient))
+            await session.execute(delete(Recipe))
+            await session.commit()
             
+            for recipe in recipes_sample:
+                r_data = recipe.copy()
+                if "id" in r_data: del r_data["id"]
+                
+                recipe_in = RecipeCreate(**r_data)
+                
+                await recipe_service.create_recipe(db=session, recipe_in=recipe_in)
+        yield
+        
+        recipe_service.vector_store = original_store
+
     @pytest.mark.parametrize("testcase", filter_data)
     async def test_filtering(self, async_client: AsyncClient, testcase):
         params = {
@@ -134,27 +161,28 @@ class TestRecipeEvaluation:
             "exclude_ingredients": testcase["exclude_ingredients"]
         }
         response = await async_client.get("/api/v1/recipes/", params=params)
-        assert response.status_code == 200
+        assert response.status_code == 200, response.text
         
         results = response.json()
         found_titles = {r["title"] for r in results}
         
-        excepted = set(testcase.get("should_contain", []))
-        missing = excepted - found_titles
-        assert not missing, f"Failed testcase {testcase['id']}. Missing: {missing}"
+        expected = set(testcase.get("should_contain", []))
+        missing = expected - found_titles
+        assert not missing, f"Testcase {testcase['id']} failed. Missing: {missing}"
         
         unwanted = set(testcase.get("should_not_contain", []))
         found_unwanted = found_titles.intersection(unwanted)
-        assert not found_unwanted, f"Failed filter testcase: {testcase['id']}. Found unwanted: {found_unwanted}"
+        assert not found_unwanted, f"Filter testcase {testcase['id']} failed. Found unwanted: {found_unwanted}"
         
     @pytest.mark.parametrize("testcase", natural_search_data)
     async def test_natural_search_quality(self, async_client: AsyncClient, testcase):
         response = await async_client.get("/api/v1/recipes/search/", params={"q": testcase['query']})
-        assert response.status_code == 200
+
+        assert response.status_code == 200, response.text
         
         results = response.json()
         found_titles = {r["title"] for r in results}
-        excepted = set(testcase.get("should_contain", []))
+        expected = set(testcase.get("should_contain", []))
         
-        missing = excepted - found_titles
-        assert not missing, f"Natutal language search, with query: {testcase['query']} failed. Expected to fing: {missing}"
+        missing = expected - found_titles
+        assert not missing, f"Query '{testcase['query']}' failed. Expected to find: {missing}"
