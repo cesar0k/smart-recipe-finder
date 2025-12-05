@@ -3,6 +3,7 @@ from app.core.config import Settings
 class TestSettings(Settings):
     DB_ROOT_PASSWORD: str = "root_password"
     TEST_DB_NAME: str = "recipes_test_db"
+    CHROMA_COLLECTION_NAME: str = "recipes_test"
     
     @property
     def SYNC_TEST_DATABASE_ADMIN_URL(self) -> str:

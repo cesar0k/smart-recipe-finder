@@ -1,17 +1,23 @@
+import sys
+import logging
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
 from app.api.v1.api import api_router
-from app.core.config import settings
-from app.db.session import engine
-from app.models import Base
+from app.core.vector_store import vector_store
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Application startup")
+    vector_store.preload_model()
     yield
-    print("Application shutdown")
 
 class RootResponse(BaseModel):
     status: str
@@ -21,7 +27,7 @@ class RootResponse(BaseModel):
 
 app = FastAPI(
     title="Smart Recipes Finder", 
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan
 )
 

@@ -1,15 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Any, AsyncGenerator
+from typing import List, Any
 
-from app.db.session import AsyncSessionLocal, get_db
+from app.db.session import get_db
 from app.schemas import Recipe, RecipeCreate, RecipeUpdate
 from app.services import recipe_service
 
 router = APIRouter()
 
 @router.post("/", response_model=Recipe, status_code=201)
-async def create_new_recipe(*, db: AsyncSession = Depends(get_db), recipe_in: RecipeCreate) -> Any:
+async def create_new_recipe(
+    *, 
+    db: AsyncSession = Depends(get_db), 
+    recipe_in: RecipeCreate,
+) -> Any:
     return await recipe_service.create_recipe(db=db, recipe_in=recipe_in)
 
 @router.get("/", response_model=List[Recipe])
@@ -56,6 +60,6 @@ async def delete_existing_recipe(*, db: AsyncSession = Depends(get_db), recipe_i
 async def search_recipes(
     *,
     db: AsyncSession = Depends(get_db),
-    q: str = Query(..., description="Search query for recipes using FTS")
+    q: str = Query(..., description="Search query for recipes using vector search"),
 ) -> Any:
-    return await recipe_service.search_recipes_by_fts(db=db, query_str=q)
+    return await recipe_service.search_recipes_by_vector(db=db, query_str=q)

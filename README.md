@@ -7,13 +7,18 @@ This is the backend service for the "Smart Recipe Finder" application, built as 
 - **Language:** Python 3.11
 - **Framework:** FastAPI
 - **Database:** MySQL 8.0
+- **Vector Search:** ChromaDB
 - **ORM:** SQLAlchemy
 - **Data Validation:** Pydantic v2
 - **Containerization:** Docker & Docker Compose
 
+## Development Environment
+
+This project includes a `.devcontainer` configuration, allowing you to open and run the entire development environment in a Docker container using VS Code with the "Dev Containers" extension. This ensures a consistent and reproducible development setup.
+
 ## Prerequisites
 
-Before you begin, ensure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed on your system.
+Before you begin, ensure you have [Docker Desktop](https.www.docker.com/products/docker-desktop/) installed on your system.
 
 ## Getting Started
 
@@ -22,7 +27,7 @@ Follow these steps to get the application running locally.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+git clone https://github.com/cesar0k/smart-recipe-finder.git
 cd smart-recipe-finder
 ```
 
@@ -57,7 +62,7 @@ You can use this interface to explore, test, and interact with all the available
 
 ## Testing
 
-A comprehensive test suite has been newly implemented to ensure the reliability and correctness of the API endpoints.
+A comprehensive test suite has been newly implemented to ensure the reliability and correctness of the API endpoints. The tests run against a dedicated, isolated test database to ensure that test execution does not interfere with development data.
 
 To run the test suite, you first need to set up your test environment.
 
@@ -109,6 +114,16 @@ docker-compose exec app python scripts/seed_db.py
 
 This script will add a predefined set of recipes to your database, which you can then query via the API.
 
+## Search Capabilities
+
+The application supports multiple search methods to provide flexible and powerful recipe discovery.
+
+### Full-Text Search
+A standard full-text search is available for querying recipes based on keywords.
+
+### Vector Search
+The application implements vector search using ChromaDB to find semantically similar recipes. This allows for more "natural language" queries (e.g., "healthy chicken dishes for dinner") and finds recipes that are conceptually related, even if they don't share exact keywords.
+
 ## Evaluation & Benchmarking
 
 One of the core goals of this project is to quantitatively compare different search and filtering methods.
@@ -132,7 +147,7 @@ Currently implemented features:
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
 - [x] **Update** and **Delete** operations for recipes.
 - [x] **Smart Filtering Logic (Refactored)**
-- [x] Full-text search.
-- [x] Comprehensive test suite.
+- [x] Vector Search Implementation
+- [x] Comprehensive test suite with an isolated database.
 - [x] Script for evaluating search and filtering methods.
-- [ ] Vector Search Implementation
+- [x] Devcontainer for a consistent development environment.
