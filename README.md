@@ -39,7 +39,13 @@ Create a local environment file by copying the provided example.
 cp .env.example .env
 ```
 
-The default values are pre-configured for a smooth startup. If you need to change the application or database ports because they are already in use on your machine, you can do so by editing the APP_PORT and MYSQL_PORT variables in your local .env file.
+Important: the application relies on vector search powered by an LLM backend — this requires a Hugging Face API token. Add the token to .env.example (or your local .env) as shown below:
+
+```
+HUGGINGFACE_API_TOKEN=<your_huggingface_token_here>
+```
+
+If you need to change the application or database ports because they are already in use on your machine, you can do so by editing the APP_PORT and MYSQL_PORT variables in your local .env file.
 
 
 ### 3. Build and Run the Application
@@ -115,11 +121,6 @@ docker-compose exec app python scripts/seed_db.py
 This script will add a predefined set of recipes to your database, which you can then query via the API.
 
 ## Search Capabilities
-
-The application supports multiple search methods to provide flexible and powerful recipe discovery.
-
-### Full-Text Search
-A standard full-text search is available for querying recipes based on keywords.
 
 ### Vector Search
 The application implements vector search using ChromaDB to find semantically similar recipes. This allows for more "natural language" queries (e.g., "healthy chicken dishes for dinner") and finds recipes that are conceptually related, even if they don't share exact keywords.
