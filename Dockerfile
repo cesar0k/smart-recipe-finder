@@ -1,21 +1,23 @@
-# builder
-FROM python:3.11 as builder
+FROM astral/uv:python3.11-bookworm-slim
 
 WORKDIR /app
 
-RUN python -m venv /opt/venv
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-ENV PATH="/opt/venv/bin/:$PATH"
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# final image
-FROM python:3.11-slim
+COPY pyproject.toml uv.lock ./
 
-WORKDIR /app
-
-COPY --from=builder /opt/venv /opt/venv
-
-ENV PATH="/opt/venv/bin:$PATH"
+RUN uv sync --frozen --no-cache
+# RUN uv sync --frozen --no-cache --no-dev
 
 COPY . .
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+CMD ["sh", "-c", "uv run alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
