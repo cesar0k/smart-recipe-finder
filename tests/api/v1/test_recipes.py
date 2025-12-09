@@ -25,8 +25,12 @@ with open(NLS_DATASET_PATH) as f:
     natural_search_data = json.load(f)
     id_to_title = {r["id"]: r["title"] for r in recipes_sample}
     for q in natural_search_data:
-        expected_title = id_to_title.get(q["expected_id"])
-        q["should_contain"] = [expected_title] if expected_title else []
+        expected_ids = q.get("expected_ids")
+        if expected_ids is None:
+                expected_ids = [q['expected_id']] if 'expected_id' in q else []
+                
+        expected_titles = {id_to_title.get(eid) for eid in expected_ids if id_to_title.get(eid)}
+        q["should_contain"] = list(expected_titles) if expected_titles else []
     
 @pytest.mark.asyncio
 class TestRecipeOperations:
@@ -181,8 +185,10 @@ class TestRecipeEvaluation:
         assert response.status_code == 200, response.text
         
         results = response.json()
+        
         found_titles = {r["title"] for r in results}
         expected = set(testcase.get("should_contain", []))
+        found_expected = expected.intersection(found_titles)
         
-        missing = expected - found_titles
-        assert not missing, f"Query '{testcase['query']}' failed. Expected to find: {missing}"
+        assert found_expected or not expected, \
+            f"Query: {testcase['query']} failed. expected one of {expected}, but found {found_titles}"
