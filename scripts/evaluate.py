@@ -69,7 +69,7 @@ async def legacy_get_all_recipes(
 
 async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
     print("------------------------------------------------------------------------")
-    print(f"Evaluating '{method_name}', Top {LIMIT_TOP_K} results are evaluated")
+    print(f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated")
     
     passed = 0
     total = len(queries)
