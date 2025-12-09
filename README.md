@@ -77,7 +77,7 @@ To run the test suite, you first need to set up your test environment.
 Dependencies are already installed inside the Docker container. You only need to run this step if you intend to execute tests or scripts directly on your host machine (outside the Docker container):
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. Run Tests
