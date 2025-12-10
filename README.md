@@ -141,6 +141,9 @@ One of the core goals of this project is to quantitatively compare different sea
 docker-compose exec app python scripts/evaluate.py
 ```
 
+## Visual Results
+Upon running the evaluation script, a graph file **`evaluation_results.png`** will be generated in the project root.
+
 ## Project Status
 
 Currently implemented features:
@@ -150,5 +153,5 @@ Currently implemented features:
 - [x] **Smart Filtering Logic (Refactored)**
 - [x] Vector Search Implementation
 - [x] Comprehensive test suite with an isolated database.
-- [x] Script for evaluating search and filtering methods.
+- [x] Script for evaluating search and filtering methods with **graphical** representation in the form of a file.
 - [x] Devcontainer for a consistent development environment.
