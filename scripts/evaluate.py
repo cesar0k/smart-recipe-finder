@@ -3,6 +3,8 @@ import os
 import time
 import json
 import asyncio
+import matplotlib.pyplot as plt
+import numpy as np
 from pathlib import Path
 from typing import Sequence
 from statistics import mean
@@ -24,6 +26,9 @@ from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
 from tests.test_config import test_settings
 from app.core.vector_store import VectorStore
+
+import matplotlib
+matplotlib.use("Agg")
 
 TEST_COLLECTION_NAME = "recipes_test_collection"
 
@@ -192,9 +197,17 @@ async def evaluate_nls_method(db: AsyncSession, method_name, search_func, querie
     print(f"Average F1-Score: {avg_f1_score:.4f}")
     print("------------------------------------------------------------------------")
     
-    return accuracy, mean_reciprocal_rank, zero_result_rate, avg_f1_score
+    return {
+        "method": method_name,
+        "accuracy": accuracy, 
+        "mean_reciprocal_rank": mean_reciprocal_rank, 
+        "zero_result_rate": zero_result_rate, 
+        "avg_f1_score": avg_f1_score,
+        "avg_latency": avg_latency
+    }
 
 async def evaluate_filters(method_name, filter_func, filter_queries):
+    print("------------------------------------------------------------------------")
     print(f"Evaluating filter with {method_name}")
     
     passed = 0
@@ -236,6 +249,76 @@ async def evaluate_filters(method_name, filter_func, filter_queries):
     print(f"Filter accuracy: {accuracy:.2f}% ({passed}/{total} queries passed)")
     print(f"Average latency: {avg_latency:.5f} ms")
     print("------------------------------------------------------------------------")
+    
+    return {
+        "method": method_name,
+        "accuracy": accuracy,
+        "avg_latency": avg_latency
+    }
+
+def plot_evaluation_results(nls_results, filter_results):
+    print("\nGenerating benchmark charts...")
+    
+    plt.style.use('ggplot')
+    
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(22, 6))
+    fig.suptitle('Search & Filter Benchmark Results', fontsize=16)
+
+    methods = [r['method'] for r in nls_results]
+    accuracy = [r['accuracy'] for r in nls_results]
+    f1 = [r['avg_f1_score'] * 100 for r in nls_results]
+    mrr = [r['mean_reciprocal_rank'] * 100 for r in nls_results]
+    zrr = [r['zero_result_rate'] for r in nls_results]
+
+    x = np.arange(len(methods))
+    width = 0.2
+
+    ax1.bar(x - 1.5 * width, accuracy, width, label='Accuracy (%)', color='#3498db')
+    ax1.bar(x - 0.5 * width, f1, width, label='F1-Score (%)', color='#9b59b6')
+    ax1.bar(x + 0.5 * width, mrr, width, label='MRR (%)', color='#2ecc71')
+    ax1.bar(x + 1.5 * width, zrr, width, label='Zero Result Rate (%)', color="#e14747")
+
+    ax1.set_ylabel('Score')
+    ax1.set_title('Search Quality')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(methods, rotation=15)
+    ax1.legend()
+    ax1.set_ylim(0, 110)
+
+    for i, v in enumerate(accuracy):
+        ax1.text(x[i] - 1.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#3498db', fontsize=8)
+    for i, v in enumerate(f1):
+        ax1.text(x[i] - 0.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#9b59b6', fontsize=8)
+    for i, v in enumerate(mrr):
+        ax1.text(x[i] + 0.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#2ecc71', fontsize=8)
+    for i, v in enumerate(zrr):
+        ax1.text(x[i] + 1.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#e14747', fontsize=8)
+
+    f_methods = [r['method'] for r in filter_results]
+    f_accuracy = [r['accuracy'] for r in filter_results]
+    
+    ax2.bar(f_methods, f_accuracy, color=['#e74c3c', '#27ae60'])
+    ax2.set_title('Filter Accuracy')
+    ax2.set_ylabel('Accuracy (%)')
+    ax2.set_ylim(0, 110)
+    for i, v in enumerate(f_accuracy):
+        ax2.text(i, v + 1.5, f"{v:.1f}%", ha='center')
+
+    all_methods = methods + f_methods
+    all_latencies = [r['avg_latency'] for r in nls_results] + [r['avg_latency'] for r in filter_results]
+    
+    colors = ['#3498db'] * len(nls_results) + ['#e67e22'] * len(filter_results)
+    
+    ax3.bar(all_methods, all_latencies, color=colors)
+    ax3.set_title('Average Latency (Log Scale)')
+    ax3.set_ylabel('Time (ms)')
+    ax3.set_yscale('log')
+    ax3.set_xticklabels(all_methods, rotation=45, ha='right')
+    
+    output_path = "evaluation_results.png"
+    plt.tight_layout()
+    plt.savefig(output_path)
+    print(f"Charts saved to {output_path}")
 
 async def main():
     await setup_test_db()
@@ -246,6 +329,9 @@ async def main():
     
     engine = create_async_engine(test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
     SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
+    
+    nls_results = []
+    filter_results = []
     
     try:
         async with SessionLocal() as db:
@@ -260,33 +346,39 @@ async def main():
                 
             id_to_title = {r['id']: r['title'] for r in recipes}
             
-            await evaluate_nls_method(
+            fts_res = await evaluate_nls_method(
                 db,
                 "MySQL Full-Text Search",
                 legacy_search_recipes,
                 nls_queries,
                 id_to_title
             )
+            nls_results.append(fts_res)
             
-            await evaluate_nls_method(
+            vec_res = await evaluate_nls_method(
                 db,
                 "Vector search",
                 recipe_service.search_recipes_by_vector,
                 nls_queries,
                 id_to_title
             )
+            nls_results.append(vec_res)
             
-            await evaluate_filters(
+            naive_fil_res = await evaluate_filters(
                 "Naive String Matching (SQL Like operator)",
                 legacy_get_all_recipes,
                 filter_queries
             )
+            filter_results.append(naive_fil_res)
             
-            await evaluate_filters(
+            smart_fil_res = await evaluate_filters(
                 "Smart Word Boundary Filter",
                 recipe_service.get_all_recipes,
                 filter_queries
             )
+            filter_results.append(smart_fil_res)
+            
+            plot_evaluation_results(nls_results, filter_results)
     finally:
         print("Cleaning up...")
         await engine.dispose()

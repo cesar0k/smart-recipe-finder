@@ -18,3 +18,5 @@ __pycache__
 *.pyc
 
 README.md
+
+evaluation_results.png
