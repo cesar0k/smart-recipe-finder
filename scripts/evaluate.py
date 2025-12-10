@@ -7,15 +7,25 @@ from pathlib import Path
 from typing import Sequence
 from statistics import mean
 
+from alembic import command
+from alembic.config import Config
+
+from sqlalchemy import text, not_
+from sqlalchemy.future import select
+from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
 sys.path.append(os.getcwd())
 
 from app.db.session import AsyncSessionLocal, AsyncSession
 from app.services import recipe_service
+from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
 from app.models.ingredient import Ingredient
+from tests.test_config import test_settings
+from app.core.vector_store import VectorStore
 
-from sqlalchemy import text, not_
-from sqlalchemy.future import select
+TEST_COLLECTION_NAME = "recipes_test_collection"
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 DATASETS_PATH = BASE_PATH / "datasets"
@@ -25,6 +35,34 @@ FILTER_QUERIES_PATH = DATASETS_PATH / "filter_test_data.json"
 RECIPES_PATH = DATASETS_PATH / "recipe_samples.json"
 
 LIMIT_TOP_K = 5
+
+async def setup_test_db():
+    print("Creating isolated database...")
+    if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
+        drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    create_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
+    await asyncio.to_thread(command.upgrade, alembic_cfg, "head")
+
+def teardown_test_db():
+    print("Dropping isolated database...")
+    if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
+        drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+
+async def seed_eval_data(session: AsyncSession):
+    with open(RECIPES_PATH) as f:
+        recipe_samples = json.load(f)
+
+    print("Seeding recipes into test DB...")
+    for r_data in recipe_samples:
+        r_input = r_data.copy()
+        if "id" in r_input: del r_input["id"]
+        
+        recipe_in = RecipeCreate(**r_input)
+        
+        await recipe_service.create_recipe(db=session, recipe_in=recipe_in)
 
 async def legacy_search_recipes(db: AsyncSession, *, query_str: str) -> Sequence[Recipe]:
     search_query = (
@@ -67,7 +105,7 @@ async def legacy_get_all_recipes(
     result = await db.execute(query)
     return result.scalars().unique().all()
 
-async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
+async def evaluate_nls_method(db: AsyncSession, method_name, search_func, queries, id_to_title):
     print("------------------------------------------------------------------------")
     print(f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated")
     
@@ -80,62 +118,61 @@ async def evaluate_nls_method(method_name, search_func, queries, id_to_title):
     
     category_stats = {}
     
-    async with AsyncSessionLocal() as db:
-        for q in queries:
-            query_text = q['query']
+    for q in queries:
+        query_text = q['query']
+        
+        expected_ids = q.get('expected_ids')
+        if expected_ids is None:
+            expected_ids = [q['expected_id']] if 'expected_id' in q else []
+        
+        expected_titles = {id_to_title.get(eid) for eid in expected_ids if id_to_title.get(eid)}
+        category = q.get("category", "unknown")
+        
+        if category not in category_stats:
+            category_stats[category] = {"total": 0, "passed": 0, "total_f1": 0.0}
             
-            expected_ids = q.get('expected_ids')
-            if expected_ids is None:
-                expected_ids = [q['expected_id']] if 'expected_id' in q else []
-            
-            expected_titles = {id_to_title.get(eid) for eid in expected_ids if id_to_title.get(eid)}
-            category = q.get("category", "unknown")
-            
-            if category not in category_stats:
-                category_stats[category] = {"total": 0, "passed": 0, "total_f1": 0.0}
-                
-            start_time = time.time()
-            results = await search_func(db=db, query_str=query_text)
-            end_time = time.time()
-            latencies.append((end_time - start_time) * 1000)
+        start_time = time.time()
+        results = await search_func(db=db, query_str=query_text)
+        end_time = time.time()
+        latencies.append((end_time - start_time) * 1000)
 
-            results = results[:LIMIT_TOP_K]
+        results = results[:LIMIT_TOP_K]
 
-            if not results:
-                zero_results_count += 1
+        if not results:
+            zero_results_count += 1
+        
+        found_titles = [r.title for r in results]
+        found_titles_set = set(found_titles)
+        
+        intersection = expected_titles.intersection(found_titles_set)
+        is_passed = len(intersection) > 0
+        
+        category_stats[category]["total"] += 1
+        rank = 0
+        if is_passed:
+            for i, title in enumerate(found_titles):
+                if title in expected_titles:
+                    rank = i + 1
+                    break
+        if rank > 0:
+            passed += 1
+            category_stats[category]["passed"] += 1
+            total_reciprocal_rank += 1.0 / rank
             
-            found_titles = [r.title for r in results]
-            found_titles_set = set(found_titles)
+        relevant_retrieved = len(intersection)
+        total_retrieved = len(found_titles)
+        total_relevant_in_db = len(expected_titles)
+        
+        precision = (relevant_retrieved / total_retrieved) if total_retrieved > 0 else 0.0
+        recall = (relevant_retrieved / total_relevant_in_db) if total_relevant_in_db > 0 else 0.0
+        
+        if (precision + recall) > 0:
+            f1 = 2 * (precision * recall) / (precision + recall)
+        else:
+            f1 = 0.0
             
-            intersection = expected_titles.intersection(found_titles_set)
-            is_passed = len(intersection) > 0
-            
-            category_stats[category]["total"] += 1
-            rank = 0
-            if is_passed:
-                for i, title in enumerate(found_titles):
-                    if title in expected_titles:
-                        rank = i + 1
-                        break
-            if rank > 0:
-                passed += 1
-                category_stats[category]["passed"] += 1
-                total_reciprocal_rank += 1.0 / rank
-                
-            relevant_retrieved = len(intersection)
-            total_retrieved = len(found_titles)
-            total_relevant_in_db = len(expected_titles)
-            
-            precision = (relevant_retrieved / total_retrieved) if total_retrieved > 0 else 0.0
-            recall = (relevant_retrieved / total_relevant_in_db) if total_relevant_in_db > 0 else 0.0
-            
-            if (precision + recall) > 0:
-                f1 = 2 * (precision * recall) / (precision + recall)
-            else:
-                f1 = 0.0
-                
-            total_f1_score += f1
-            category_stats[category]["total_f1"] += f1
+        total_f1_score += f1
+        category_stats[category]["total_f1"] += f1
                 
     accuracy = (passed / total) * 100
     avg_latency = mean(latencies)
@@ -201,40 +238,67 @@ async def evaluate_filters(method_name, filter_func, filter_queries):
     print("------------------------------------------------------------------------")
 
 async def main():
-    with open(NLS_QUIERIES_PATH) as f:
-        nls_queries = json.load(f)
-    with open(FILTER_QUERIES_PATH) as f:
-        filter_queries = json.load(f)
-    with open(RECIPES_PATH) as f:
-        recipes = json.load(f)
+    await setup_test_db()
+    
+    eval_vector_store = VectorStore(collection_name=TEST_COLLECTION_NAME, force_new=True)
+    original_vector_store = recipe_service.vector_store
+    recipe_service.vector_store = eval_vector_store
+    
+    engine = create_async_engine(test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
+    SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
+    
+    try:
+        async with SessionLocal() as db:
+            await seed_eval_data(db)
+            
+            with open(NLS_QUIERIES_PATH) as f:
+                nls_queries = json.load(f)
+            with open(FILTER_QUERIES_PATH) as f:
+                filter_queries = json.load(f)
+            with open(RECIPES_PATH) as f:
+                recipes = json.load(f)
+                
+            id_to_title = {r['id']: r['title'] for r in recipes}
+            
+            await evaluate_nls_method(
+                db,
+                "MySQL Full-Text Search",
+                legacy_search_recipes,
+                nls_queries,
+                id_to_title
+            )
+            
+            await evaluate_nls_method(
+                db,
+                "Vector search",
+                recipe_service.search_recipes_by_vector,
+                nls_queries,
+                id_to_title
+            )
+            
+            await evaluate_filters(
+                "Naive String Matching (SQL Like operator)",
+                legacy_get_all_recipes,
+                filter_queries
+            )
+            
+            await evaluate_filters(
+                "Smart Word Boundary Filter",
+                recipe_service.get_all_recipes,
+                filter_queries
+            )
+    finally:
+        print("Cleaning up...")
+        await engine.dispose()
+        recipe_service.vector_store = original_vector_store
         
-    id_to_title = {r['id']: r['title'] for r in recipes}
-    
-    await evaluate_nls_method(
-        "MySQL Full-Text Search",
-        legacy_search_recipes,
-        nls_queries,
-        id_to_title
-    )
-    
-    await evaluate_nls_method(
-        "Vector search",
-        recipe_service.search_recipes_by_vector,
-        nls_queries,
-        id_to_title
-    )
-    
-    await evaluate_filters(
-        "Naive String Matching (SQL Like operator)",
-        legacy_get_all_recipes,
-        filter_queries
-    )
-    
-    await evaluate_filters(
-        "Smart Word Boundary Filter",
-        recipe_service.get_all_recipes,
-        filter_queries
-    )
+        try:
+            eval_vector_store.client.delete_collection(TEST_COLLECTION_NAME)
+        except: 
+            pass
+        
+        teardown_test_db()
+        print("Cleaned up.")
     
 if __name__ == "__main__":
     asyncio.run(main())
