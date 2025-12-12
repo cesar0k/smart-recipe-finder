@@ -20,9 +20,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    op.execute("ALTER TABLE recipes ADD FULLTEXT INDEX ft_index (title, instructions)")
+    bind = op.get_bind()
+    if bind.engine.name == "mysql":
+        op.execute("ALTER TABLE recipes ADD FULLTEXT INDEX ft_index (title, instructions)")
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index('ft_index', table_name='recipes')
+    bind = op.get_bind()
+    if bind.engine.name == "mysql":
+        op.drop_index('ft_index', table_name='recipes')

@@ -3,35 +3,18 @@ services:
     image: chromadb/chroma
     container_name: smart_recipe_finder_chroma_db
     ports:
-      - "${CHROMA_PORT:-8001}:8000"
+      - "${CHROMA_PORT:-8000}:8000"
     volumes:
       - chroma_data:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
     networks:
       - default
-  app:
-    build: .
-    container_name: smart-recipe-finder
-    env_file:
-      - .env
-    environment:
-      - PYTHONUNBUFFERED=1
-    command: sh -c "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app"
-    ports:
-      - "${APP_PORT:-8000}:8000"
-    volumes:
-      - .:/app
-      - hf_cache:/root/.cache/huggingface
-    depends_on:
-      db:
-        condition: service_healthy
-      chroma:
-        condition: service_started
 
   db:
     image: mysql:8.0
     container_name: smart-recipe-finder-db
+    command: --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysql", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}", "-D", "${DB_NAME}", "-e", "SELECT 1"]
       interval: 3s
@@ -45,11 +28,52 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${DB_EXTERNAL_PORT:-3007}:3306"
+      - "${DB_EXTERNAL_PORT:-3307}:3306"
     volumes:
       - db_data:/var/lib/mysql
   
+  postgres:
+    image: postgres:17-alpine
+    container_name: smart_recipe_finder_pg_db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+
+  app:
+    build: .
+    container_name: smart-recipe-finder
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: sh -c "uv run alembic upgrade head && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app"
+    ports:
+      - "${APP_PORT:-8001}:8000"
+    volumes:
+      - .:/app
+      - hf_cache:/root/.cache/huggingface
+    depends_on:
+      db:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      chroma:
+        condition: service_started
+
 volumes:
   db_data:
+  postgres_data:
   chroma_data:
   hf_cache:

@@ -346,14 +346,14 @@ async def main():
                 
             id_to_title = {r['id']: r['title'] for r in recipes}
             
-            fts_res = await evaluate_nls_method(
-                db,
-                "MySQL Full-Text Search",
-                legacy_search_recipes,
-                nls_queries,
-                id_to_title
-            )
-            nls_results.append(fts_res)
+            # fts_res = await evaluate_nls_method(
+            #     db,
+            #     "MySQL Full-Text Search",
+            #     legacy_search_recipes,
+            #     nls_queries,
+            #     id_to_title
+            # )
+            # nls_results.append(fts_res)
             
             vec_res = await evaluate_nls_method(
                 db,

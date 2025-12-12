@@ -7,12 +7,23 @@ class TestSettings(Settings):
     
     @property
     def SYNC_TEST_DATABASE_ADMIN_URL(self) -> str:
+        if self.DB_TYPE == "postgres":
+            return (
+                f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@"
+                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.TEST_DB_NAME}"
+            )
         return (
             f"mysql+pymysql://root:{self.DB_ROOT_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.TEST_DB_NAME}"
         )
+        
     @property
-    def ASYNC_TEST_DATABASE_ADMIN_URL(self):
+    def ASYNC_TEST_DATABASE_ADMIN_URL(self) -> str:
+        if self.DB_TYPE == "postgres":
+            return (
+                f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@"
+                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.TEST_DB_NAME}"
+            )
         return (
             f"mysql+asyncmy://root:{self.DB_ROOT_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.TEST_DB_NAME}"
