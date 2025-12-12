@@ -27,7 +27,7 @@ def event_loop():
 
 @pytest.fixture(scope="session", autouse=True)
 def set_test_settings():
-    os.environ["MYSQL_DATABASE"] = test_settings.TEST_DB_NAME
+    os.environ["POSTGRES_DB"] = test_settings.TEST_DB_NAME
     os.environ["CHROMA_COLLECTION_NAME"] = "recipes_test_collection"
 
 @pytest.fixture(scope="session", autouse=True)

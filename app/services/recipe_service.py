@@ -164,9 +164,7 @@ async def get_recipe_by_id(db: AsyncSession, *, recipe_id: int) -> Recipe | None
     result = await db.execute(query)
     return result.scalar_one_or_none()
 
-async def update_recipe(
-    db: AsyncSession, *, db_recipe: Recipe, recipe_in: RecipeUpdate
-) -> Recipe:
+async def update_recipe(db: AsyncSession, *, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Recipe:
     update_data = recipe_in.model_dump(exclude_unset=True)
 
     if "ingredients" in update_data:

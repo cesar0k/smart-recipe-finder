@@ -4,14 +4,15 @@ from pydantic import computed_field, model_validator
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file_encoding="utf-8")
     
-    APP_PORT: int = 8000
+    APP_PORT: int = 8001
     
+    DB_TYPE: str = "postgres"
     DB_ROOT_PASSWORD: str = ""
     DB_NAME: str = ""
     DB_USER: str = ""
     DB_PASSWORD: str = ""
-    DB_HOST: str = "db"
-    DB_INTERNAL_PORT: int = 3306
+    DB_HOST: str = "postgres"
+    DB_INTERNAL_PORT: int = 5432
     
     CHROMA_HOST: str = "chroma"
     CHROMA_PORT: int = 8000
@@ -41,17 +42,29 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def ASYNC_DATABASE_URL(self) -> str:
-        return (
-            f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@"
-            f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
-        )
+        if self.DB_TYPE == "postgres":
+            return (
+                f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@"
+                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
+            )
+        if self.DB_TYPE == "mysql":
+            return (
+                f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@"
+                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
+            )
         
     @computed_field
     @property
     def SYNC_DATABASE_URL(self) -> str:
-        return (
-            f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@"
-            f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
-        )
+        if self.DB_TYPE == "postgres":
+            return (
+                f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@"
+                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
+            )
+        if self.DB_TYPE == "mysql":
+            return (
+                f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@"
+                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
+            )
         
 settings = Settings()
