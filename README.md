@@ -4,9 +4,9 @@ This is the backend service for the "Smart Recipe Finder" application, built as 
 
 ## Tech Stack
 
-- **Language:** Python 3.11
+- **Language:** Python 3.12
 - **Framework:** FastAPI
-- **Database:** MySQL 8.0
+- **Database:** PostgreSQL 17 (can temporarily switch to MySQL 8.0)
 - **Vector Search:** ChromaDB
 - **ORM:** SQLAlchemy
 - **Data Validation:** Pydantic v2
@@ -154,4 +154,5 @@ Currently implemented features:
 - [x] Vector Search Implementation
 - [x] Comprehensive test suite with an isolated database.
 - [x] Script for evaluating search and filtering methods with **graphical** representation in the form of a file.
+- [x] Script for verifying migration from MySQL to PostgreSQL.
 - [x] Devcontainer for a consistent development environment.
