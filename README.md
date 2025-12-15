@@ -6,7 +6,7 @@ This is the backend service for the "Smart Recipe Finder" application, built as 
 
 - **Language:** Python 3.12
 - **Framework:** FastAPI
-- **Database:** PostgreSQL 17 (can temporarily switch to MySQL 8.0)
+- **Database:** PostgreSQL 17
 - **Vector Search:** ChromaDB
 - **ORM:** SQLAlchemy
 - **Data Validation:** Pydantic v2
@@ -45,7 +45,7 @@ Important: the application relies on vector search powered by an LLM backend —
 HUGGINGFACE_API_TOKEN=<your_huggingface_token_here>
 ```
 
-If you need to change the application or database ports because they are already in use on your machine, you can do so by editing the APP_PORT and MYSQL_PORT variables in your local .env file.
+If you need to change the application or database ports because they are already in use on your machine, you can do so by editing the APP_PORT and DB_EXTERNAL_PORT variables in your local .env file.
 
 
 ### 3. Build and Run the Application
@@ -154,5 +154,4 @@ Currently implemented features:
 - [x] Vector Search Implementation
 - [x] Comprehensive test suite with an isolated database.
 - [x] Script for evaluating search and filtering methods with **graphical** representation in the form of a file.
-- [x] Script for verifying migration from MySQL to PostgreSQL.
 - [x] Devcontainer for a consistent development environment.
