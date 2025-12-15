@@ -257,12 +257,12 @@ async def evaluate_filters(method_name, filter_func, filter_queries):
     }
 
 def plot_evaluation_results(nls_results, filter_results):
-    print("\nGenerating benchmark charts...")
+    print("\nGenerating evaluation charts...")
     
     plt.style.use('ggplot')
     
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(22, 6))
-    fig.suptitle('Search & Filter Benchmark Results', fontsize=16)
+    fig.suptitle('Search & Filter evaluation results', fontsize=16)
 
     methods = [r['method'] for r in nls_results]
     accuracy = [r['accuracy'] for r in nls_results]
@@ -274,8 +274,8 @@ def plot_evaluation_results(nls_results, filter_results):
     width = 0.2
 
     ax1.bar(x - 1.5 * width, accuracy, width, label='Accuracy (%)', color='#3498db')
-    ax1.bar(x - 0.5 * width, f1, width, label='F1-Score (%)', color='#9b59b6')
-    ax1.bar(x + 0.5 * width, mrr, width, label='MRR (%)', color='#2ecc71')
+    ax1.bar(x - 0.5 * width, f1, width, label='F1-Score', color='#9b59b6')
+    ax1.bar(x + 0.5 * width, mrr, width, label='MRR', color='#2ecc71')
     ax1.bar(x + 1.5 * width, zrr, width, label='Zero Result Rate (%)', color="#e14747")
 
     ax1.set_ylabel('Score')
@@ -288,9 +288,9 @@ def plot_evaluation_results(nls_results, filter_results):
     for i, v in enumerate(accuracy):
         ax1.text(x[i] - 1.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#3498db', fontsize=8)
     for i, v in enumerate(f1):
-        ax1.text(x[i] - 0.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#9b59b6', fontsize=8)
+        ax1.text(x[i] - 0.5 * width, v + 1.5, f"{v/100:.4f}", ha='center', color='#9b59b6', fontsize=8)
     for i, v in enumerate(mrr):
-        ax1.text(x[i] + 0.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#2ecc71', fontsize=8)
+        ax1.text(x[i] + 0.5 * width, v + 1.5, f"{v/100:.4f}", ha='center', color='#2ecc71', fontsize=8)
     for i, v in enumerate(zrr):
         ax1.text(x[i] + 1.5 * width, v + 1.5, f"{v:.1f}%", ha='center', color='#e14747', fontsize=8)
 
@@ -346,14 +346,15 @@ async def main():
                 
             id_to_title = {r['id']: r['title'] for r in recipes}
             
-            # fts_res = await evaluate_nls_method(
-            #     db,
-            #     "MySQL Full-Text Search",
-            #     legacy_search_recipes,
-            #     nls_queries,
-            #     id_to_title
-            # )
-            # nls_results.append(fts_res)
+            if test_settings.DB_TYPE == "mysql":
+                fts_res = await evaluate_nls_method(
+                    db,
+                    "MySQL Full-Text Search",
+                    legacy_search_recipes,
+                    nls_queries,
+                    id_to_title
+                )
+                nls_results.append(fts_res)
             
             vec_res = await evaluate_nls_method(
                 db,

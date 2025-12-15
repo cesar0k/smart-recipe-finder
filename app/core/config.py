@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = ""
     DB_HOST: str = "postgres"
     DB_INTERNAL_PORT: int = 5432
+    MYSQL_INTERNAL_PORT: int = 3306
     
     CHROMA_HOST: str = "chroma"
     CHROMA_PORT: int = 8000
@@ -47,11 +48,13 @@ class Settings(BaseSettings):
                 f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@"
                 f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
             )
-        if self.DB_TYPE == "mysql":
+        elif self.DB_TYPE == "mysql":
             return (
                 f"mysql+asyncmy://{self.DB_USER}:{self.DB_PASSWORD}@"
-                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
+                f"{self.DB_HOST}:{self.MYSQL_INTERNAL_PORT}/{self.DB_NAME}"
             )
+        else:
+            raise ValueError("Unknown DB type. Select 'mysql' or 'postgres' in .env-file.")
         
     @computed_field
     @property
@@ -64,7 +67,9 @@ class Settings(BaseSettings):
         if self.DB_TYPE == "mysql":
             return (
                 f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@"
-                f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
+                f"{self.DB_HOST}:{self.MYSQL_INTERNAL_PORT}/{self.DB_NAME}"
             )
+        else:
+            raise ValueError("Unknown DB type. Select 'mysql' or 'postgres' in .env-file.")
         
 settings = Settings()

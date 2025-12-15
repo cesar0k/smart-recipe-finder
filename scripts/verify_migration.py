@@ -16,7 +16,7 @@ def get_db_url(db_type: str):
     elif db_type == "postgres":
         return f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@postgres:5432/{DB_NAME}"
     else:
-        raise ValueError("Uknown DB type. Select 'mysql' or 'postgres'.")
+        raise ValueError("Unknown DB type. Select 'mysql' or 'postgres'.")
     
 def get_table_counts(engine):
     counts = {}
