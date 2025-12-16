@@ -1,4 +1,4 @@
-FROM astral/uv:python3.12-bookworm-slim
+FROM astral/uv:python3.12-bookworm-slim as build
 
 WORKDIR /app
 
@@ -11,6 +11,14 @@ COPY pyproject.toml uv.lock ./
 
 RUN ["uv", "sync", "--frozen", "--no-cache"]
 # RUN uv sync --frozen --no-cache --no-dev
+
+FROM python:3.12-slim-bookworm
+
+WORKDIR /app
+
+RUN ["sh", "-c", "apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*"]
+
+COPY --from=build /app/.venv /app/.venv
 
 COPY . .
 
