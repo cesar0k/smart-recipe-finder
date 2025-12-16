@@ -1,12 +1,13 @@
 services:
   chroma:
-    image: chromadb/chroma
+    image: chromadb/chroma:1.3.7
     container_name: smart_recipe_finder_chroma_db
     ports:
       - "${CHROMA_PORT:-8000}:8000"
     volumes:
-      - chroma_data:/chroma/chroma
+      - chroma_data:/data
     environment:
+      - CHROMA_PERSISTENT_DIRECTORY=/data
       - IS_PERSISTENT=TRUE
     networks:
       - default
@@ -50,7 +51,6 @@ services:
         condition: service_started
 
 volumes:
-  db_data:
   postgres_data:
   chroma_data:
   hf_cache:
