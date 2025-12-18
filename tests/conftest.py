@@ -73,8 +73,6 @@ async def async_client(db_engine, test_vector_store, monkeypatch, request):
     if not is_eval_test:
         test_vector_store.clear()
         async with db_engine.begin() as conn:
-            await conn.execute(delete(recipe_ingredient_association))
-            await conn.execute(delete(Ingredient))
             await conn.execute(delete(Recipe))
 
     async def override_get_db() -> AsyncGenerator[AsyncSession, None]:

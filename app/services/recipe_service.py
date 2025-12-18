@@ -3,31 +3,12 @@ from typing import Sequence, Any, List, cast
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import or_
 
-from app.models import Recipe, Ingredient, recipe_ingredient_association
+from app.models import Recipe
 from app.schemas import RecipeCreate, RecipeUpdate
 from app.core.vector_store import vector_store
 
 p = inflect.engine()
-
-async def _get_or_create_ingredients(db: AsyncSession, ingredients_in: list[str]) -> Sequence[Ingredient]:
-    ingredient_objects = []
-    unique_ingredient_names = {name.lower().strip() for name in ingredients_in}
-
-    for name in unique_ingredient_names:
-        query = select(Ingredient).where(Ingredient.name == name)
-        result = await db.execute(query)
-        ingredient = result.scalar_one_or_none()
-
-        if not ingredient:
-            ingredient = Ingredient(name=name)
-            db.add(ingredient)
-            await db.flush()
-
-        ingredient_objects.append(ingredient)
-
-    return ingredient_objects
 
 def _get_search_terms(raw_term: str) -> set[str]:
     term = raw_term.lower().strip()
@@ -46,14 +27,6 @@ def _get_search_terms(raw_term: str) -> set[str]:
         
     return terms
 
-def _build_ingredient_filter(model_columm, term: str):
-    return or_(
-        model_columm == term,
-        model_columm.like(f"{term} %"),
-        model_columm.like(f"% {term}"),
-        model_columm.like(f"% {term} %")
-    )
-
 def _create_semantic_document(recipe: Recipe):
     time_description = "Standard cooking time"
     t = cast(int, recipe.cooking_time_in_minutes)
@@ -64,7 +37,7 @@ def _create_semantic_document(recipe: Recipe):
     elif t > 120:
         time_description = "Slow cooked, long preparation"
         
-    ingredients_list = ", ".join(i.name for i in recipe.ingredients)
+    ingredients_list = ", ".join(recipe.ingredients_list) if recipe.ingredients_list else ""
     
     doc_to_embed = (
         f"Title: {recipe.title}. "
@@ -86,27 +59,13 @@ def _create_semantic_document(recipe: Recipe):
 
 async def create_recipe(db: AsyncSession, *, recipe_in: RecipeCreate) -> Recipe:
     recipe_data = recipe_in.model_dump(exclude={"ingredients"})
-    ingredient_names = recipe_in.ingredients
+    ingredients_list = recipe_in.ingredients
 
-    db_recipe = Recipe(**recipe_data)
+    db_recipe = Recipe(**recipe_data, ingredients_list=ingredients_list)
+    
     db.add(db_recipe)
-
-    await db.flush() 
-
-    ingredient_objects = await _get_or_create_ingredients(db, ingredient_names)
-    
-    if ingredient_objects:
-        rows_to_insert = [
-            {"recipe_id": db_recipe.id, "ingredient_id": ing.id}
-            for ing in ingredient_objects
-        ]
-        stmt = recipe_ingredient_association.insert().values(rows_to_insert)
-        await db.execute(stmt)
-
-    await db.commit()    
-    
+    await db.commit()
     await db.refresh(db_recipe)
-    await db.refresh(db_recipe, attribute_names=["ingredients"])
     
     text, meta = _create_semantic_document(db_recipe)
     
@@ -130,34 +89,24 @@ async def get_all_recipes(
     query = select(Recipe)
 
     if include_str:
-        raw_includes = [item for item in include_str.split(",") if item.strip()]
-        
-        for raw_item in raw_includes:
-            search_terms = _get_search_terms(raw_item)
+        raw_items = [i.strip() for i in include_str.split(',') if i.strip()]
+        for item in raw_items:
+            terms = list(_get_search_terms(item))
             
-            term_conditions = [
-                _build_ingredient_filter(Ingredient.name, term)
-                for term in search_terms
-            ]
-            
-            query = query.where(Recipe.ingredients.any(or_(*term_conditions)))
+            query = query.where(Recipe.ingredients_list.overlap(terms))
 
     if exclude_str:
-        raw_excludes = [item for item in exclude_str.split(',') if item.strip()]
-        
-        exclude_conditions = []
-        for raw_item in raw_excludes:
-            search_terms = _get_search_terms(raw_item)
-            for term in search_terms:
-                exclude_conditions.append(_build_ingredient_filter(Ingredient.name, term))
-        
-        if exclude_conditions:
-            query = query.where(~Recipe.ingredients.any(or_(*exclude_conditions)))
+        raw_items = [i.strip() for i in exclude_str.split(',') if i.strip()]
+        exclude_terms = []
+        for item in raw_items:
+            exclude_terms.extend(_get_search_terms(item))
+            
+        if exclude_terms:
+            query = query.where(~Recipe.ingredients_list.overlap(exclude_terms))
 
     query = query.offset(skip).limit(limit)
-
     result = await db.execute(query)
-    return result.scalars().unique().all()
+    return result.scalars().all()
 
 async def get_recipe_by_id(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
     query = select(Recipe).where(Recipe.id == recipe_id)
@@ -168,21 +117,8 @@ async def update_recipe(db: AsyncSession, *, db_recipe: Recipe, recipe_in: Recip
     update_data = recipe_in.model_dump(exclude_unset=True)
 
     if "ingredients" in update_data:
-        ingredient_names = update_data.pop("ingredients")
-        ingredient_objects = await _get_or_create_ingredients(db, ingredient_names)
-        
-        delete_stmt = recipe_ingredient_association.delete().where(
-            recipe_ingredient_association.c.recipe_id == db_recipe.id
-        )
-        await db.execute(delete_stmt)
-        
-        if ingredient_objects:
-            rows_to_insert = [
-                {"recipe_id": db_recipe.id, "ingredient_id": ing.id}
-                for ing in ingredient_objects
-            ]
-            insert_stmt = recipe_ingredient_association.insert().values(rows_to_insert)
-            await db.execute(insert_stmt)
+        new_ingredients = update_data.pop("ingredients")
+        db_recipe.ingredients_list = new_ingredients
 
     for field, value in update_data.items():
         setattr(db_recipe, field, value)
@@ -191,13 +127,12 @@ async def update_recipe(db: AsyncSession, *, db_recipe: Recipe, recipe_in: Recip
     await db.commit()
     
     await db.refresh(db_recipe)
-    await db.refresh(db_recipe, attribute_names=["ingredients"])
     
     text, meta = _create_semantic_document(db_recipe)
     
     await vector_store.upsert_recipe(
-        recipe_id=cast(int, db_recipe.id),
-        title=cast(str, db_recipe.title),
+        recipe_id=db_recipe.id,
+        title=db_recipe.title,
         full_text=text,
         metadata=meta
     )

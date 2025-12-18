@@ -12,7 +12,7 @@ from statistics import mean
 from alembic import command
 from alembic.config import Config
 
-from sqlalchemy import text, not_
+from sqlalchemy import text, not_, or_, and_, func
 from sqlalchemy.future import select
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -23,7 +23,6 @@ from app.db.session import AsyncSessionLocal, AsyncSession
 from app.services import recipe_service
 from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
-from app.models.ingredient import Ingredient
 from tests.test_config import test_settings
 from app.core.vector_store import VectorStore
 
@@ -69,20 +68,15 @@ async def seed_eval_data(session: AsyncSession):
         
         await recipe_service.create_recipe(db=session, recipe_in=recipe_in)
 
-async def legacy_search_recipes(db: AsyncSession, *, query_str: str) -> Sequence[Recipe]:
-    search_query = (
-        select(Recipe).
-        where(
-            text("MATCH(title, instructions) AGAINST(:query IN NATURAL LANGUAGE MODE)")
-        )
-        .params(query=query_str)
+def _build_array_string_filter(column_as_string, term: str):    
+    return or_(
+        column_as_string.ilike(f"% {term} %"),
+        column_as_string.ilike(f"{term} %"),
+        column_as_string.ilike(f"% {term}"),
+        column_as_string == term
     )
-    
-    result = await db.execute(search_query)
-    
-    return result.scalars().unique().all()
 
-async def legacy_get_all_recipes(
+async def legacy_smart_filter_on_array(
     db: AsyncSession,
     *,
     skip: int = 0,
@@ -91,24 +85,35 @@ async def legacy_get_all_recipes(
     exclude_str: str | None = None,
 ) -> Sequence[Recipe]:
     query = select(Recipe)
+
+    array_as_string = func.array_to_string(Recipe.ingredients_list, ' ')
     
     if include_str:
-        include_list = [item.strip() for item in include_str.split(",")]
-        for ingredient in include_list:
-            query = query.where(
-                Recipe.ingredients.any(Ingredient.name.ilike(f"%{ingredient}%"))
-            )
-    if exclude_str:
-        exclude_list = [item.strip() for item in exclude_str.split(",")]
-        for ingredient in exclude_list:
-            query = query.where(
-                not_(Recipe.ingredients.any(Ingredient.name.ilike(f"%{ingredient}%")))
-            )
+        raw_includes = [item for item in include_str.split(',') if item.strip()]
+        for item in raw_includes:
+            search_terms = recipe_service._get_search_terms(item)
             
-    query = query.offset(skip).limit(limit)
+            term_conditions = [
+                _build_array_string_filter(array_as_string, term)
+                for term in search_terms
+            ]
+            
+            query = query.where(or_(*term_conditions))
 
+    if exclude_str:
+        raw_excludes = [item for item in exclude_str.split(',') if item.strip()]
+        exclude_conditions = []
+        for item in raw_excludes:
+            search_terms = recipe_service._get_search_terms(item)
+            for term in search_terms:
+                exclude_conditions.append(_build_array_string_filter(array_as_string, term))
+        
+        if exclude_conditions:
+            query = query.where(not_(or_(*exclude_conditions)))
+
+    query = query.offset(skip).limit(limit)
     result = await db.execute(query)
-    return result.scalars().unique().all()
+    return result.scalars().all()
 
 async def evaluate_nls_method(db: AsyncSession, method_name, search_func, queries, id_to_title):
     print("------------------------------------------------------------------------")
@@ -355,19 +360,19 @@ async def main():
             )
             nls_results.append(vec_res)
             
-            naive_fil_res = await evaluate_filters(
-                "Naive String Matching (SQL Like operator)",
-                legacy_get_all_recipes,
+            old_smart_fil_res = await evaluate_filters(
+                "Adapted implementation of the old realization of Smart Word Boundary Filter",
+                legacy_smart_filter_on_array,
                 filter_queries
             )
-            filter_results.append(naive_fil_res)
+            filter_results.append(old_smart_fil_res)
             
-            smart_fil_res = await evaluate_filters(
-                "Smart Word Boundary Filter",
+            overlap_smart_fil_res = await evaluate_filters(
+                "New Fast Smart Word Boundary Filter (PostgreSQL overlap function with gin indexes)",
                 recipe_service.get_all_recipes,
                 filter_queries
             )
-            filter_results.append(smart_fil_res)
+            filter_results.append(overlap_smart_fil_res)
             
             plot_evaluation_results(nls_results, filter_results)
     finally:

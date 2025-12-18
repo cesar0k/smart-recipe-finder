@@ -106,7 +106,7 @@ class TestRecipeOperations:
         assert response.status_code == 200
         data = response.json()
         
-        actual_ingredients = {ing["name"] for ing in data["ingredients"]}
+        actual_ingredients = set(data["ingredients"])
         assert actual_ingredients == set(new_ingredients)
 
     async def test_update_recipe_not_found(self, async_client: AsyncClient, existing_recipe):
@@ -142,8 +142,6 @@ class TestRecipeEvaluation:
         )
         
         async with TestSessionLocal() as session:
-            await session.execute(delete(recipe_ingredient_association))
-            await session.execute(delete(Ingredient))
             await session.execute(delete(Recipe))
             await session.commit()
             

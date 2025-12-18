@@ -9,8 +9,6 @@ from alembic import context
 
 from app.models.base import Base
 from app.models.recipe import Recipe
-from app.models.ingredient import Ingredient
-from app.models.recipe_ingredient_association import recipe_ingredient_association
 from app.core.config import settings
 
 # this is the Alembic Config object, which provides
