@@ -1,9 +1,7 @@
 from .base import Base
-from .recipe_ingredient_association import recipe_ingredient_association
 
 from sqlalchemy import Column, Integer, String, Text
-from sqlalchemy.orm import relationship
-
+from sqlalchemy.dialects.postgresql import ARRAY
 
 class Recipe(Base):
     __tablename__ = "recipes"
@@ -16,10 +14,12 @@ class Recipe(Base):
     difficulty = Column(String(50), nullable=False)
     cuisine = Column(String(50))
 
-    ingredients = relationship(
-        "Ingredient",
-        secondary=recipe_ingredient_association,
-        back_populates="recipes",
-        lazy="selectin",
-        order_by="Ingredient.id",
-    )
+    ingredients_list = Column(ARRAY(String), default=[])
+
+    @property
+    def ingredients(self):
+        return self.ingredients_list
+
+    @ingredients.setter
+    def ingredients(self, value):
+        self.ingredients_list = value

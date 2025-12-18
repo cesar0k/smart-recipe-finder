@@ -12,7 +12,7 @@ from statistics import mean
 from alembic import command
 from alembic.config import Config
 
-from sqlalchemy import text, not_
+from sqlalchemy import text, not_, or_, and_, func
 from sqlalchemy.future import select
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -23,7 +23,6 @@ from app.db.session import AsyncSessionLocal, AsyncSession
 from app.services import recipe_service
 from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
-from app.models.ingredient import Ingredient
 from tests.test_config import test_settings
 from app.core.vector_store import VectorStore
 
@@ -80,34 +79,6 @@ async def legacy_search_recipes(db: AsyncSession, *, query_str: str) -> Sequence
     
     result = await db.execute(search_query)
     
-    return result.scalars().unique().all()
-
-async def legacy_get_all_recipes(
-    db: AsyncSession,
-    *,
-    skip: int = 0,
-    limit: int = 100,
-    include_str: str | None = None,
-    exclude_str: str | None = None,
-) -> Sequence[Recipe]:
-    query = select(Recipe)
-    
-    if include_str:
-        include_list = [item.strip() for item in include_str.split(",")]
-        for ingredient in include_list:
-            query = query.where(
-                Recipe.ingredients.any(Ingredient.name.ilike(f"%{ingredient}%"))
-            )
-    if exclude_str:
-        exclude_list = [item.strip() for item in exclude_str.split(",")]
-        for ingredient in exclude_list:
-            query = query.where(
-                not_(Recipe.ingredients.any(Ingredient.name.ilike(f"%{ingredient}%")))
-            )
-            
-    query = query.offset(skip).limit(limit)
-
-    result = await db.execute(query)
     return result.scalars().unique().all()
 
 async def evaluate_nls_method(db: AsyncSession, method_name, search_func, queries, id_to_title):
@@ -354,13 +325,6 @@ async def main():
                 id_to_title
             )
             nls_results.append(vec_res)
-            
-            naive_fil_res = await evaluate_filters(
-                "Naive String Matching (SQL Like operator)",
-                legacy_get_all_recipes,
-                filter_queries
-            )
-            filter_results.append(naive_fil_res)
             
             smart_fil_res = await evaluate_filters(
                 "Smart Word Boundary Filter",
