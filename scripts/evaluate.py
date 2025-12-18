@@ -68,18 +68,63 @@ async def seed_eval_data(session: AsyncSession):
         
         await recipe_service.create_recipe(db=session, recipe_in=recipe_in)
 
-async def legacy_search_recipes(db: AsyncSession, *, query_str: str) -> Sequence[Recipe]:
-    search_query = (
-        select(Recipe).
-        where(
-            text("MATCH(title, instructions) AGAINST(:query IN NATURAL LANGUAGE MODE)")
-        )
-        .params(query=query_str)
+def _build_array_string_filter(column_as_string, term: str):
+    """
+    Строит "умный" фильтр границ слов, но для массива, превращенного в строку.
+    Это эмулирует логику: "Найти слово 'egg', но не 'eggplant', внутри списка строк".
+    """
+    # Мы ищем:
+    # 1. "... egg, ..." (в середине списка)
+    # 2. "egg, ..." (в начале списка)
+    # 3. "... egg" (в конце списка)
+    # 4. "egg" (единственный элемент)
+    # А также частичные совпадения внутри элемента: "large egg"
+    
+    return or_(
+        column_as_string.ilike(f"% {term} %"), # В середине предложения/списка
+        column_as_string.ilike(f"{term} %"),   # В начале
+        column_as_string.ilike(f"% {term}"),   # В конце
+        column_as_string == term               # Точное совпадение
     )
+
+async def legacy_smart_filter_on_array(
+    db: AsyncSession,
+    *,
+    skip: int = 0,
+    limit: int = 100,
+    include_str: str | None = None,
+    exclude_str: str | None = None,
+) -> Sequence[Recipe]:
+    query = select(Recipe)
+
+    array_as_string = func.array_to_string(Recipe.ingredients_list, ' ')
     
-    result = await db.execute(search_query)
-    
-    return result.scalars().unique().all()
+    if include_str:
+        raw_includes = [item for item in include_str.split(',') if item.strip()]
+        for item in raw_includes:
+            search_terms = recipe_service._get_search_terms(item)
+            
+            term_conditions = [
+                _build_array_string_filter(array_as_string, term)
+                for term in search_terms
+            ]
+            
+            query = query.where(or_(*term_conditions))
+
+    if exclude_str:
+        raw_excludes = [item for item in exclude_str.split(',') if item.strip()]
+        exclude_conditions = []
+        for item in raw_excludes:
+            search_terms = recipe_service._get_search_terms(item)
+            for term in search_terms:
+                exclude_conditions.append(_build_array_string_filter(array_as_string, term))
+        
+        if exclude_conditions:
+            query = query.where(not_(or_(*exclude_conditions)))
+
+    query = query.offset(skip).limit(limit)
+    result = await db.execute(query)
+    return result.scalars().all()
 
 async def evaluate_nls_method(db: AsyncSession, method_name, search_func, queries, id_to_title):
     print("------------------------------------------------------------------------")
@@ -326,12 +371,19 @@ async def main():
             )
             nls_results.append(vec_res)
             
-            smart_fil_res = await evaluate_filters(
-                "Smart Word Boundary Filter",
+            old_smart_fil_res = await evaluate_filters(
+                "Adapted implementation of the old realization of Smart Word Boundary Filter",
+                legacy_smart_filter_on_array,
+                filter_queries
+            )
+            filter_results.append(old_smart_fil_res)
+            
+            overlap_smart_fil_res = await evaluate_filters(
+                "New Fast Smart Word Boundary Filter (PostgreSQL overlap function with gin indexes)",
                 recipe_service.get_all_recipes,
                 filter_queries
             )
-            filter_results.append(smart_fil_res)
+            filter_results.append(overlap_smart_fil_res)
             
             plot_evaluation_results(nls_results, filter_results)
     finally:
