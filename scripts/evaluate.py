@@ -12,14 +12,14 @@ from statistics import mean
 from alembic import command
 from alembic.config import Config
 
-from sqlalchemy import text, not_, or_, and_, func
+from sqlalchemy import not_, or_, String, cast
 from sqlalchemy.future import select
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 sys.path.append(os.getcwd())
 
-from app.db.session import AsyncSessionLocal, AsyncSession
+from app.db.session import AsyncSession
 from app.services import recipe_service
 from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
@@ -31,7 +31,7 @@ matplotlib.use("Agg")
 
 TEST_COLLECTION_NAME = "recipes_test_collection"
 
-BASE_PATH = Path(__file__).resolve().parent.parent
+BASE_PATH = Path(__file__).resolve().parents[1]
 DATASETS_PATH = BASE_PATH / "datasets"
 
 NLS_QUIERIES_PATH = DATASETS_PATH / "evaluation_nls_queries.json"
@@ -39,6 +39,15 @@ FILTER_QUERIES_PATH = DATASETS_PATH / "filter_test_data.json"
 RECIPES_PATH = DATASETS_PATH / "recipe_samples.json"
 
 LIMIT_TOP_K = 5
+
+def _print_section_header(title_text: str) -> int:
+    width = max(len(title_text), 56)
+    print("-" * width)
+    print(title_text)
+    return width
+
+def _print_separator_line(width: int):
+    print("-" * width)
 
 async def setup_test_db():
     print("Creating isolated database...")
@@ -68,15 +77,7 @@ async def seed_eval_data(session: AsyncSession):
         
         await recipe_service.create_recipe(db=session, recipe_in=recipe_in)
 
-def _build_array_string_filter(column_as_string, term: str):    
-    return or_(
-        column_as_string.ilike(f"% {term} %"),
-        column_as_string.ilike(f"{term} %"),
-        column_as_string.ilike(f"% {term}"),
-        column_as_string == term
-    )
-
-async def legacy_smart_filter_on_array(
+async def slow_smart_jsonb_filter(
     db: AsyncSession,
     *,
     skip: int = 0,
@@ -85,39 +86,38 @@ async def legacy_smart_filter_on_array(
     exclude_str: str | None = None,
 ) -> Sequence[Recipe]:
     query = select(Recipe)
-
-    array_as_string = func.array_to_string(Recipe.ingredients_list, ' ')
     
+    json_as_text = cast(Recipe.ingredients, String)
+
     if include_str:
-        raw_includes = [item for item in include_str.split(',') if item.strip()]
-        for item in raw_includes:
-            search_terms = recipe_service._get_search_terms(item)
-            
+        raw_items = [i.strip() for i in include_str.split(',') if i.strip()]
+        for item in raw_items:
+            terms = recipe_service._get_search_terms(item)
+
             term_conditions = [
-                _build_array_string_filter(array_as_string, term)
-                for term in search_terms
+                json_as_text.op("~*")(f"\\y{term}\\y") 
+                for term in terms
             ]
-            
             query = query.where(or_(*term_conditions))
 
     if exclude_str:
-        raw_excludes = [item for item in exclude_str.split(',') if item.strip()]
+        raw_items = [i.strip() for i in exclude_str.split(',') if i.strip()]
         exclude_conditions = []
-        for item in raw_excludes:
-            search_terms = recipe_service._get_search_terms(item)
-            for term in search_terms:
-                exclude_conditions.append(_build_array_string_filter(array_as_string, term))
+        for item in raw_items:
+            terms = recipe_service._get_search_terms(item)
+            for term in terms:
+                exclude_conditions.append(json_as_text.op("~*")(f"\\y{term}\\y"))
         
         if exclude_conditions:
             query = query.where(not_(or_(*exclude_conditions)))
 
     query = query.offset(skip).limit(limit)
     result = await db.execute(query)
-    return result.scalars().all()
+    return result.scalars().unique().all()
 
 async def evaluate_nls_method(db: AsyncSession, method_name, search_func, queries, id_to_title):
-    print("------------------------------------------------------------------------")
-    print(f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated")
+    title = f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated"
+    width = _print_section_header(title)
     
     passed = 0
     total = len(queries)
@@ -200,7 +200,8 @@ async def evaluate_nls_method(db: AsyncSession, method_name, search_func, querie
     print(f"Mean Reciprocal Rank (MRR): {mean_reciprocal_rank:.5f}")
     print(f"Zero Result Rate (ZRR): {zero_result_rate:.2f}%")
     print(f"Average F1-Score: {avg_f1_score:.4f}")
-    print("------------------------------------------------------------------------")
+    _print_separator_line(width)
+    print()
     
     return {
         "method": method_name,
@@ -211,49 +212,61 @@ async def evaluate_nls_method(db: AsyncSession, method_name, search_func, querie
         "avg_latency": avg_latency
     }
 
-async def evaluate_filters(method_name, filter_func, filter_queries):
-    print("------------------------------------------------------------------------")
-    print(f"Evaluating filter with {method_name}")
+async def evaluate_filters(db, method_name, filter_func, filter_queries, iterations=50):
+    title = f"Evaluating filter with {method_name}"
+    width = _print_section_header(title)
     
     passed = 0
     total = len(filter_queries)
     latencies = []
     
-    async with AsyncSessionLocal() as db:
-        for case in filter_queries:
-            start_time = time.time()
+    if filter_queries:
+        warmup_case = filter_queries[0]
+        for _ in range(5):
+             await filter_func(
+                db=db,
+                include_str=warmup_case["include_ingredients"],
+                exclude_str=warmup_case["exclude_ingredients"]
+            )
+
+    for case in filter_queries:
+        start_time = time.time()
+        for _ in range(iterations):
             results = await filter_func(
                 db=db,
-                include_str = case["include_ingredients"],
-                exclude_str = case["exclude_ingredients"]
+                include_str=case["include_ingredients"],
+                exclude_str=case["exclude_ingredients"]
             )
-            found_titles = {r.title for r in results}
-            end_time = time.time()
-            latencies.append((end_time - start_time) * 1000)
-            
-            expected = set(case.get("should_contain", []))
-            unwanted = set(case.get("should_not_contain", []))
-            
-            missing = expected - found_titles
-            found_unwanted = found_titles.intersection(unwanted)
-            
-            if not missing and not found_unwanted:
-                passed += 1
-            else:
-                # Extended log
-                print(f" Filter testcase {case['id']} failed.")
-                if missing: print(f"  - missing: {missing}")
-                if found_unwanted: print(f"  - found unwanted: {found_unwanted}")
-                
-                # Or pass
-                # pass
-                
-    accuracy = (passed / total) * 100
-    avg_latency = mean(latencies)
+        end_time = time.time()
+        
+        batch_duration_ms = (end_time - start_time) * 1000
+        
+        latency_per_query = batch_duration_ms / iterations
+        latencies.append(latency_per_query)
+        
+        found_titles = {r.title for r in results}
+        expected = set(case.get("should_contain", []))
+        unwanted = set(case.get("should_not_contain", []))
+        
+        missing = expected - found_titles
+        found_unwanted = found_titles.intersection(unwanted)
+        
+        if not missing and not found_unwanted:
+            passed += 1
+        else:
+            print(f" Filter testcase {case['id']} failed.")
+            if missing:
+                print(f"  - missing: {missing}")
+            if found_unwanted:
+                print(f"  - found unwanted: {found_unwanted}")
+
+    accuracy = (passed / total) * 100 if total > 0 else 0
+    avg_latency = mean(latencies) if latencies else 0
     
     print(f"Filter accuracy: {accuracy:.2f}% ({passed}/{total} queries passed)")
     print(f"Average latency: {avg_latency:.5f} ms")
-    print("------------------------------------------------------------------------")
+    _print_separator_line(width)
+    print()
     
     return {
         "method": method_name,
@@ -348,7 +361,7 @@ async def main():
                 filter_queries = json.load(f)
             with open(RECIPES_PATH) as f:
                 recipes = json.load(f)
-                
+                                
             id_to_title = {r['id']: r['title'] for r in recipes}
             
             vec_res = await evaluate_nls_method(
@@ -359,21 +372,23 @@ async def main():
                 id_to_title
             )
             nls_results.append(vec_res)
-            
-            old_smart_fil_res = await evaluate_filters(
-                "Adapted implementation of the old realization of Smart Word Boundary Filter",
-                legacy_smart_filter_on_array,
-                filter_queries
-            )
-            filter_results.append(old_smart_fil_res)
-            
-            overlap_smart_fil_res = await evaluate_filters(
-                "New Fast Smart Word Boundary Filter (PostgreSQL overlap function with gin indexes)",
+                             
+            jsonb_fast_smart_fil_res = await evaluate_filters(
+                db,
+                "Fast JSONB Word Boundary Filter",
                 recipe_service.get_all_recipes,
+                filter_queries,
+            )
+            filter_results.append(jsonb_fast_smart_fil_res)
+                        
+            slow_smart_fil_res = await evaluate_filters(
+                db,
+                "Slow JSONB Accurate Word Boundary Filter",
+                slow_smart_jsonb_filter,
                 filter_queries
             )
-            filter_results.append(overlap_smart_fil_res)
-            
+            filter_results.append(slow_smart_fil_res)
+    
             plot_evaluation_results(nls_results, filter_results)
     finally:
         print("Cleaning up...")

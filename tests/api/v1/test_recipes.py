@@ -106,7 +106,7 @@ class TestRecipeOperations:
         assert response.status_code == 200
         data = response.json()
         
-        actual_ingredients = set(data["ingredients"])
+        actual_ingredients = set(ing["name"] for ing in data["ingredients"])
         assert actual_ingredients == set(new_ingredients)
 
     async def test_update_recipe_not_found(self, async_client: AsyncClient, existing_recipe):

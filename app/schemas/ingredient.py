@@ -1,7 +1,4 @@
-from .ingredient_base import IngredientBase
+from pydantic import BaseModel
 
-class Ingredient(IngredientBase):
-    id: int
-    
-    class Config:
-        from_attributes = True
+class Ingredient(BaseModel):
+    name: str
