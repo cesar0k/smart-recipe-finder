@@ -44,7 +44,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.add_column('recipes', sa.Column('ingredients_list', postgresql.ARRAY(sa.String()), nullable=False))
+    op.add_column('recipes', sa.Column('ingredients_list', postgresql.ARRAY(sa.String()), nullable=True))
     
     op.execute("""
                UPDATE recipes
@@ -54,11 +54,15 @@ def downgrade() -> None:
                    id,
                    (
                        SELECT array_agg(elem->>'name')
-                       FROM jsonb_array_element(ingredients) as elem
+                       FROM jsonb_array_elements(ingredients) as elem
                    ) as arr_data
                    FROM recipes
                ) as subquery
                WHERE recipes.id = subquery.id
                """)
+    op.execute("UPDATE recipes SET ingredients_list = '{}' WHERE ingredients_list IS NULL")
+    
+    op.alter_column('recipes', 'ingredients_list', nullable=False, server_default='{}')
+    
     op.drop_index('ix_recipes_ingredients_jsonb', table_name='recipes')
     op.drop_column('recipes', 'ingredients')

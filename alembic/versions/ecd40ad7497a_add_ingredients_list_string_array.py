@@ -40,5 +40,5 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index('ix_recipes_ingredients_list', table_name='recipes')
+    op.execute("DROP INDEX IF EXISTS ix_recipes_ingredients_list")
     op.drop_column('recipes', 'ingredients_list')
