@@ -3,7 +3,7 @@ from .ingredient import Ingredient
 
 class Recipe(RecipeBase):
     id: int
-    ingredients_list: list[str] = []
+    ingredients: list[Ingredient] = []
     
     # for reading data from SQLAlchemy objects
     class Config:

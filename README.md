@@ -150,8 +150,8 @@ Currently implemented features:
 - [x] Project setup with Docker and a scalable layered architecture.
 - [x] **Create** and **Read** (by ID and list all) operations for recipes.
 - [x] **Update** and **Delete** operations for recipes.
-- [x] **Smart Filtering Logic (Refactored)**
-- [x] Vector Search Implementation
+- [x] **Smart Filtering Logic** (Refactored).
+- [x] Vector Search Implementation.
 - [x] Comprehensive test suite with an isolated database.
 - [x] Script for evaluating search and filtering methods with **graphical** representation in the form of a file.
 - [x] Devcontainer for a consistent development environment.

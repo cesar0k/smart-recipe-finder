@@ -161,7 +161,7 @@
   },
   {
     "id": 16,
-    "description": "TRAP: Include 'egg'. Should find Carbonara, Cake, Pancakes, Soup (noodles).",
+    "description": "TRAP: Include 'egg'. Should find recipes with 'egg' or 'eggs'. Should not find compound ingredients like 'egg noodles'.",
     "include_ingredients": "egg",
     "exclude_ingredients": "",
     "should_contain": [
@@ -380,12 +380,11 @@
   },
   {
     "id": 38,
-    "description": "TRAP: Include 'butter'. Finds Cake, Smoothie.",
+    "description": "TRAP: Include 'butter'. Finds recipes with 'butter'. Should not find compound ingredients like 'peanut butter'.",
     "include_ingredients": "butter",
     "exclude_ingredients": "",
     "should_contain": [
-      "Chocolate Lava Cake",
-      "High-Protein Post-Workout Smoothie"
+      "Chocolate Lava Cake"
     ],
     "should_not_contain": []
   },
@@ -425,11 +424,12 @@
   },
   {
     "id": 43,
-    "description": "TRAP: Include 'cream'. Finds Gratin (it has cream).",
+    "description": "TRAP: Include 'cream'. Finds recipes with 'cream'. Should not find compound ingredients like 'heavy cream' or 'cream cheese'.",
     "include_ingredients": "cream",
     "exclude_ingredients": "",
     "should_contain": [
-      "Vegetarian Potato Gratin with Cheese"
+      "Vegetarian Potato Gratin with Cheese",
+      "Butternut Squash Soup"
     ],
     "should_not_contain": [
       "High-Protein Post-Workout Smoothie"

@@ -11,8 +11,6 @@ from app.db.session import AsyncSessionLocal
 from app.services import recipe_service
 from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
-from app.models.ingredient import Ingredient
-from app.models.recipe_ingredient_association import recipe_ingredient_association
 from app.core.vector_store import vector_store
 
 BASE_DIR = Path(__file__).parents[1]
@@ -26,8 +24,6 @@ async def seed():
     
     async with AsyncSessionLocal() as db:
         print(" - Cleaning old data...")
-        await db.execute(delete(recipe_ingredient_association))
-        await db.execute(delete(Ingredient))
         await db.execute(delete(Recipe))
         await db.commit()
 
