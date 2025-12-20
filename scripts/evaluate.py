@@ -41,6 +41,15 @@ RECIPES_PATH = DATASETS_PATH / "recipe_samples.json"
 
 LIMIT_TOP_K = 5
 
+def _print_section_header(title_text: str) -> int:
+    width = max(len(title_text), 56)
+    print("-" * width)
+    print(title_text)
+    return width
+
+def _print_separator_line(width: int):
+    print("-" * width)
+
 async def setup_test_db():
     print("Creating isolated database...")
     if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
@@ -111,8 +120,8 @@ async def legacy_get_all_recipes(
     return result.scalars().unique().all()
 
 async def evaluate_nls_method(db: AsyncSession, method_name, search_func, queries, id_to_title):
-    print("------------------------------------------------------------------------")
-    print(f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated")
+    title = f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated"
+    width = _print_section_header(title)
     
     passed = 0
     total = len(queries)
@@ -195,7 +204,8 @@ async def evaluate_nls_method(db: AsyncSession, method_name, search_func, querie
     print(f"Mean Reciprocal Rank (MRR): {mean_reciprocal_rank:.5f}")
     print(f"Zero Result Rate (ZRR): {zero_result_rate:.2f}%")
     print(f"Average F1-Score: {avg_f1_score:.4f}")
-    print("------------------------------------------------------------------------")
+    _print_separator_line(width)
+    print()
     
     return {
         "method": method_name,
@@ -206,49 +216,61 @@ async def evaluate_nls_method(db: AsyncSession, method_name, search_func, querie
         "avg_latency": avg_latency
     }
 
-async def evaluate_filters(method_name, filter_func, filter_queries):
-    print("------------------------------------------------------------------------")
-    print(f"Evaluating filter with {method_name}")
+async def evaluate_filters(db, method_name, filter_func, filter_queries, iterations=50):
+    title = f"Evaluating filter with {method_name}"
+    width = _print_section_header(title)
     
     passed = 0
     total = len(filter_queries)
     latencies = []
     
-    async with AsyncSessionLocal() as db:
-        for case in filter_queries:
-            start_time = time.time()
+    if filter_queries:
+        warmup_case = filter_queries[0]
+        for _ in range(5):
+             await filter_func(
+                db=db,
+                include_str=warmup_case["include_ingredients"],
+                exclude_str=warmup_case["exclude_ingredients"]
+            )
+
+    for case in filter_queries:
+        start_time = time.time()
+        for _ in range(iterations):
             results = await filter_func(
                 db=db,
-                include_str = case["include_ingredients"],
-                exclude_str = case["exclude_ingredients"]
+                include_str=case["include_ingredients"],
+                exclude_str=case["exclude_ingredients"]
             )
-            found_titles = {r.title for r in results}
-            end_time = time.time()
-            latencies.append((end_time - start_time) * 1000)
-            
-            expected = set(case.get("should_contain", []))
-            unwanted = set(case.get("should_not_contain", []))
-            
-            missing = expected - found_titles
-            found_unwanted = found_titles.intersection(unwanted)
-            
-            if not missing and not found_unwanted:
-                passed += 1
-            else:
-                # Extended log
-                print(f" Filter testcase {case['id']} failed.")
-                if missing: print(f"  - missing: {missing}")
-                if found_unwanted: print(f"  - found unwanted: {found_unwanted}")
-                
-                # Or pass
-                # pass
-                
-    accuracy = (passed / total) * 100
-    avg_latency = mean(latencies)
+        end_time = time.time()
+        
+        batch_duration_ms = (end_time - start_time) * 1000
+        
+        latency_per_query = batch_duration_ms / iterations
+        latencies.append(latency_per_query)
+        
+        found_titles = {r.title for r in results}
+        expected = set(case.get("should_contain", []))
+        unwanted = set(case.get("should_not_contain", []))
+        
+        missing = expected - found_titles
+        found_unwanted = found_titles.intersection(unwanted)
+        
+        if not missing and not found_unwanted:
+            passed += 1
+        else:
+            print(f" Filter testcase {case['id']} failed.")
+            if missing:
+                print(f"  - missing: {missing}")
+            if found_unwanted:
+                print(f"  - found unwanted: {found_unwanted}")
+
+    accuracy = (passed / total) * 100 if total > 0 else 0
+    avg_latency = mean(latencies) if latencies else 0
     
     print(f"Filter accuracy: {accuracy:.2f}% ({passed}/{total} queries passed)")
     print(f"Average latency: {avg_latency:.5f} ms")
-    print("------------------------------------------------------------------------")
+    _print_separator_line(width)
+    print()
     
     return {
         "method": method_name,
@@ -356,6 +378,7 @@ async def main():
             nls_results.append(vec_res)
             
             naive_fil_res = await evaluate_filters(
+                db,
                 "Naive String Matching (SQL Like operator)",
                 legacy_get_all_recipes,
                 filter_queries
@@ -363,6 +386,7 @@ async def main():
             filter_results.append(naive_fil_res)
             
             smart_fil_res = await evaluate_filters(
+                db,
                 "Smart Word Boundary Filter",
                 recipe_service.get_all_recipes,
                 filter_queries
