@@ -1,0 +1,65 @@
+name: Backend Quality Gate
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate-and-benchmark:
+    name: Test & Evaluate
+    runs-on: ubuntu-latest
+    
+    env:
+      PYTHONUNBUFFERED: 1
+      UV_CACHE_DIR: /tmp/.uv-cache
+      
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Generate .env Configuration
+        run: |
+          touch .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_INTERNAL_PORT=5432" >> .env
+          echo "DB_EXTERNAL_PORT=5432" >> .env
+          
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+
+          echo "CHROMA_HOST=127.0.0.1" >> .env
+          echo "CHROMA_PORT=8000" >> .env
+          echo "CHROMA_COLLECTION_NAME=${{ secrets.CHROMA_COLLECTION_NAME }}" >> .env
+
+          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
+          echo "EMBEDDING_MODEL=google/embeddinggemma-300m" >> .env
+
+      - name: Load .env to CI Environment
+        run: cat .env >> $GITHUB_ENV
+
+      - name: Start Infrastructure
+        run: |
+          docker compose up -d --wait postgres chroma
+
+      - name: Run Smoke Tests
+        run: uv run --env-file .env pytest -m smoke -v
+
+      - name: Run Search Quality Evaluation
+        run: uv run python scripts/evaluate.py
+
+      - name: Dump Docker Logs
+        if: failure()
+        run: docker compose logs

@@ -9,6 +9,12 @@ services:
     environment:
       - CHROMA_PERSISTENT_DIRECTORY=/data
       - IS_PERSISTENT=TRUE
+    healthcheck:
+      test: [ "CMD", "/bin/bash", "-c", "cat < /dev/null > /dev/tcp/localhost/8000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     networks:
       - default
 

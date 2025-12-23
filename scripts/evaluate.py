@@ -23,7 +23,7 @@ from app.db.session import AsyncSession
 from app.services import recipe_service
 from app.schemas.recipe_create import RecipeCreate
 from app.models.recipe import Recipe
-from tests.test_config import test_settings
+from tests.testing_config import testing_settings
 from app.core.vector_store import VectorStore
 
 import matplotlib
@@ -51,18 +51,18 @@ def _print_separator_line(width: int):
 
 async def setup_test_db():
     print("Creating isolated database...")
-    if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
-        drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
-    create_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
+        drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    create_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
     
     alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
+    alembic_cfg.set_main_option("sqlalchemy.url", testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
     await asyncio.to_thread(command.upgrade, alembic_cfg, "head")
 
 def teardown_test_db():
     print("Dropping isolated database...")
-    if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
-        drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
+        drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
 
 async def seed_eval_data(session: AsyncSession):
     with open(RECIPES_PATH) as f:
@@ -274,6 +274,40 @@ async def evaluate_filters(db, method_name, filter_func, filter_queries, iterati
         "avg_latency": avg_latency
     }
 
+def check_quality_gates(method_name: str, results: dict) -> bool:
+    if method_name not in testing_settings.THRESHOLDS:
+        return True
+    
+    limits = testing_settings.THRESHOLDS[method_name]
+    is_passed = True
+    
+    print(f"Quality gate for {method_name}")
+    
+    metrics_higher = ["accuracy", "avg_f1_score", "mean_reciprocal_rank"]
+    metrics_lower = ["zero_result_rate", "latency"]
+
+    for metric, target in limits.items():
+        if metric not in results:
+            continue
+            
+        actual = results[metric]
+        
+        status = "PASS"
+        
+        if metric in metrics_higher:
+            if actual < target:
+                status = "FAIL"
+                is_passed = False
+            print(f"  {status} {metric}: {actual:.4f} >= {target}")
+            
+        elif metric in metrics_lower:
+            if actual > target:
+                status = "FAIL"
+                is_passed = False
+            print(f"  {status} {metric}: {actual:.4f} <= {target}")
+            
+    return is_passed
+
 def plot_evaluation_results(nls_results, filter_results):
     print("\nGenerating evaluation charts...")
     
@@ -345,11 +379,13 @@ async def main():
     original_vector_store = recipe_service.vector_store
     recipe_service.vector_store = eval_vector_store
     
-    engine = create_async_engine(test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
+    engine = create_async_engine(testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
     SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
     
     nls_results = []
     filter_results = []
+    
+    success = True
     
     try:
         async with SessionLocal() as db:
@@ -366,28 +402,32 @@ async def main():
             
             vec_res = await evaluate_nls_method(
                 db,
-                "Vector search",
+                "Vector Search",
                 recipe_service.search_recipes_by_vector,
                 nls_queries,
                 id_to_title
             )
             nls_results.append(vec_res)
+            if not check_quality_gates("Vector Search", vec_res):
+                success = False
                              
             jsonb_fast_smart_fil_res = await evaluate_filters(
                 db,
-                "Fast JSONB Word Boundary Filter",
+                "JSONB GIN Filter",
                 recipe_service.get_all_recipes,
                 filter_queries,
             )
             filter_results.append(jsonb_fast_smart_fil_res)
+            if not check_quality_gates("JSONB GIN Filter", jsonb_fast_smart_fil_res):
+                success = False
                         
-            slow_smart_fil_res = await evaluate_filters(
+            jsonb_slow_smart_fil_res = await evaluate_filters(
                 db,
                 "Slow JSONB Accurate Word Boundary Filter",
                 slow_smart_jsonb_filter,
                 filter_queries
             )
-            filter_results.append(slow_smart_fil_res)
+            filter_results.append(jsonb_slow_smart_fil_res)
     
             plot_evaluation_results(nls_results, filter_results)
     finally:
@@ -402,6 +442,13 @@ async def main():
         
         teardown_test_db()
         print("Cleaned up.")
+    
+    if not success:
+        print("Evaluation tests FAILED.")
+        sys.exit(1)
+        
+    print("Evaluation tests PASSED.")
+    sys.exit(0)
     
 if __name__ == "__main__":
     asyncio.run(main())
