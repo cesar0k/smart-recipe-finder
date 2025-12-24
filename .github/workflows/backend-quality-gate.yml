@@ -54,8 +54,8 @@ jobs:
         run: |
           docker compose up -d --wait postgres chroma
 
-      - name: Run Smoke Tests
-        run: uv run --env-file .env pytest -m smoke -v
+      - name: Run Functional Tests (CRUD)
+        run: uv run --env-file .env pytest -m crud -v
 
       - name: Run Search Quality Evaluation
         run: uv run python scripts/evaluate.py

@@ -53,7 +53,7 @@ If you need to change the application or database ports because they are already
 Use Docker Compose to build the images and start the services in detached mode (`-d`).
 
 ```bash
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 The API service will now be running and accessible at `http://localhost:8001`.
@@ -89,7 +89,7 @@ The project includes a comprehensive test suite covering various functionalities
 To run the entire test suite, execute `pytest` without any specific markers:
 
 ```bash
-docker-compose exec app pytest
+docker compose exec app pytest
 ```
 
 #### Smoke Tests
@@ -97,7 +97,15 @@ docker-compose exec app pytest
 Smoke tests are a subset of tests designed to quickly verify that the most important functions of the application are working correctly. To run only the smoke tests execute:
 
 ```bash
-docker-compose exec app pytest -m smoke
+docker compose exec app pytest -m smoke
+```
+
+#### CRUD Tests
+
+CRUD tests cover the full lifecycle of recipe management operations (Create, Read, Update, Delete). Unlike smoke tests, this suite performs a comprehensive check of the API functionality, including edge cases, partial updates, and error handling. To run the full functional test suite execute:
+
+```bash
+docker compose exec app pytest -m crud
 ```
 
 #### Evaluation Tests
@@ -105,7 +113,7 @@ docker-compose exec app pytest -m smoke
 Evaluation tests are designed to assess specific aspects of the application, often involving dedicated datasets or complex scenarios. To run only the evaluation tests execute:
 
 ```bash
-docker-compose exec app pytest -m eval
+docker compose exec app pytest -m eval
 ```
 
 ## Seeding the Database
@@ -115,7 +123,7 @@ To populate your database with sample recipe data, you can use the `seed_db.py` 
 To seed the database, run the following command:
 
 ```bash
-docker-compose exec app python scripts/seed_db.py
+docker compose exec app python scripts/seed_db.py
 ```
 
 This script will add a predefined set of recipes to your database, which you can then query via the API.
@@ -138,7 +146,7 @@ One of the core goals of this project is to quantitatively compare different sea
 ### How to Run Benchmarks
 **Run Evaluation Script**:
 ```bash
-docker-compose exec app python scripts/evaluate.py
+docker compose exec app python scripts/evaluate.py
 ```
 
 ## Visual Results
