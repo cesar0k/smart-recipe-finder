@@ -31,7 +31,8 @@ with open(NLS_DATASET_PATH) as f:
                 
         expected_titles = {id_to_title.get(eid) for eid in expected_ids if id_to_title.get(eid)}
         q["should_contain"] = list(expected_titles) if expected_titles else []
-    
+
+@pytest.mark.crud    
 @pytest.mark.asyncio
 class TestRecipeOperations:
     BASE_RECIPE_DATA = {

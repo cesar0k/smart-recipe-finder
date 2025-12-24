@@ -14,7 +14,7 @@ from sqlalchemy import delete
 from sqlalchemy_utils import database_exists, drop_database, create_database
 
 from app.models import *
-from tests.test_config import test_settings
+from tests.testing_config import testing_settings
 from app.core.vector_store import VectorStore 
 
 RECIPES_SOURCE_PATH = Path(__file__).parent.parent / "datasets" / "recipe_samples.json"
@@ -26,27 +26,27 @@ def event_loop():
     loop.close()
 
 @pytest.fixture(scope="session", autouse=True)
-def set_test_settings():
-    os.environ["POSTGRES_DB"] = test_settings.TEST_DB_NAME
+def set_testing_settings():
+    os.environ["POSTGRES_DB"] = testing_settings.TEST_DB_NAME
     os.environ["CHROMA_COLLECTION_NAME"] = "recipes_test_collection"
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_db():
-    if database_exists(test_settings.SYNC_TEST_DATABASE_ADMIN_URL):
-        drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
-    create_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
+        drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    create_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
     
     alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", test_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
+    alembic_cfg.set_main_option("sqlalchemy.url", testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
     command.upgrade(alembic_cfg, "head")
     
     yield
     
-    drop_database(test_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+    drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
 
 @pytest.fixture(scope="session")
 async def db_engine():
-    engine = create_async_engine(test_settings.ASYNC_TEST_DATABASE_ADMIN_URL, pool_pre_ping=True)
+    engine = create_async_engine(testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL, pool_pre_ping=True)
     yield engine
     await engine.dispose()
 
