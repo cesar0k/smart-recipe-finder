@@ -16,12 +16,13 @@ from app.core.vector_store import vector_store
 BASE_DIR = Path(__file__).parents[1]
 RECIPES_PATH = BASE_DIR / "datasets" / "recipe_samples.json"
 
+
 async def seed():
     print("Seeding database...")
-    
+
     print("Cleaning Vector Store...")
-    vector_store.clear() 
-    
+    vector_store.clear()
+
     async with AsyncSessionLocal() as db:
         print(" - Cleaning old data...")
         await db.execute(delete(Recipe))
@@ -30,16 +31,17 @@ async def seed():
         print(" - Loading recipes...")
         with open(RECIPES_PATH) as f:
             recipes_data = json.load(f)
-            
+
         for r_data in recipes_data:
             r_input = r_data.copy()
             if "id" in r_input:
                 del r_input["id"]
-            
+
             recipe_in = RecipeCreate(**r_input)
             await recipe_service.create_recipe(db=db, recipe_in=recipe_in)
-            
+
         print(f"Successfully inserted {len(recipes_data)} recipes.")
+
 
 if __name__ == "__main__":
     asyncio.run(seed())

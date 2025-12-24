@@ -3,6 +3,7 @@ from .base import Base
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 
+
 class Recipe(Base):
     __tablename__ = "recipes"
 

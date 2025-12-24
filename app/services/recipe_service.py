@@ -12,22 +12,24 @@ from app.core.vector_store import vector_store
 
 p = inflect.engine()
 
+
 def _get_search_terms(raw_term: str) -> set[str]:
     term = raw_term.lower().strip()
     if not term:
         return set()
-    
+
     terms = {term}
-    
+
     singular = p.singular_noun(cast(Any, term))
     if singular:
         terms.add(singular)
-        
+
     plural = p.plural(cast(Any, term))
     if plural:
         terms.add(plural)
-        
+
     return terms
+
 
 def _create_semantic_document(recipe: Recipe) -> tuple[str, dict[str, Any]]:
     time_description = "Standard cooking time"
@@ -38,13 +40,13 @@ def _create_semantic_document(recipe: Recipe) -> tuple[str, dict[str, Any]]:
         time_description = "Quick, standard meal"
     elif t > 120:
         time_description = "Slow cooked, long preparation"
-    
+
     ingredients_str = ""
     ingredients = cast(Any, recipe.ingredients)
     if ingredients:
         names = [item.get("name", "") for item in ingredients]
-        ingredients_str = ", ".join(names)    
-    
+        ingredients_str = ", ".join(names)
+
     doc_to_embed = (
         f"Title: {recipe.title}. "
         f"Ingredients: {ingredients_str}. "
@@ -53,36 +55,38 @@ def _create_semantic_document(recipe: Recipe) -> tuple[str, dict[str, Any]]:
         f"Difficulty: {recipe.difficulty}. "
         f"Cuisine: {recipe.cuisine}."
     )
-    
+
     metadata = {
         "title": recipe.title,
         "cooking_time": recipe.cooking_time_in_minutes,
         "difficulty": recipe.difficulty,
-        "cuisine": recipe.cuisine or ""
+        "cuisine": recipe.cuisine or "",
     }
-    
+
     return doc_to_embed, metadata
+
 
 async def create_recipe(db: AsyncSession, *, recipe_in: RecipeCreate) -> Recipe:
     recipe_data = recipe_in.model_dump(exclude={"ingredients"})
     json_ingredients = [{"name": name} for name in recipe_in.ingredients]
 
     db_recipe = Recipe(**recipe_data, ingredients=json_ingredients)
-    
+
     db.add(db_recipe)
     await db.commit()
     await db.refresh(db_recipe)
-    
+
     text, meta = _create_semantic_document(db_recipe)
-    
+
     await vector_store.upsert_recipe(
         recipe_id=cast(int, db_recipe.id),
         title=cast(str, db_recipe.title),
         full_text=text,
-        metadata=meta
+        metadata=meta,
     )
-    
+
     return db_recipe
+
 
 async def get_all_recipes(
     db: AsyncSession,
@@ -95,24 +99,21 @@ async def get_all_recipes(
     query = select(Recipe)
 
     if include_str:
-        raw_items = [i.strip() for i in include_str.split(',') if i.strip()]
+        raw_items = [i.strip() for i in include_str.split(",") if i.strip()]
         for item in raw_items:
             terms = _get_search_terms(item)
-            
-            or_condtitions = [
-                Recipe.ingredients.contains([{"name": t}])
-                for t in terms
-            ]
+
+            or_condtitions = [Recipe.ingredients.contains([{"name": t}]) for t in terms]
             query = query.where(or_(*or_condtitions))
 
     if exclude_str:
-        raw_items = [i.strip() for i in exclude_str.split(',') if i.strip()]
+        raw_items = [i.strip() for i in exclude_str.split(",") if i.strip()]
         exclude_conditions = []
         for item in raw_items:
             terms = _get_search_terms(item)
             for t in terms:
                 exclude_conditions.append(Recipe.ingredients.contains([{"name": t}]))
-                
+
         if exclude_conditions:
             query = query.where(not_(or_(*exclude_conditions)))
 
@@ -120,18 +121,22 @@ async def get_all_recipes(
     result = await db.execute(query)
     return result.scalars().all()
 
+
 async def get_recipe_by_id(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
     query = select(Recipe).where(Recipe.id == recipe_id)
     result = await db.execute(query)
     return result.scalar_one_or_none()
 
-async def update_recipe(db: AsyncSession, *, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Recipe:
+
+async def update_recipe(
+    db: AsyncSession, *, db_recipe: Recipe, recipe_in: RecipeUpdate
+) -> Recipe:
     update_data = recipe_in.model_dump(exclude_unset=True)
 
     if "ingredients" in update_data:
         raw_ingredients = update_data.pop("ingredients")
         json_ingredients = [{"name": i} for i in raw_ingredients]
-        
+
         setattr(db_recipe, "ingredients", json_ingredients)
 
     for field, value in update_data.items():
@@ -139,43 +144,45 @@ async def update_recipe(db: AsyncSession, *, db_recipe: Recipe, recipe_in: Recip
 
     db.add(db_recipe)
     await db.commit()
-    
+
     await db.refresh(db_recipe)
-    
+
     text, meta = _create_semantic_document(db_recipe)
-    
+
     await vector_store.upsert_recipe(
         recipe_id=cast(int, db_recipe.id),
         title=cast(str, db_recipe.title),
         full_text=text,
-        metadata=meta
+        metadata=meta,
     )
-    
+
     return db_recipe
+
 
 async def delete_recipe(db: AsyncSession, *, recipe_id: int) -> Recipe | None:
     db_recipe = await get_recipe_by_id(db=db, recipe_id=recipe_id)
     if db_recipe:
         await db.delete(db_recipe)
         await db.commit()
-        
+
         await vector_store.delete_recipe(recipe_id)
     return db_recipe
 
+
 async def search_recipes_by_vector(db: AsyncSession, *, query_str: str) -> List[Recipe]:
     recipe_ids = await vector_store.search(query=query_str, n_results=5)
-    
+
     if not recipe_ids:
         return []
-    
+
     query = select(Recipe).where(Recipe.id.in_(recipe_ids))
     result = await db.execute(query)
     recipes = result.scalars().unique().all()
-    
+
     recipes_map = {cast(int, r.id): r for r in recipes}
     ordered_recipes = []
     for rid in recipe_ids:
         if rid in recipes_map:
             ordered_recipes.append(recipes_map[rid])
-            
+
     return ordered_recipes

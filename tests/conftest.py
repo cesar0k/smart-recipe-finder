@@ -15,9 +15,10 @@ from sqlalchemy_utils import database_exists, drop_database, create_database
 
 from app.models import *
 from tests.testing_config import testing_settings
-from app.core.vector_store import VectorStore 
+from app.core.vector_store import VectorStore
 
 RECIPES_SOURCE_PATH = Path(__file__).parent.parent / "datasets" / "recipe_samples.json"
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -25,30 +26,38 @@ def event_loop():
     yield loop
     loop.close()
 
+
 @pytest.fixture(scope="session", autouse=True)
 def set_testing_settings():
     os.environ["POSTGRES_DB"] = testing_settings.TEST_DB_NAME
     os.environ["CHROMA_COLLECTION_NAME"] = "recipes_test_collection"
+
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_db():
     if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
         drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
     create_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
-    
+
     alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
+    alembic_cfg.set_main_option(
+        "sqlalchemy.url", testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL
+    )
     command.upgrade(alembic_cfg, "head")
-    
+
     yield
-    
+
     drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
+
 
 @pytest.fixture(scope="session")
 async def db_engine():
-    engine = create_async_engine(testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL, pool_pre_ping=True)
+    engine = create_async_engine(
+        testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL, pool_pre_ping=True
+    )
     yield engine
     await engine.dispose()
+
 
 @pytest.fixture(scope="session")
 def test_vector_store():
@@ -59,16 +68,19 @@ def test_vector_store():
     except:
         pass
 
+
 @pytest.fixture(scope="function")
 async def async_client(db_engine, test_vector_store, monkeypatch, request):
     from app.main import app
     from app.db.session import get_db
-    
+
     monkeypatch.setattr("app.services.recipe_service.vector_store", test_vector_store)
     monkeypatch.setattr("app.core.vector_store.vector_store", test_vector_store)
 
-    is_eval_test = request.node.get_closest_marker("eval") is not None or \
-                   request.node.get_closest_marker("no_db_cleanup") is not None
+    is_eval_test = (
+        request.node.get_closest_marker("eval") is not None
+        or request.node.get_closest_marker("no_db_cleanup") is not None
+    )
 
     if not is_eval_test:
         test_vector_store.clear()
@@ -76,12 +88,16 @@ async def async_client(db_engine, test_vector_store, monkeypatch, request):
             await conn.execute(delete(Recipe))
 
     async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
-        async with async_sessionmaker(bind=db_engine, expire_on_commit=False)() as session:
+        async with async_sessionmaker(
+            bind=db_engine, expire_on_commit=False
+        )() as session:
             yield session
 
     app.dependency_overrides[get_db] = override_get_db
 
-    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with httpx.AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         yield client
 
     app.dependency_overrides.clear()
