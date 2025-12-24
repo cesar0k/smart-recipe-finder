@@ -2,19 +2,19 @@ name: Backend Quality Gate
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   validate-and-benchmark:
     name: Test & Evaluate
     runs-on: ubuntu-latest
-    
+
     env:
       PYTHONUNBUFFERED: 1
       UV_CACHE_DIR: /tmp/.uv-cache
-      
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -33,7 +33,7 @@ jobs:
           echo "DB_HOST=127.0.0.1" >> .env
           echo "DB_INTERNAL_PORT=5432" >> .env
           echo "DB_EXTERNAL_PORT=5432" >> .env
-          
+
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env

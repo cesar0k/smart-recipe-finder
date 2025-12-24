@@ -9,15 +9,14 @@ from app.core.vector_store import vector_store
 
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(
-    level=logging.INFO,
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
+logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdout)])
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     vector_store.preload_model()
     yield
+
 
 class RootResponse(BaseModel):
     status: str
@@ -25,13 +24,11 @@ class RootResponse(BaseModel):
     version: str
     documentation_url: str
 
-app = FastAPI(
-    title="Smart Recipes Finder", 
-    version="1.1.0",
-    lifespan=lifespan
-)
+
+app = FastAPI(title="Smart Recipes Finder", version="1.1.0", lifespan=lifespan)
 
 app.include_router(api_router, prefix="/api/v1")
+
 
 @app.get("/", response_model=RootResponse, tags=["Root"])
 def read_root():
@@ -39,5 +36,5 @@ def read_root():
         "status": "ok",
         "project_name": app.title,
         "version": app.version,
-        "documentation_url": "/docs"
+        "documentation_url": "/docs",
     }

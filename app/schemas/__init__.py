@@ -4,10 +4,4 @@ from .recipe_update import RecipeUpdate
 from .recipe import Recipe
 from .ingredient import Ingredient
 
-__all__ = [
-    "RecipeBase",
-    "RecipeCreate",
-    "RecipeUpdate",
-    "Recipe",
-    "Ingredient"
-]
+__all__ = ["RecipeBase", "RecipeCreate", "RecipeUpdate", "Recipe", "Ingredient"]
