@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from app.api.v1.api import api_router
 from app.core.vector_store import vector_store
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +29,10 @@ class RootResponse(BaseModel):
 
 app = FastAPI(title="Smart Recipes Finder", version="1.1.0", lifespan=lifespan)
 
-origins = ["http://localhost:5173", "http://localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

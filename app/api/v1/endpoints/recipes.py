@@ -22,13 +22,17 @@ async def create_new_recipe(
 async def read_recipes(
     *,
     db: AsyncSession = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, qe=0),
+    limit: int = Query(100, ge=1, le=100),
     include_ingredients: str | None = Query(
-        None, description="Comma-separated ingredient to include"
+        None, 
+        description="Comma-separated ingredient to include",
+        max_length=500
     ),
     exclude_ingredients: str | None = Query(
-        None, description="Comma-separated ingredient to exclude"
+        None, 
+        description="Comma-separated ingredient to exclude",
+        max_length=500
     ),
 ) -> Any:
     recipes = await recipe_service.get_all_recipes(
@@ -76,10 +80,10 @@ async def delete_existing_recipe(
     return deleted_recipe
 
 
-@router.get(f"/search/", response_model=List[Recipe])
+@router.get("/search/", response_model=List[Recipe])
 async def search_recipes(
     *,
     db: AsyncSession = Depends(get_db),
-    q: str = Query(..., description="Search query for recipes using vector search"),
+    q: str = Query(..., description="Search query for recipes using vector search", max_length=200),
 ) -> Any:
     return await recipe_service.search_recipes_by_vector(db=db, query_str=q)
