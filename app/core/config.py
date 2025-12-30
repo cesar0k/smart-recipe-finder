@@ -5,9 +5,9 @@ from pydantic import computed_field, model_validator
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file_encoding="utf-8")
 
-    BACKEND_CORS_ORIGINS: list[str] = []
-
     APP_PORT: int = 8001
+
+    BACKEND_CORS_ORIGINS: list[str] = []
 
     DB_ROOT_PASSWORD: str = ""
     DB_NAME: str = ""
