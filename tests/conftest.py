@@ -1,40 +1,46 @@
-import pytest
-import httpx
 import asyncio
 import os
 from pathlib import Path
+from typing import AsyncGenerator, Generator
+
+import httpx
+import pytest
+from _pytest.fixtures import FixtureRequest
+from alembic.config import Config
 from httpx import ASGITransport
-from typing import AsyncGenerator
+from pytest import MonkeyPatch
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from alembic import command
-from alembic.config import Config
-
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy import delete
-from sqlalchemy_utils import database_exists, drop_database, create_database
-
-from app.models import *
-from tests.testing_config import testing_settings
 from app.core.vector_store import VectorStore
+from app.models.recipe import Recipe
+from tests.testing_config import testing_settings
 
 RECIPES_SOURCE_PATH = Path(__file__).parent.parent / "datasets" / "recipe_samples.json"
 
 
 @pytest.fixture(scope="session")
-def event_loop():
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
-def set_testing_settings():
+def set_testing_settings() -> None:
     os.environ["POSTGRES_DB"] = testing_settings.TEST_DB_NAME
     os.environ["CHROMA_COLLECTION_NAME"] = "recipes_test_collection"
 
 
 @pytest.fixture(scope="session", autouse=True)
-def prepare_db():
+def prepare_db() -> Generator[None, None, None]:
     if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
         drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
     create_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
@@ -51,7 +57,7 @@ def prepare_db():
 
 
 @pytest.fixture(scope="session")
-async def db_engine():
+async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
     engine = create_async_engine(
         testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL, pool_pre_ping=True
     )
@@ -60,19 +66,24 @@ async def db_engine():
 
 
 @pytest.fixture(scope="session")
-def test_vector_store():
+def test_vector_store() -> Generator[VectorStore, None, None]:
     store = VectorStore(force_new=True)
     yield store
     try:
         store.client.delete_collection(store.collection_name)
-    except:
+    except Exception:
         pass
 
 
 @pytest.fixture(scope="function")
-async def async_client(db_engine, test_vector_store, monkeypatch, request):
-    from app.main import app
+async def async_client(
+    db_engine: AsyncEngine,
+    test_vector_store: VectorStore,
+    monkeypatch: MonkeyPatch,
+    request: FixtureRequest,
+) -> AsyncGenerator[httpx.AsyncClient, None]:
     from app.db.session import get_db
+    from app.main import app
 
     monkeypatch.setattr("app.services.recipe_service.vector_store", test_vector_store)
     monkeypatch.setattr("app.core.vector_store.vector_store", test_vector_store)

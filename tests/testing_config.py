@@ -1,5 +1,6 @@
-from app.core.config import Settings
 from typing import ClassVar
+
+from app.core.config import Settings
 
 
 class TestingSettings(Settings):
@@ -7,7 +8,7 @@ class TestingSettings(Settings):
     TEST_DB_NAME: str = "recipes_test_db"
     CHROMA_COLLECTION_NAME: str = "recipes_test"
 
-    THRESHOLDS: ClassVar[dict] = {
+    THRESHOLDS: ClassVar[dict[str, dict[str, float | int]]] = {
         "Vector Search": {
             "accuracy": 90.0,
             "mean_reciprocal_rank": 0.70,

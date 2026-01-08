@@ -1,13 +1,16 @@
-import sys
 import logging
+import sys
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
 from app.api.v1.api import api_router
-from app.core.vector_store import vector_store
 from app.core.config import settings
+from app.core.s3_client import s3_client
+from app.core.vector_store import vector_store
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +18,9 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdo
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     vector_store.preload_model()
+    await s3_client.ensure_bucket_exists()
     yield
 
 
@@ -42,10 +46,10 @@ app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/", response_model=RootResponse, tags=["Root"])
-def read_root():
-    return {
-        "status": "ok",
-        "project_name": app.title,
-        "version": app.version,
-        "documentation_url": "/docs",
-    }
+def read_root() -> RootResponse:
+    return RootResponse(
+        status="ok",
+        project_name=app.title,
+        version=app.version,
+        documentation_url="/docs",
+    )
