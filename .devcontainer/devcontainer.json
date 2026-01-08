@@ -1,12 +1,11 @@
 {
   "name": "Smart Recipe Finder Dev",
-  
   "dockerComposeFile": "../docker-compose.yml",
-  
   "service": "app",
-  
   "workspaceFolder": "/app",
-
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -17,14 +16,11 @@
       "settings": {
         "python.defaultInterpreterPath": "/opt/venv/bin/python",
         "python.terminal.activateEnvironment": true,
-        
         "editor.formatOnSave": true,
         "python.analysis.typeCheckingMode": "basic"
       }
     }
   },
-
-  "postCreateCommand": "apt-get update && apt-get install -y git",
-
+  "postStartCommand": "git config --global --add safe.directory /app",
   "remoteUser": "root"
 }
