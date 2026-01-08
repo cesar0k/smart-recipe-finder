@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Self
+
 from pydantic import computed_field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -22,19 +24,31 @@ class Settings(BaseSettings):
 
     HF_TOKEN: str = ""
 
+    S3_ENDPOINT: str = "http://minio:9000"
+    S3_ACCESS_KEY: str = ""
+    S3_SECRET_KEY: str = ""
+    S3_BUCKET_NAME: str = "recipe-images"
+
+    MAX_FILE_SIZE_MB: int = 5
+    ALLOWED_IMAGE_TYPES: list[str] = ["image/jpeg", "image/png", "image/webp"]
+    MAX_IMAGE_WIDTH: int = 8192
+    MAX_IMAGE_HEIGHT: int = 8192
+
     @model_validator(mode="after")
-    def check_required_field_are_set(self):
+    def check_required_fields(self) -> Self:
         missing_fields = []
-        if not self.DB_ROOT_PASSWORD:
-            missing_fields.append("DB_ROOT_PASSWORD")
-        if not self.DB_NAME:
-            missing_fields.append("DB_NAME")
-        if not self.DB_USER:
-            missing_fields.append("DB_USER")
-        if not self.DB_PASSWORD:
-            missing_fields.append("DB_PASSWORD")
-        if not self.CHROMA_COLLECTION_NAME:
-            missing_fields.append("CHROMA_COLLECTION_NAME")
+        required_fields = [
+            "DB_ROOT_PASSWORD",
+            "DB_NAME",
+            "DB_USER",
+            "DB_PASSWORD",
+            "CHROMA_COLLECTION_NAME",
+            "S3_ACCESS_KEY",
+            "S3_SECRET_KEY",
+        ]
+        for field in required_fields:
+            if not getattr(self, field):
+                missing_fields.append(field)
 
         if missing_fields:
             raise ValueError(
@@ -43,7 +57,7 @@ class Settings(BaseSettings):
 
         return self
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def ASYNC_DATABASE_URL(self) -> str:
         return (
@@ -51,7 +65,7 @@ class Settings(BaseSettings):
             f"{self.DB_HOST}:{self.DB_INTERNAL_PORT}/{self.DB_NAME}"
         )
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def SYNC_DATABASE_URL(self) -> str:
         return (
