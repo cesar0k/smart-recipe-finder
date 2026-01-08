@@ -1,32 +1,36 @@
-import sys
-import os
-import time
-import json
 import asyncio
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from statistics import mean
+from typing import Any, Callable, Sequence
+
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
-from typing import Sequence
-from statistics import mean
+from alembic.config import Config
+from sqlalchemy import String, cast, not_, or_
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.future import select
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from alembic import command
-from alembic.config import Config
-
-from sqlalchemy import not_, or_, String, cast
-from sqlalchemy.future import select
-from sqlalchemy_utils import database_exists, create_database, drop_database
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 sys.path.append(os.getcwd())
 
-from app.db.session import AsyncSession
-from app.services import recipe_service
-from app.schemas.recipe_create import RecipeCreate
-from app.models.recipe import Recipe
-from tests.testing_config import testing_settings
-from app.core.vector_store import VectorStore
 
 import matplotlib
+
+from app.core.vector_store import VectorStore
+from app.models.recipe import Recipe
+from app.schemas.recipe_create import RecipeCreate
+from app.services import recipe_service
+from tests.testing_config import testing_settings
 
 matplotlib.use("Agg")
 
@@ -49,11 +53,11 @@ def _print_section_header(title_text: str) -> int:
     return width
 
 
-def _print_separator_line(width: int):
+def _print_separator_line(width: int) -> None:
     print("-" * width)
 
 
-async def setup_test_db():
+async def setup_test_db() -> None:
     print("Creating isolated database...")
     if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
         drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
@@ -66,13 +70,13 @@ async def setup_test_db():
     await asyncio.to_thread(command.upgrade, alembic_cfg, "head")
 
 
-def teardown_test_db():
+def teardown_test_db() -> None:
     print("Dropping isolated database...")
     if database_exists(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL):
         drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
 
 
-async def seed_eval_data(session: AsyncSession):
+async def seed_eval_data(session: AsyncSession) -> None:
     with open(RECIPES_PATH) as f:
         recipe_samples = json.load(f)
 
@@ -124,8 +128,12 @@ async def slow_smart_jsonb_filter(
 
 
 async def evaluate_nls_method(
-    db: AsyncSession, method_name, search_func, queries, id_to_title
-):
+    db: AsyncSession,
+    method_name: str,
+    search_func: Callable[..., Any],
+    queries: list[dict[str, Any]],
+    id_to_title: dict[int, str],
+) -> dict[str, Any]:
     title = f"Evaluating '{method_name}', top {LIMIT_TOP_K} results are evaluated"
     width = _print_section_header(title)
 
@@ -136,7 +144,7 @@ async def evaluate_nls_method(
     zero_results_count = 0
     total_f1_score = 0.0
 
-    category_stats = {}
+    category_stats: dict[str, dict[str, Any]] = {}
 
     for q in queries:
         query_text = q["query"]
@@ -208,12 +216,13 @@ async def evaluate_nls_method(
     zero_result_rate = (zero_results_count / total) * 100 if total > 0 else 0.0
     avg_f1_score = total_f1_score / total if total > 0 else 0.0
 
-    print(f"By category:")
+    print("By category:")
     for cat, stats in category_stats.items():
         cat_acc = (stats["passed"] / stats["total"]) * 100
         cat_f1 = stats["total_f1"] / stats["total"]
         print(
-            f" - {cat:25}: {cat_acc:6.2f}% | F1: {cat_f1:.4f} ({stats['passed']}/{stats['total']})"
+            f" - {cat:25}: {cat_acc:6.2f}% | F1: {cat_f1:.4f} "
+            f"({stats['passed']}/{stats['total']})"
         )
     print(f"Overall Accuracy: {accuracy}% ({passed}/{total})")
     print(f"Average latency: {avg_latency:.5f} ms")
@@ -233,7 +242,13 @@ async def evaluate_nls_method(
     }
 
 
-async def evaluate_filters(db, method_name, filter_func, filter_queries, iterations=50):
+async def evaluate_filters(
+    db: AsyncSession,
+    method_name: str,
+    filter_func: Callable[..., Any],
+    filter_queries: list[dict[str, Any]],
+    iterations: int = 50,
+) -> dict[str, Any]:
     title = f"Evaluating filter with {method_name}"
     width = _print_section_header(title)
 
@@ -292,7 +307,7 @@ async def evaluate_filters(db, method_name, filter_func, filter_queries, iterati
     return {"method": method_name, "accuracy": accuracy, "avg_latency": avg_latency}
 
 
-def check_quality_gates(method_name: str, results: dict) -> bool:
+def check_quality_gates(method_name: str, results: dict[str, Any]) -> bool:
     if method_name not in testing_settings.THRESHOLDS:
         return True
 
@@ -302,7 +317,7 @@ def check_quality_gates(method_name: str, results: dict) -> bool:
     print(f"Quality gate for {method_name}")
 
     metrics_higher = ["accuracy", "avg_f1_score", "mean_reciprocal_rank"]
-    metrics_lower = ["zero_result_rate", "latency"]
+    metrics_lower = ["zero_result_rate", "latency", "avg_latency"]
 
     for metric, target in limits.items():
         if metric not in results:
@@ -327,7 +342,9 @@ def check_quality_gates(method_name: str, results: dict) -> bool:
     return is_passed
 
 
-def plot_evaluation_results(nls_results, filter_results):
+def plot_evaluation_results(
+    nls_results: list[dict[str, Any]], filter_results: list[dict[str, Any]]
+) -> None:
     print("\nGenerating evaluation charts...")
 
     plt.style.use("ggplot")
@@ -422,7 +439,7 @@ def plot_evaluation_results(nls_results, filter_results):
     print(f"Charts saved to {output_path}")
 
 
-async def main():
+async def main() -> None:
     await setup_test_db()
 
     eval_vector_store = VectorStore(
@@ -434,8 +451,8 @@ async def main():
     engine = create_async_engine(testing_settings.ASYNC_TEST_DATABASE_ADMIN_URL)
     SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
-    nls_results = []
-    filter_results = []
+    nls_results: list[dict[str, Any]] = []
+    filter_results: list[dict[str, Any]] = []
 
     success = True
 
@@ -489,7 +506,7 @@ async def main():
 
         try:
             eval_vector_store.client.delete_collection(TEST_COLLECTION_NAME)
-        except:
+        except Exception:
             pass
 
         teardown_test_db()

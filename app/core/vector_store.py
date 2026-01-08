@@ -99,11 +99,12 @@ class VectorStore:
         safe_metadata = {k: ("" if v is None else v) for k, v in metadata.items()}
 
         embedding_result = await self.embed_text(full_text)
+        embedding_list = embedding_result.tolist()
 
         def _sync_upsert() -> None:
             self.collection.upsert(
                 ids=[str(recipe_id)],
-                embeddings=[embedding_result],
+                embeddings=[embedding_list],
                 metadatas=[safe_metadata],
                 documents=[full_text],
             )
@@ -112,19 +113,20 @@ class VectorStore:
 
     async def search(self, query: str, n_results: int = 5) -> List[int]:
         query_vec_result = await self.embed_text(query)
+        query_embedding_list = query_vec_result.tolist()
 
         def _sync_search() -> VectorQueryResult:
             query_result = self.collection.query(
-                query_embeddings=[query_vec_result], n_results=n_results
+                query_embeddings=[query_embedding_list], n_results=n_results
             )
             return cast(VectorQueryResult, query_result)
 
-        results: VectorQueryResult = await asyncio.to_thread(_sync_search)
+        results: Any = await asyncio.to_thread(_sync_search)
 
-        if not results.get("id") or not results["id"][0]:
+        if not results.get("ids") or not results["ids"][0]:
             return []
 
-        return [int(id_str) for id_str in results["id"][0]]
+        return [int(id_str) for id_str in results["ids"][0]]
 
     async def delete_recipe(self, recipe_id: int) -> None:
         await asyncio.to_thread(self.collection.delete, ids=[str(recipe_id)])

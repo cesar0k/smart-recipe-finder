@@ -1,13 +1,16 @@
-import pytest
 import json
-from httpx import AsyncClient
 from pathlib import Path
+from typing import Any, AsyncGenerator, Dict, cast
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+import pytest
+from httpx import AsyncClient
 from sqlalchemy import delete
-from app.services import recipe_service
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+
+from app.core.vector_store import VectorStore
+from app.models.recipe import Recipe
 from app.schemas import RecipeCreate
-from app.models import *
+from app.services import recipe_service
 
 BASE_DIR = Path(__file__).parents[3]
 
@@ -38,7 +41,7 @@ with open(NLS_DATASET_PATH) as f:
 @pytest.mark.crud
 @pytest.mark.asyncio
 class TestRecipeOperations:
-    BASE_RECIPE_DATA = {
+    BASE_RECIPE_DATA: dict[str, Any] = {
         "title": "Standard Recipe",
         "ingredients": ["ingredient A", "ingredient B"],
         "instructions": "Mix and cook.",
@@ -48,15 +51,15 @@ class TestRecipeOperations:
     }
 
     @pytest.fixture
-    async def existing_recipe(self, async_client: AsyncClient):
+    async def existing_recipe(self, async_client: AsyncClient) -> Dict[str, Any]:
         response = await async_client.post(
             "/api/v1/recipes/", json=self.BASE_RECIPE_DATA
         )
         assert response.status_code == 201
-        return response.json()
+        return cast(Dict[str, Any], response.json())
 
     @pytest.mark.smoke
-    async def test_create_recipe(self, async_client: AsyncClient):
+    async def test_create_recipe(self, async_client: AsyncClient) -> None:
         new_recipe = self.BASE_RECIPE_DATA.copy()
         new_recipe["title"] = "New Created Recipe"
 
@@ -67,7 +70,9 @@ class TestRecipeOperations:
         assert data["id"] is not None
 
     @pytest.mark.smoke
-    async def test_get_recipes_list(self, async_client: AsyncClient, existing_recipe):
+    async def test_get_recipes_list(
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         response = await async_client.get("/api/v1/recipes/")
         assert response.status_code == 200
         data = response.json()
@@ -77,7 +82,9 @@ class TestRecipeOperations:
         assert existing_recipe["id"] in ids
 
     @pytest.mark.smoke
-    async def test_get_recipe_by_id(self, async_client: AsyncClient, existing_recipe):
+    async def test_get_recipe_by_id(
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         response = await async_client.get(f"/api/v1/recipes/{recipe_id}")
         assert response.status_code == 200
@@ -85,15 +92,15 @@ class TestRecipeOperations:
         assert data["title"] == existing_recipe["title"]
 
     async def test_get_recipe_not_found(
-        self, async_client: AsyncClient, existing_recipe
-    ):
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         response = await async_client.get(f"/api/v1/recipes/{recipe_id + 1}")
         assert response.status_code == 404
 
     async def test_update_recipe_partial(
-        self, async_client: AsyncClient, existing_recipe
-    ):
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         update_payload = {"title": "Updated Title", "difficulty": "hard"}
 
@@ -108,8 +115,8 @@ class TestRecipeOperations:
         assert data["cuisine"] == existing_recipe["cuisine"]
 
     async def test_update_recipe_ingredients(
-        self, async_client: AsyncClient, existing_recipe
-    ):
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         new_ingredients = ["new_ing1", "new_ing2"]
 
@@ -123,8 +130,8 @@ class TestRecipeOperations:
         assert actual_ingredients == set(new_ingredients)
 
     async def test_update_recipe_not_found(
-        self, async_client: AsyncClient, existing_recipe
-    ):
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         update_payload = {"title": "Ghost Recipe"}
         response = await async_client.patch(
@@ -132,7 +139,9 @@ class TestRecipeOperations:
         )
         assert response.status_code == 404
 
-    async def test_delete_recipe(self, async_client: AsyncClient, existing_recipe):
+    async def test_delete_recipe(
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         response = await async_client.delete(f"/api/v1/recipes/{recipe_id}")
         assert response.status_code == 200
@@ -141,8 +150,8 @@ class TestRecipeOperations:
         assert get_response.status_code == 404
 
     async def test_delete_recipe_not_found(
-        self, async_client: AsyncClient, existing_recipe
-    ):
+        self, async_client: AsyncClient, existing_recipe: Dict[str, Any]
+    ) -> None:
         recipe_id = existing_recipe["id"]
         response = await async_client.delete(f"/api/v1/recipes/{recipe_id + 1}")
         assert response.status_code == 404
@@ -153,7 +162,9 @@ class TestRecipeOperations:
 @pytest.mark.asyncio
 class TestRecipeEvaluation:
     @pytest.fixture(scope="class", autouse=True)
-    async def setup_search_db(self, db_engine, test_vector_store):
+    async def setup_search_db(
+        self, db_engine: AsyncEngine, test_vector_store: VectorStore
+    ) -> AsyncGenerator[None, None]:
         original_store = recipe_service.vector_store
         recipe_service.vector_store = test_vector_store
 
@@ -178,7 +189,9 @@ class TestRecipeEvaluation:
         recipe_service.vector_store = original_store
 
     @pytest.mark.parametrize("testcase", filter_data)
-    async def test_filtering(self, async_client: AsyncClient, testcase):
+    async def test_filtering(
+        self, async_client: AsyncClient, testcase: Dict[str, Any]
+    ) -> None:
         params = {
             "include_ingredients": testcase["include_ingredients"],
             "exclude_ingredients": testcase["exclude_ingredients"],
@@ -200,7 +213,9 @@ class TestRecipeEvaluation:
         )
 
     @pytest.mark.parametrize("testcase", natural_search_data)
-    async def test_natural_search_quality(self, async_client: AsyncClient, testcase):
+    async def test_natural_search_quality(
+        self, async_client: AsyncClient, testcase: Dict[str, Any]
+    ) -> None:
         response = await async_client.get(
             "/api/v1/recipes/search/", params={"q": testcase["query"]}
         )
@@ -214,5 +229,6 @@ class TestRecipeEvaluation:
         found_expected = expected.intersection(found_titles)
 
         assert found_expected or not expected, (
-            f"Query: {testcase['query']} failed. expected one of {expected}, but found {found_titles}"
+            f"Query: {testcase['query']} failed. expected one of {expected}, "
+            f"but found {found_titles}"
         )

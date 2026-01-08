@@ -11,6 +11,16 @@ from app.schemas import RecipeCreate, RecipeUpdate
 
 p = inflect.engine()
 
+__all__ = [
+    "create_recipe",
+    "get_all_recipes",
+    "get_recipe_by_id",
+    "update_recipe",
+    "delete_recipe",
+    "search_recipes_by_vector",
+    "vector_store",
+]
+
 
 def _get_search_terms(raw_term: str) -> set[str]:
     term = raw_term.lower().strip()
