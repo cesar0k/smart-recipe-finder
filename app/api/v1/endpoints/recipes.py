@@ -149,7 +149,7 @@ async def delete_recipe_image(
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    target_url = image_data.image_url
+    target_url = str(image_data.image_url)
 
     current_images = list(recipe.image_urls)
 
@@ -166,7 +166,7 @@ async def delete_recipe_image(
     await db.refresh(recipe)
 
     try:
-        parsed_url = urlparse(str(target_url))
+        parsed_url = urlparse(target_url)
         path_parts = parsed_url.path.lstrip("/").split("/", 1)
 
         if len(path_parts) == 2 and path_parts[0] == settings.S3_BUCKET_NAME:

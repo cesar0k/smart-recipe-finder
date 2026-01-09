@@ -2,7 +2,16 @@
   {
     "id": 1,
     "title": "Classic Spaghetti Carbonara",
-    "ingredients": ["spaghetti", "eggs", "guanciale", "pecorino romano", "black pepper"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Spaghetti_carbonara.jpg"
+    ],
+    "ingredients": [
+      "spaghetti",
+      "eggs",
+      "guanciale",
+      "pecorino romano",
+      "black pepper"
+    ],
     "instructions": "Boil pasta. Fry guanciale. Mix eggs and cheese. Combine off heat to create creamy sauce.",
     "cooking_time_in_minutes": 25,
     "difficulty": "medium",
@@ -11,7 +20,17 @@
   {
     "id": 2,
     "title": "Vegan Lentil Burger",
-    "ingredients": ["lentils", "flour", "onion", "garlic", "cumin", "bun"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Veggie_burger.jpg"
+    ],
+    "ingredients": [
+      "lentils",
+      "flour",
+      "onion",
+      "garlic",
+      "cumin",
+      "bun"
+    ],
     "instructions": "Mash cooked lentils. Mix with spices and flour. Form patties and fry. Serve on a bun.",
     "cooking_time_in_minutes": 40,
     "difficulty": "medium",
@@ -20,7 +39,16 @@
   {
     "id": 3,
     "title": "Grandma's Chicken Noodle Soup",
-    "ingredients": ["chicken breast", "egg noodles", "carrots", "celery", "chicken broth"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Chicken_noodle_soup.jpg"
+    ],
+    "ingredients": [
+      "chicken breast",
+      "egg noodles",
+      "carrots",
+      "celery",
+      "chicken broth"
+    ],
     "instructions": "Simmer chicken in broth. Add vegetables and noodles. Cook until tender. Perfect for cold days.",
     "cooking_time_in_minutes": 60,
     "difficulty": "easy",
@@ -29,7 +57,17 @@
   {
     "id": 4,
     "title": "Spicy Thai Green Curry",
-    "ingredients": ["coconut milk", "green curry paste", "bamboo shoots", "tofu", "thai basil", "chili"],
+    "image_urls": [
+      "https://www.deliciousmagazine.co.uk/wp-content/uploads/2020/01/thai-chicken-curry-768x960.jpg"
+    ],
+    "ingredients": [
+      "coconut milk",
+      "green curry paste",
+      "bamboo shoots",
+      "tofu",
+      "thai basil",
+      "chili"
+    ],
     "instructions": "Fry curry paste. Add coconut milk and vegetables. Simmer. Serve with jasmine rice.",
     "cooking_time_in_minutes": 35,
     "difficulty": "hard",
@@ -38,7 +76,15 @@
   {
     "id": 5,
     "title": "High-Protein Post-Workout Smoothie",
-    "ingredients": ["whey protein", "banana", "milk", "peanut butter"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Smoothie_bowl.jpg"
+    ],
+    "ingredients": [
+      "whey protein",
+      "banana",
+      "milk",
+      "peanut butter"
+    ],
     "instructions": "Blend all ingredients until smooth. Drink immediately after gym.",
     "cooking_time_in_minutes": 5,
     "difficulty": "easy",
@@ -47,7 +93,16 @@
   {
     "id": 6,
     "title": "Ratatouille",
-    "ingredients": ["aubergine", "zucchini", "bell pepper", "tomato", "herbs de provence"],
+    "image_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/2/27/Ratatouille.jpg"
+    ],
+    "ingredients": [
+      "aubergine",
+      "zucchini",
+      "bell pepper",
+      "tomato",
+      "herbs de provence"
+    ],
     "instructions": "Slice vegetables thinly. Layer in a dish. Bake slowly until tender. A french classic.",
     "cooking_time_in_minutes": 90,
     "difficulty": "medium",
@@ -56,7 +111,16 @@
   {
     "id": 7,
     "title": "Japanese Sushi Rolls (Maki)",
-    "ingredients": ["sushi rice", "nori", "fresh salmon", "cucumber", "wasabi"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Sushi_roll.jpg"
+    ],
+    "ingredients": [
+      "sushi rice",
+      "nori",
+      "fresh salmon",
+      "cucumber",
+      "wasabi"
+    ],
     "instructions": "Cook rice with vinegar. Place nori on bamboo mat. Spread rice, add fish. Roll tightly.",
     "cooking_time_in_minutes": 50,
     "difficulty": "hard",
@@ -65,7 +129,16 @@
   {
     "id": 8,
     "title": "Texas Beef Brisket",
-    "ingredients": ["beef brisket", "salt", "pepper", "paprika", "bbq sauce"],
+    "image_urls": [
+      "https://res.cloudinary.com/hksqkdlah/image/upload/c_fill,dpr_2.0,f_auto,fl_lossy.progressive.strip_profile,g_faces:auto,h_599,q_auto:low/41719-sfs-texas-barbecue-brisket-cover-42"
+    ],
+    "ingredients": [
+      "beef brisket",
+      "salt",
+      "pepper",
+      "paprika",
+      "bbq sauce"
+    ],
     "instructions": "Rub meat with spices. Smoke low and slow for 12 hours. Slice against the grain.",
     "cooking_time_in_minutes": 720,
     "difficulty": "hard",
@@ -74,7 +147,16 @@
   {
     "id": 9,
     "title": "Fresh Caprese Salad",
-    "ingredients": ["mozzarella", "tomato", "fresh basil", "balsamic glaze", "olive oil"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Caprese_Salad.jpg"
+    ],
+    "ingredients": [
+      "mozzarella",
+      "tomato",
+      "fresh basil",
+      "balsamic glaze",
+      "olive oil"
+    ],
     "instructions": "Slice tomatoes and cheese. Arrange on plate with basil. Drizzle with oil and balsamic.",
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
@@ -83,7 +165,16 @@
   {
     "id": 10,
     "title": "Chocolate Lava Cake",
-    "ingredients": ["dark chocolate", "butter", "sugar", "eggs", "flour"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Chocolate_Fondant.jpg"
+    ],
+    "ingredients": [
+      "dark chocolate",
+      "butter",
+      "sugar",
+      "eggs",
+      "flour"
+    ],
     "instructions": "Melt chocolate and butter. Whisk eggs and sugar. Bake in ramekins until center is still wiggly.",
     "cooking_time_in_minutes": 20,
     "difficulty": "hard",
@@ -92,7 +183,16 @@
   {
     "id": 11,
     "title": "Guacamole Dip",
-    "ingredients": ["avocado", "lime", "cilantro", "onion", "jalapeno"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Guacamole_with_chips.jpg"
+    ],
+    "ingredients": [
+      "avocado",
+      "lime",
+      "cilantro",
+      "onion",
+      "jalapeno"
+    ],
     "instructions": "Mash avocados. Mix with chopped onion, cilantro and lime juice. Serve with chips.",
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
@@ -101,7 +201,15 @@
   {
     "id": 12,
     "title": "Oatmeal with Honey",
-    "ingredients": ["oats", "water", "honey", "cinnamon"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Oatmeal_with_raisins.jpg"
+    ],
+    "ingredients": [
+      "oats",
+      "water",
+      "honey",
+      "cinnamon"
+    ],
     "instructions": "Boil water. Add oats. Cook for 5 minutes. Top with honey.",
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
@@ -110,7 +218,16 @@
   {
     "id": 13,
     "title": "Fish and Chips",
-    "ingredients": ["cod fillet", "potatoes", "flour", "beer", "oil"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Fish_and_chips_blackpool.jpg"
+    ],
+    "ingredients": [
+      "cod fillet",
+      "potatoes",
+      "flour",
+      "beer",
+      "oil"
+    ],
     "instructions": "Make beer batter. Dip fish. Deep fry fish and sliced potatoes until golden.",
     "cooking_time_in_minutes": 40,
     "difficulty": "medium",
@@ -119,7 +236,16 @@
   {
     "id": 14,
     "title": "Mushroom Risotto",
-    "ingredients": ["arborio rice", "mushrooms", "white wine", "parmesan", "onion"],
+    "image_urls": [
+      "https://www.allrecipes.com/thmb/9d8yV77PRL3wbRwcpAIxtZPdi5Q=/0x512/filters:no_upscale():max_bytes(150000):strip_icc()/85389-gourmet-mushroom-risotto-DDMFS-4x3-a8a80a8deb064c6a8f15452b808a0258.jpg"
+    ],
+    "ingredients": [
+      "arborio rice",
+      "mushrooms",
+      "white wine",
+      "parmesan",
+      "onion"
+    ],
     "instructions": "Sauté onions. Add rice and wine. Gradually add broth while stirring constantly.",
     "cooking_time_in_minutes": 45,
     "difficulty": "hard",
@@ -128,7 +254,16 @@
   {
     "id": 15,
     "title": "Lemonade",
-    "ingredients": ["lemon", "sugar", "water", "ice", "mint"],
+    "image_urls": [
+      "https://www.simplyrecipes.com/thmb/ZOXgJKuuMMYQGUJ8Co1eooL37tw=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Simply-Recipes-Perfect-Lemonade-LEAD-06-B-a488322e63604cd6a1442de661722553.jpg"
+    ],
+    "ingredients": [
+      "lemon",
+      "sugar",
+      "water",
+      "ice",
+      "mint"
+    ],
     "instructions": "Squeeze lemons. Dissolve sugar in water. Mix and add ice.",
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
@@ -137,7 +272,16 @@
   {
     "id": 16,
     "title": "Fluffy Pancakes",
-    "ingredients": ["flour", "milk", "eggs", "baking powder", "maple syrup"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Blueberry_pancakes_(1).jpg"
+    ],
+    "ingredients": [
+      "flour",
+      "milk",
+      "eggs",
+      "baking powder",
+      "maple syrup"
+    ],
     "instructions": "Mix batter until lumps are gone. Cook on a hot griddle. Stack and serve with syrup.",
     "cooking_time_in_minutes": 20,
     "difficulty": "easy",
@@ -146,7 +290,16 @@
   {
     "id": 17,
     "title": "Caesar Salad",
-    "ingredients": ["romaine lettuce", "croutons", "parmesan", "caesar dressing", "chicken"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Caesar_salad_(1).jpg"
+    ],
+    "ingredients": [
+      "romaine lettuce",
+      "croutons",
+      "parmesan",
+      "caesar dressing",
+      "chicken"
+    ],
     "instructions": "Toss lettuce with dressing. Add croutons and cheese. Top with grilled chicken.",
     "cooking_time_in_minutes": 15,
     "difficulty": "easy",
@@ -155,7 +308,16 @@
   {
     "id": 18,
     "title": "Beef Wellington",
-    "ingredients": ["beef tenderloin", "puff pastry", "mushrooms", "prosciutto", "mustard"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Beef_Wellington.jpg"
+    ],
+    "ingredients": [
+      "beef tenderloin",
+      "puff pastry",
+      "mushrooms",
+      "prosciutto",
+      "mustard"
+    ],
     "instructions": "Sear beef. Coat with mustard and mushroom duxelles. Wrap in prosciutto and pastry. Bake.",
     "cooking_time_in_minutes": 120,
     "difficulty": "hard",
@@ -164,7 +326,16 @@
   {
     "id": 19,
     "title": "Tofu Stir Fry",
-    "ingredients": ["tofu", "soy sauce", "ginger", "bell pepper", "broccoli"],
+    "image_urls": [
+      "https://simpleveganblog.com/wp-content/uploads/2023/01/easy-tofu-stir-fry-square.jpg"
+    ],
+    "ingredients": [
+      "tofu",
+      "soy sauce",
+      "ginger",
+      "bell pepper",
+      "broccoli"
+    ],
     "instructions": "Press tofu. Stir fry vegetables with ginger. Add tofu and sauce. Serve hot.",
     "cooking_time_in_minutes": 25,
     "difficulty": "easy",
@@ -173,7 +344,16 @@
   {
     "id": 20,
     "title": "Fruit Salad",
-    "ingredients": ["apple", "banana", "grapes", "orange", "yogurt"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Fresh_Fruit_Salad.jpg"
+    ],
+    "ingredients": [
+      "apple",
+      "banana",
+      "grapes",
+      "orange",
+      "yogurt"
+    ],
     "instructions": "Chop all fruits into cubes. Mix in a bowl. Optionally serve with yogurt or mint.",
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
@@ -182,7 +362,16 @@
   {
     "id": 21,
     "title": "Vegetarian Potato Gratin with Cheese",
-    "ingredients": ["potatoes", "cream", "cheese", "garlic", "nutmeg"],
+    "image_urls": [
+      "https://cdn77-s3.lazycatkitchen.com/wp-content/uploads/2022/11/vegan-potato-gratin-easy-pan-800x1200.jpg"
+    ],
+    "ingredients": [
+      "potatoes",
+      "cream",
+      "cheese",
+      "garlic",
+      "nutmeg"
+    ],
     "instructions": "Slice potatoes. Layer with cream and cheese. Bake.",
     "cooking_time_in_minutes": 60,
     "difficulty": "medium",
@@ -191,7 +380,16 @@
   {
     "id": 22,
     "title": "Greek Salad",
-    "ingredients": ["feta cheese", "cucumber", "tomato", "kalamata olives", "oregano"],
+    "image_urls": [
+      "https://www.schwartz.co.uk/-/media/project/oneweb/schwartz/recipes/recipe_image_update/march_18_2025/greek_salad_800x800.webp?rev=af320a79b57b4c36aefcac5edd04c228&vd=20250325T174436Z&extension=webp&hash=2C60D2D80B3C50B265008836A0858C5E"
+    ],
+    "ingredients": [
+      "feta cheese",
+      "cucumber",
+      "tomato",
+      "kalamata olives",
+      "oregano"
+    ],
     "instructions": "Chop vegetables largely. Mix with olives and slab of feta. Drizzle with oil.",
     "cooking_time_in_minutes": 15,
     "difficulty": "easy",
@@ -200,7 +398,16 @@
   {
     "id": 23,
     "title": "Chicken Tikka Masala",
-    "ingredients": ["chicken thigh", "yogurt", "tomato puree", "garam masala", "cumin"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Taj_Mahal_-_Chicken_Tikka_Massala.jpg"
+    ],
+    "ingredients": [
+      "chicken thigh",
+      "yogurt",
+      "tomato puree",
+      "garam masala",
+      "cumin"
+    ],
     "instructions": "Marinate chicken. Grill. Simmer in spiced tomato cream sauce.",
     "cooking_time_in_minutes": 45,
     "difficulty": "medium",
@@ -209,7 +416,16 @@
   {
     "id": 24,
     "title": "Creamy Pumpkin Soup",
-    "ingredients": ["pumpkin", "heavy cream", "onion", "garlic", "vegetable broth"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Pumpkin_soup.jpg"
+    ],
+    "ingredients": [
+      "pumpkin",
+      "heavy cream",
+      "onion",
+      "garlic",
+      "vegetable broth"
+    ],
     "instructions": "Roast pumpkin. Sauté onion. Blend everything with broth and cream.",
     "cooking_time_in_minutes": 40,
     "difficulty": "medium",
@@ -218,7 +434,16 @@
   {
     "id": 25,
     "title": "Pesto Genovese Pasta",
-    "ingredients": ["penne pasta", "fresh basil", "pine nuts", "parmesan", "olive oil"],
+    "image_urls": [
+      "https://www.sipandfeast.com/wp-content/uploads/2023/07/pesto-alla-genovese-recipe-snippet.jpg"
+    ],
+    "ingredients": [
+      "penne pasta",
+      "fresh basil",
+      "pine nuts",
+      "parmesan",
+      "olive oil"
+    ],
     "instructions": "Blend basil, nuts, cheese and oil. Toss with cooked pasta.",
     "cooking_time_in_minutes": 15,
     "difficulty": "easy",
@@ -227,7 +452,16 @@
   {
     "id": 26,
     "title": "Margherita Pizza",
-    "ingredients": ["pizza dough", "tomato sauce", "mozzarella", "fresh basil", "olive oil"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Pizza_Margherita_stu_spivack.jpg"
+    ],
+    "ingredients": [
+      "pizza dough",
+      "tomato sauce",
+      "mozzarella",
+      "fresh basil",
+      "olive oil"
+    ],
     "instructions": "Stretch dough. Spread sauce and cheese. Bake at high heat. Top with basil.",
     "cooking_time_in_minutes": 30,
     "difficulty": "medium",
@@ -236,7 +470,16 @@
   {
     "id": 27,
     "title": "Vanilla Ice Cream",
-    "ingredients": ["heavy cream", "whole milk", "sugar", "vanilla bean", "ice"],
+    "image_urls": [
+      "https://static01.nyt.com/images/2025/08/12/multimedia/12FD-ICE-CREAMREX1-SL-Easy-Homemade-Ice-Cream-bzhv/12FD-ICE-CREAMREX1-SL-Easy-Homemade-Ice-Cream-bzhv-mediumSquareAt3X.jpg"
+    ],
+    "ingredients": [
+      "heavy cream",
+      "whole milk",
+      "sugar",
+      "vanilla bean",
+      "ice"
+    ],
     "instructions": "Churn milk, cream and sugar mixture in a frozen bowl until soft serve consistency.",
     "cooking_time_in_minutes": 40,
     "difficulty": "hard",
@@ -245,7 +488,16 @@
   {
     "id": 28,
     "title": "Mango Sticky Rice",
-    "ingredients": ["sticky rice", "coconut milk", "mango", "sugar", "sesame seeds"],
+    "image_urls": [
+      "https://cdn.apartmenttherapy.info/image/upload/f_jpg,q_auto:eco,c_fill,g_auto,w_1500,ar_4:3/tk%2Fphoto%2F2025%2F04-2025%2F2025-03-mango-sticky-rice%2Fmango-sticky-rice-336"
+    ],
+    "ingredients": [
+      "sticky rice",
+      "coconut milk",
+      "mango",
+      "sugar",
+      "sesame seeds"
+    ],
     "instructions": "Cook sweet rice with coconut milk. Serve warm with fresh mango slices.",
     "cooking_time_in_minutes": 30,
     "difficulty": "medium",
@@ -254,7 +506,16 @@
   {
     "id": 29,
     "title": "Shepherd's Pie",
-    "ingredients": ["lamb mince", "potatoes", "peas", "carrots", "butter"],
+    "image_urls": [
+      "https://stordfkenticomedia.blob.core.windows.net/df-us/rms/media/recipemediafiles/recipe%20images%20and%20files/retail/desktop%20(600x600)/2025/april/2025_retail_simple-shepherds-pie_600x600.webp?ext=.webp"
+    ],
+    "ingredients": [
+      "lamb mince",
+      "potatoes",
+      "peas",
+      "carrots",
+      "butter"
+    ],
     "instructions": "Cook meat with veggies. Top with mashed potatoes. Bake until golden.",
     "cooking_time_in_minutes": 50,
     "difficulty": "medium",
@@ -263,7 +524,16 @@
   {
     "id": 30,
     "title": "Garlic Butter Shrimp",
-    "ingredients": ["shrimp", "butter", "garlic", "parsley", "lemon"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Garlic_buttered_shrimp.jpg"
+    ],
+    "ingredients": [
+      "shrimp",
+      "butter",
+      "garlic",
+      "parsley",
+      "lemon"
+    ],
     "instructions": "Sauté garlic in butter. Add shrimp and cook briefly. Finish with lemon.",
     "cooking_time_in_minutes": 10,
     "difficulty": "easy",
@@ -272,7 +542,15 @@
   {
     "id": 31,
     "title": "Classic Gin and Tonic",
-    "ingredients": ["gin", "tonic water", "lime", "ice"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Gin_and_Tonic_with_ingredients.jpg"
+    ],
+    "ingredients": [
+      "gin",
+      "tonic water",
+      "lime",
+      "ice"
+    ],
     "instructions": "Fill glass with ice. Pour gin and tonic. Garnish with lime.",
     "cooking_time_in_minutes": 5,
     "difficulty": "easy",
@@ -281,7 +559,15 @@
   {
     "id": 32,
     "title": "Butternut Squash Soup",
-    "ingredients": ["butternut squash", "vegetable broth", "onion", "cream"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Butternut_Squash_Soup.jpg"
+    ],
+    "ingredients": [
+      "butternut squash",
+      "vegetable broth",
+      "onion",
+      "cream"
+    ],
     "instructions": "Roast squash. Blend with broth and cream. Serve warm.",
     "cooking_time_in_minutes": 45,
     "difficulty": "medium",
@@ -290,7 +576,16 @@
   {
     "id": 33,
     "title": "Spicy Ramen",
-    "ingredients": ["ramen noodles", "pork", "egg", "green onion", "soy sauce"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Ramen_Jiro_001.jpg"
+    ],
+    "ingredients": [
+      "ramen noodles",
+      "pork",
+      "egg",
+      "green onion",
+      "soy sauce"
+    ],
     "instructions": "Boil broth. Cook noodles. Top with pork and soft egg.",
     "cooking_time_in_minutes": 30,
     "difficulty": "medium",
@@ -299,7 +594,15 @@
   {
     "id": 34,
     "title": "Grilled Steak",
-    "ingredients": ["beef steak", "salt", "black pepper", "rosemary"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/London_broil.jpg"
+    ],
+    "ingredients": [
+      "beef steak",
+      "salt",
+      "black pepper",
+      "rosemary"
+    ],
     "instructions": "Season steak. Grill to medium rare. Rest before slicing.",
     "cooking_time_in_minutes": 20,
     "difficulty": "medium",
@@ -308,7 +611,16 @@
   {
     "id": 35,
     "title": "Carrot Cake",
-    "ingredients": ["carrots", "flour", "sugar", "cinnamon", "cream cheese"],
+    "image_urls": [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Carrot_Cake.jpg"
+    ],
+    "ingredients": [
+      "carrots",
+      "flour",
+      "sugar",
+      "cinnamon",
+      "cream cheese"
+    ],
     "instructions": "Grate carrots. Mix batter. Bake. Frost with cream cheese.",
     "cooking_time_in_minutes": 60,
     "difficulty": "medium",
