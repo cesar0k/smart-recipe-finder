@@ -15,7 +15,9 @@ from app.services import image_service, recipe_service
 router = APIRouter()
 
 
-@router.post("/", response_model=schemas.Recipe, status_code=201)
+@router.post(
+    "/", response_model=schemas.Recipe, status_code=201, operation_id="create_recipe"
+)
 async def create_new_recipe(
     *,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -25,7 +27,7 @@ async def create_new_recipe(
     return schemas.Recipe.model_validate(db_recipe)
 
 
-@router.get("/", response_model=List[schemas.Recipe])
+@router.get("/", response_model=List[schemas.Recipe], operation_id="read_recipes")
 async def read_recipes(
     *,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -48,7 +50,9 @@ async def read_recipes(
     return [schemas.Recipe.model_validate(r) for r in recipes]
 
 
-@router.get("/{recipe_id}", response_model=schemas.Recipe)
+@router.get(
+    "/{recipe_id}", response_model=schemas.Recipe, operation_id="read_recipe_by_id"
+)
 async def read_recipe_by_id(
     *, db: Annotated[AsyncSession, Depends(get_db)], recipe_id: int
 ) -> schemas.Recipe:
@@ -59,7 +63,9 @@ async def read_recipe_by_id(
     return schemas.Recipe.model_validate(recipe)
 
 
-@router.patch("/{recipe_id}", response_model=schemas.Recipe)
+@router.patch(
+    "/{recipe_id}", response_model=schemas.Recipe, operation_id="update_recipe"
+)
 async def update_existing_recipe(
     *,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -78,7 +84,9 @@ async def update_existing_recipe(
     return schemas.Recipe.model_validate(updated_recipe)
 
 
-@router.delete("/{recipe_id}", response_model=schemas.Recipe)
+@router.delete(
+    "/{recipe_id}", response_model=schemas.Recipe, operation_id="delete_recipe"
+)
 async def delete_existing_recipe(
     *, db: Annotated[AsyncSession, Depends(get_db)], recipe_id: int
 ) -> schemas.Recipe:
@@ -89,7 +97,9 @@ async def delete_existing_recipe(
     return schemas.Recipe.model_validate(deleted_recipe)
 
 
-@router.get("/search/", response_model=List[schemas.Recipe])
+@router.get(
+    "/search/", response_model=List[schemas.Recipe], operation_id="search_recipes"
+)
 async def search_recipes(
     *,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -101,7 +111,11 @@ async def search_recipes(
     return [schemas.Recipe.model_validate(r) for r in recipes]
 
 
-@router.post("/{recipe_id}/image", response_model=schemas.Recipe)
+@router.post(
+    "/{recipe_id}/image",
+    response_model=schemas.Recipe,
+    operation_id="upload_recipe_images",
+)
 async def upload_recipe_images(
     recipe_id: int,
     files: Annotated[List[UploadFile], File(...)],
@@ -139,7 +153,11 @@ async def upload_recipe_images(
     return schemas.Recipe.model_validate(recipe)
 
 
-@router.delete("/{recipe_id}/images", response_model=schemas.Recipe)
+@router.delete(
+    "/{recipe_id}/images",
+    response_model=schemas.Recipe,
+    operation_id="delete_recipe_image",
+)
 async def delete_recipe_image(
     recipe_id: int,
     image_data: schemas.RecipeImageDelete,
