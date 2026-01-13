@@ -36,7 +36,9 @@ class S3Client:
                 ExtraArgs={"ContentType": content_type},
             )
 
-            return f"{settings.S3_ENDPOINT}/{settings.S3_BUCKET_NAME}/{object_name}"
+            return (
+                f"{settings.S3_PUBLIC_ENDPOINT}/{settings.S3_BUCKET_NAME}/{object_name}"
+            )
 
         except ClientError as ex:
             logger.error(f"S3 file upload failed: {ex}")

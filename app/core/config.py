@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     HF_TOKEN: str = ""
 
     S3_ENDPOINT: str = "http://minio:9000"
+    S3_PUBLIC_ENDPOINT: str = "http://localhost:9000"
     S3_ACCESS_KEY: str = ""
     S3_SECRET_KEY: str = ""
     S3_BUCKET_NAME: str = "recipe-images"
