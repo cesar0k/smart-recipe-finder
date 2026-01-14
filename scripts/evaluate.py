@@ -26,6 +26,7 @@ sys.path.append(os.getcwd())
 
 import matplotlib
 
+from app.core import text_utils
 from app.core.vector_store import VectorStore
 from app.models.recipe import Recipe
 from app.schemas.recipe_create import RecipeCreate
@@ -106,7 +107,7 @@ async def slow_smart_jsonb_filter(
     if include_str:
         raw_items = [i.strip() for i in include_str.split(",") if i.strip()]
         for item in raw_items:
-            terms = recipe_service._get_search_terms(item)
+            terms = text_utils.get_word_forms(item)
 
             term_conditions = [json_as_text.op("~*")(f"\\y{term}\\y") for term in terms]
             query = query.where(or_(*term_conditions))
@@ -115,7 +116,7 @@ async def slow_smart_jsonb_filter(
         raw_items = [i.strip() for i in exclude_str.split(",") if i.strip()]
         exclude_conditions = []
         for item in raw_items:
-            terms = recipe_service._get_search_terms(item)
+            terms = text_utils.get_word_forms(item)
             for term in terms:
                 exclude_conditions.append(json_as_text.op("~*")(f"\\y{term}\\y"))
 
