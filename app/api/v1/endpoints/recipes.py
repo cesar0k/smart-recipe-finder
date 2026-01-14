@@ -106,8 +106,19 @@ async def search_recipes(
     q: str = Query(
         ..., description="Search query for recipes using vector search", max_length=200
     ),
+    include_ingredients: Optional[str] = Query(
+        None, description="Comma-separated ingredient to include", max_length=500
+    ),
+    exclude_ingredients: Optional[str] = Query(
+        None, description="Comma-separated ingredient to exclude", max_length=500
+    ),
 ) -> list[schemas.Recipe]:
-    recipes = await recipe_service.search_recipes_by_vector(db=db, query_str=q)
+    recipes = await recipe_service.search_recipes_by_vector(
+        db=db,
+        query_str=q,
+        include_str=include_ingredients,
+        exclude_str=exclude_ingredients,
+    )
     return [schemas.Recipe.model_validate(r) for r in recipes]
 
 

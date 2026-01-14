@@ -1,10 +1,12 @@
-from typing import Any, List, Optional, Sequence, cast
+from typing import Any, List, Optional, Sequence, Tuple, cast
 
 import inflect
 from sqlalchemy import not_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.sql.selectable import Select
 
+from app.core.text_utils import get_word_forms
 from app.core.vector_store import vector_store
 from app.models import Recipe
 from app.schemas import RecipeCreate, RecipeUpdate
@@ -20,24 +22,6 @@ __all__ = [
     "search_recipes_by_vector",
     "vector_store",
 ]
-
-
-def _get_search_terms(raw_term: str) -> set[str]:
-    term = raw_term.lower().strip()
-    if not term:
-        return set()
-
-    terms = {term}
-
-    singular = p.singular_noun(cast(Any, term))
-    if singular:
-        terms.add(singular)
-
-    plural = p.plural(cast(Any, term))
-    if plural:
-        terms.add(plural)
-
-    return terms
 
 
 def _create_semantic_document(recipe: Recipe) -> tuple[str, dict[str, Any]]:
@@ -75,6 +59,36 @@ def _create_semantic_document(recipe: Recipe) -> tuple[str, dict[str, Any]]:
     return doc_to_embed, metadata
 
 
+def _apply_ingredient_filter(
+    query: Select[Tuple[Recipe]],
+    include_str: Optional[str] = None,
+    exclude_str: Optional[str] = None,
+) -> Select[Tuple[Recipe]]:
+    """
+    Apply include/exclude filters to sqlalchemy object
+    """
+    if include_str:
+        raw_items = [i.strip() for i in include_str.split(",") if i.strip()]
+        for item in raw_items:
+            terms = get_word_forms(item)
+
+            or_condtitions = [Recipe.ingredients.contains([{"name": t}]) for t in terms]
+            query = query.where(or_(*or_condtitions))
+
+    if exclude_str:
+        raw_items = [i.strip() for i in exclude_str.split(",") if i.strip()]
+        exclude_conditions = []
+        for item in raw_items:
+            terms = get_word_forms(item)
+            for t in terms:
+                exclude_conditions.append(Recipe.ingredients.contains([{"name": t}]))
+
+        if exclude_conditions:
+            query = query.where(not_(or_(*exclude_conditions)))
+
+    return query
+
+
 async def create_recipe(db: AsyncSession, *, recipe_in: RecipeCreate) -> Recipe:
     recipe_data = recipe_in.model_dump(exclude={"ingredients"})
     json_ingredients = [{"name": name} for name in recipe_in.ingredients]
@@ -107,24 +121,7 @@ async def get_all_recipes(
 ) -> Sequence[Recipe]:
     query = select(Recipe)
 
-    if include_str:
-        raw_items = [i.strip() for i in include_str.split(",") if i.strip()]
-        for item in raw_items:
-            terms = _get_search_terms(item)
-
-            or_condtitions = [Recipe.ingredients.contains([{"name": t}]) for t in terms]
-            query = query.where(or_(*or_condtitions))
-
-    if exclude_str:
-        raw_items = [i.strip() for i in exclude_str.split(",") if i.strip()]
-        exclude_conditions = []
-        for item in raw_items:
-            terms = _get_search_terms(item)
-            for t in terms:
-                exclude_conditions.append(Recipe.ingredients.contains([{"name": t}]))
-
-        if exclude_conditions:
-            query = query.where(not_(or_(*exclude_conditions)))
+    query = _apply_ingredient_filter(query, include_str, exclude_str)
 
     query = query.order_by(Recipe.id.desc())
     query = query.offset(skip).limit(limit)
@@ -179,13 +176,22 @@ async def delete_recipe(db: AsyncSession, *, recipe_id: int) -> Optional[Recipe]
     return db_recipe
 
 
-async def search_recipes_by_vector(db: AsyncSession, *, query_str: str) -> List[Recipe]:
-    recipe_ids = await vector_store.search(query=query_str, n_results=5)
+async def search_recipes_by_vector(
+    db: AsyncSession,
+    *,
+    query_str: str,
+    include_str: Optional[str] = None,
+    exclude_str: Optional[str] = None,
+) -> List[Recipe]:
+    recipe_ids = await vector_store.search(query=query_str, n_results=50)
 
     if not recipe_ids:
         return []
 
     query = select(Recipe).where(Recipe.id.in_(recipe_ids))
+
+    query = _apply_ingredient_filter(query, include_str, exclude_str)
+
     result = await db.execute(query)
     recipes = result.scalars().unique().all()
 
