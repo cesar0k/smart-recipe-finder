@@ -146,6 +146,9 @@ async def update_recipe(
 
         db_recipe.ingredients = json_ingredients
 
+    if "image_urls" in update_data and update_data["image_urls"] is not None:
+        update_data["image_urls"] = [str(url) for url in update_data["image_urls"]]
+
     for field, value in update_data.items():
         setattr(db_recipe, field, value)
 
