@@ -2,6 +2,8 @@
 
 This is the backend service for the "Smart Recipe Finder" application, built as part of a technical assessment. It provides a RESTful API for managing and searching recipes, all running within a Docker environment.
 
+Frontend – [Smart Recipe Finder Frontend](https://github.com/cesar0k/smart-recipe-finder-frontend)
+
 ## Tech Stack
 
 - **Language:** Python 3.12
