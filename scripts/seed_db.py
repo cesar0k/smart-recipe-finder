@@ -1,12 +1,10 @@
+import argparse
 import asyncio
 import json
-import os
 import sys
 from pathlib import Path
 
 from sqlalchemy import delete
-
-sys.path.append(os.getcwd())
 
 from app.core.vector_store import vector_store
 from app.db.session import AsyncSessionLocal
@@ -14,12 +12,25 @@ from app.models.recipe import Recipe
 from app.schemas.recipe_create import RecipeCreate
 from app.services import recipe_service
 
-BASE_DIR = Path(__file__).parents[1]
-RECIPES_PATH = BASE_DIR / "datasets" / "recipe_samples.json"
+project_root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(project_root))
 
 
-async def seed() -> None:
-    print("Seeding database...")
+DATASETS_PATH = project_root / "datasets"
+
+
+async def seed(lang: str) -> None:
+    """
+    Seeds the database with sample recipes.
+    """
+    print(f"Seeding database with '{lang}' recipes...")
+
+    recipes_file = f"recipe_samples_{lang}.json"
+    recipes_path = DATASETS_PATH / lang / recipes_file
+
+    if not recipes_path.exists():
+        print(f"Error: Recipes file not found at {recipes_path}")
+        return
 
     print("Cleaning Vector Store...")
     vector_store.clear()
@@ -29,8 +40,8 @@ async def seed() -> None:
         await db.execute(delete(Recipe))
         await db.commit()
 
-        print(" - Loading recipes...")
-        with open(RECIPES_PATH) as f:
+        print(f" - Loading recipes from {recipes_path}...")
+        with open(recipes_path, encoding="utf-8") as f:
             recipes_data = json.load(f)
 
         for r_data in recipes_data:
@@ -45,4 +56,15 @@ async def seed() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(seed())
+    parser = argparse.ArgumentParser(
+        description="Seed the database with sample recipes."
+    )
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default="en",
+        choices=["en", "ru"],
+        help="Language of the recipes to seed (en or ru).",
+    )
+    args = parser.parse_args()
+    asyncio.run(seed(lang=args.lang))

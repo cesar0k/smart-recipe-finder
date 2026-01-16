@@ -251,4 +251,4 @@ async def search_recipes_by_vector(
         if rid in recipes_map:
             ordered_recipes.append(recipes_map[rid])
 
-    return ordered_recipes
+    return ordered_recipes[:6]

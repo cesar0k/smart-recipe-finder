@@ -1,0 +1,507 @@
+
+[
+  {
+    "id": 1,
+    "description": "ЛОВУШКА: Включить 'лед'. Должен найти Лимонад. НЕ должен находить 'Рис' (Суши, Ризотто) или 'Сок' (инструкции к Гуакамоле).",
+    "include_ingredients": "лед",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Лимонад"
+    ],
+    "should_not_contain": [
+      "Японские суши-роллы (маки)",
+      "Грибное ризотто",
+      "Соус гуакамоле"
+    ]
+  },
+  {
+    "id": 2,
+    "description": "ЛОВУШКА: Исключить 'лед'. НЕ должен удалять блюда с 'рисом'.",
+    "include_ingredients": "",
+    "exclude_ingredients": "лед",
+    "should_contain": [
+      "Грибное ризотто",
+      "Японские суши-роллы (маки)"
+    ],
+    "should_not_contain": [
+      "Лимонад"
+    ]
+  },
+  {
+    "id": 3,
+    "description": "ЛОВУШКА: Включить 'орех'. Должен найти НИЧЕГО (арахис, кокос, мускатный орех являются подстроками). Наивный поиск находит их.",
+    "include_ingredients": "орех",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Высокобелковый смузи после тренировки",
+      "Острый тайский зеленый карри",
+      "Вегетарианский картофельный гратен с сыром"
+    ]
+  },
+  {
+    "id": 4,
+    "description": "ЛОВУШКА: Включить 'горох'. Должен найти НИЧЕГО. Наивный находит 'Арахис'.",
+    "include_ingredients": "горох",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Высокобелковый смузи после тренировки"
+    ]
+  },
+  {
+    "id": 5,
+    "description": "ЛОВУШКА: Включить 'он'. Наивный находит лук(OniON), лимон(LemON), лосось(SalmON), бекон(BacON), корица(CinnamON).",
+    "include_ingredients": "он",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Веганский чечевичный бургер",
+      "Лимонад",
+      "Японские суши-роллы (маки)",
+      "Овсянка с медом"
+    ]
+  },
+  {
+    "id": 6,
+    "description": "ЛОВУШКА: Исключить 'масло'. Должен удалить Рыбу с картошкой фри и Капрезе. НЕ должен удалять 'Вареные' продукты (инструкции).",
+    "include_ingredients": "",
+    "exclude_ingredients": "масло",
+    "should_contain": [
+      "Классическая паста Карбонара",
+      "Овсянка с медом"
+    ],
+    "should_not_contain": [
+      "Рыба с картошкой фри",
+      "Свежий салат Капрезе"
+    ]
+  },
+  {
+    "id": 7,
+    "description": "ЛОВУШКА: Включить 'ром'. Должен найти НИЧЕГО.",
+    "include_ingredients": "ром",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 8,
+    "description": "ЛОВУШКА: Включить 'чили'. Должен найти Карри.",
+    "include_ingredients": "чили",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Острый тайский зеленый карри"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 9,
+    "description": "ЛОВУШКА: Включить 'руда'. Должен найти НИЧЕГО.",
+    "include_ingredients": "руда",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 10,
+    "description": "ЛОВУШКА: Включить 'кар'. Должен найти НИЧЕГО. Наивный находит 'Морковь' и 'Карбонара'.",
+    "include_ingredients": "кар",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Бабушкин куриный суп с лапшой",
+      "Классическая паста Карбонара"
+    ]
+  },
+  {
+    "id": 11,
+    "description": "ЛОВУШКА: Включить 'чай'. Должен найти НИЧЕГО.",
+    "include_ingredients": "чай",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 12,
+    "description": "ЛОВУШКА: Исключить 'жир'. Должен найти НИЧЕГО для исключения по имени.",
+    "include_ingredients": "",
+    "exclude_ingredients": "жир",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 13,
+    "description": "ЛОВУШКА: Включить 'джин'. Должен найти НИЧЕГО. Наивный находит 'Имбирь', 'Баклажан'.",
+    "include_ingredients": "джин",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Рататуй",
+      "Стир-фрай с тофу"
+    ]
+  },
+  {
+    "id": 14,
+    "description": "ЛОВУШКА: Включить 'бар'. Должен найти НИЧЕГО.",
+    "include_ingredients": "бар",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 15,
+    "description": "ЛОВУШКА: Включить 'треска'. Должен найти Рыба с картошкой фри. НЕ должен находить 'Авокадо'.",
+    "include_ingredients": "треска",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Рыба с картошкой фри"
+    ],
+    "should_not_contain": [
+      "Соус гуакамоле"
+    ]
+  },
+  {
+    "id": 16,
+    "description": "ЛОВУШКА: Включить 'яйцо'. Должен найти рецепты с 'яйцом' или 'яйцами'. Не должен находить составные ингредиенты, такие как 'яичная лапша'.",
+    "include_ingredients": "яйцо",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Классическая паста Карбонара",
+      "Шоколадный фондан",
+      "Пышные панкейки"
+    ],
+    "should_not_contain": [
+      "Рататуй"
+    ]
+  },
+  {
+    "id": 17,
+    "description": "ЛОВУШКА: Исключить 'хлеб'. Должен ничего не исключать.",
+    "include_ingredients": "",
+    "exclude_ingredients": "хлеб",
+    "should_contain": [
+      "Веганский чечевичный бургер"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 18,
+    "description": "ЛОВУШКА: Включить 'яблоко'. Должен найти Фруктовый салат.",
+    "include_ingredients": "яблоко",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Фруктовый салат"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 19,
+    "description": "ЛОВУШКА: Включить 'манго'. Должен найти НИЧЕГО.",
+    "include_ingredients": "манго",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 20,
+    "description": "ЛОВУШКА: Включить 'лайм'. Находит Гуакамоле.",
+    "include_ingredients": "лайм",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Соус гуакамоле"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 21,
+    "description": "ЛОВУШКА: Включить 'мен'. Должен найти НИЧЕГО.",
+    "include_ingredients": "мен",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 22,
+    "description": "ЛОВУШКА: Включить 'карри'. Находит Зеленый карри.",
+    "include_ingredients": "карри",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Острый тайский зеленый карри"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 23,
+    "description": "ЛОВУШКА: Включить 'молоко'. Находит Смузи, Панкейки. НЕ должен находить 'Кокосовое молоко'.",
+    "include_ingredients": "молоко",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Высокобелковый смузи после тренировки",
+      "Пышные панкейки"
+    ],
+    "should_not_contain": [
+      "Острый тайский зеленый карри"
+    ]
+  },
+  {
+    "id": 24,
+    "description": "ЛОВУШКА: Включить 'кола'. Должен найти НИЧЕГО.",
+    "include_ingredients": "кола",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 25,
+    "description": "ЛОВУШКА: Включить 'эль'. Должен найти НИЧЕГО.",
+    "include_ingredients": "эль",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Рыба с картошкой фри"
+    ]
+  },
+  {
+    "id": 26,
+    "description": "ЛОВУШКА: Включить 'эш'. Должен найти НИЧЕГО. Наивный находит 'Сквош', 'Пюре'.",
+    "include_ingredients": "эш",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Веганский чечевичный бургер",
+      "Соус гуакамоле"
+    ]
+  },
+  {
+    "id": 27,
+    "description": "ЛОВУШКА: Включить 'ягода'. Должен найти НИЧЕГО.",
+    "include_ingredients": "ягода",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 28,
+    "description": "ЛОВУШКА: Включить 'возраст'. Должен найти НИЧЕГО.",
+    "include_ingredients": "возраст",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 29,
+    "description": "ЛОВУШКА: Включить 'фан'. Должен найти НИЧЕГО.",
+    "include_ingredients": "фан",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 30,
+    "description": "ЛОВУШКА: Включить 'чи'. Должен найти НИЧЕГО. Наивный находит 'Курица', 'Чили', 'Чипсы'.",
+    "include_ingredients": "чи",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Бабушкин куриный суп с лапшой",
+      "Рыба с картошкой фри",
+      "Острый тайский зеленый карри"
+    ]
+  },
+  {
+    "id": 31,
+    "description": "ЛОВУШКА: Исключить 'чи'. Должен ничего не удалять только на основе подстроки.",
+    "include_ingredients": "",
+    "exclude_ingredients": "чи",
+    "should_contain": [
+      "Бабушкин куриный суп с лапшой",
+      "Рыба с картошкой фри"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 32,
+    "description": "ЛОВУШКА: Включить 'би'. Должен найти НИЧЕГО. Наивный находит 'Говядина', 'Пиво'.",
+    "include_ingredients": "би",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Техасская говяжья грудинка",
+      "Рыба с картошкой фри"
+    ]
+  },
+  {
+    "id": 33,
+    "description": "ЛОВУШКА: Включить 'пан'. Должен найти НИЧЕГО. Наивный находит 'Панкейки'.",
+    "include_ingredients": "пан",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Пышные панкейки"
+    ]
+  },
+  {
+    "id": 34,
+    "description": "ЛОВУШКА: Включить 'пот'. Должен найти НИЧЕГО. Наивный находит 'Картофель'.",
+    "include_ingredients": "пот",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Рыба с картошкой фри",
+      "Вегетарианский картофельный гратен с сыром"
+    ]
+  },
+  {
+    "id": 35,
+    "description": "ЛОВУШКА: Включить 'ато'. Должен найти НИЧЕГО. Наивный находит 'Картофель', 'Помидор'.",
+    "include_ingredients": "ато",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Рататуй",
+      "Свежий салат Капрезе",
+      "Вегетарианский картофельный гратен с сыром"
+    ]
+  },
+  {
+    "id": 36,
+    "description": "ЛОВУШКА: Включить 'памп'. Должен найти НИЧЕГО.",
+    "include_ingredients": "памп",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 37,
+    "description": "ЛОВУШКА: Включить 'пайн'. Должен найти НИЧЕГО.",
+    "include_ingredients": "пайн",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 38,
+    "description": "ЛОВУШКА: Включить 'масло'. Находит рецепты с 'маслом'. Не должен находить составные ингредиенты, такие как 'арахисовое масло'.",
+    "include_ingredients": "масло",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Шоколадный фондан"
+    ],
+    "should_not_contain": []
+  },
+  {
+    "id": 39,
+    "description": "ЛОВУШКА: Исключить 'кот'. Должен ничего не исключать.",
+    "include_ingredients": "",
+    "exclude_ingredients": "кот",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 40,
+    "description": "ЛОВУШКА: Включить 'собака'. Должен найти НИЧЕГО.",
+    "include_ingredients": "собака",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 41,
+    "description": "ЛОВУШКА: Включить 'бургер'. Должен найти НИЧЕГО (поиск по ингредиентам, а не по названию).",
+    "include_ingredients": "бургер",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Веганский чечевичный бургер"
+    ]
+  },
+  {
+    "id": 42,
+    "description": "ЛОВУШКА: Включить 'шейк'. Должен найти НИЧЕГО.",
+    "include_ingredients": "шейк",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 43,
+    "description": "ЛОВУШКА: Включить 'сливки'. Находит рецепты со 'сливками'. Не должен находить составные ингредиенты, такие как 'жирные сливки' или 'сливочный сыр'.",
+    "include_ingredients": "сливки",
+    "exclude_ingredients": "",
+    "should_contain": [
+      "Вегетарианский картофельный гратен с сыром",
+      "Суп-пюре из мускатной тыквы"
+    ],
+    "should_not_contain": [
+      "Высокобелковый смузи после тренировки"
+    ]
+  },
+  {
+    "id": 44,
+    "description": "ЛОВУШКА: Включить 'фрай'. Должен найти НИЧЕГО.",
+    "include_ingredients": "фрай",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 45,
+    "description": "ЛОВУШКА: Включить 'стар'. Должен найти НИЧЕГО. Наивный находит 'Горчица'.",
+    "include_ingredients": "стар",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Говядина Веллингтон"
+    ]
+  },
+  {
+    "id": 46,
+    "description": "ЛОВУШКА: Включить 'оф'. Должен найти НИЧЕГО. Наивный находит 'Тофу'.",
+    "include_ingredients": "оф",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Стир-фрай с тофу"
+    ]
+  },
+  {
+    "id": 47,
+    "description": "ЛОВУШКА: Включить 'и'. Должен найти НИЧЕГО.",
+    "include_ingredients": "и",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": []
+  },
+  {
+    "id": 48,
+    "description": "ЛОВУШКА: Включить 'ор'. Должен найти НИЧЕГО. Наивный находит 'Апельсин', 'Кукуруза'.",
+    "include_ingredients": "ор",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Фруктовый салат"
+    ]
+  },
+  {
+    "id": 49,
+    "description": "ЛОВУШКА: Включить 'ин'. Должен найти НИЧЕГО. Наивный находит 'Кумин', 'Цуккини', 'Вино'.",
+    "include_ingredients": "ин",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Веганский чечевичный бургер",
+      "Рататуй",
+      "Грибное ризотто"
+    ]
+  },
+  {
+    "id": 50,
+    "description": "ЛОВУШКА: Включить 'ит'. Должен найти НИЧЕГО. Наивный находит 'Фрукт'.",
+    "include_ingredients": "ит",
+    "exclude_ingredients": "",
+    "should_contain": [],
+    "should_not_contain": [
+      "Фруктовый салат"
+    ]
+  }
+]

@@ -122,13 +122,27 @@ docker compose exec app pytest -m eval
 
 To populate your database with sample recipe data, you can use the `seed_db.py` script. This is particularly useful for development and testing purposes.
 
-To seed the database, run the following command:
+The script can seed the database with recipes in different languages. Use the `--lang` flag to specify the language. Supported languages are `en` (English) and `ru` (Russian).
+
+### English Seeding (Default)
+
+To seed the database with English recipes, run the following command:
 
 ```bash
-docker compose exec app python scripts/seed_db.py
+docker compose exec app python scripts/seed_db.py --lang en
 ```
 
-This script will add a predefined set of recipes to your database, which you can then query via the API.
+If you don't specify a language, it will default to English.
+
+### Russian Seeding
+
+To seed the database with Russian recipes, run:
+
+```bash
+docker compose exec app python scripts/seed_db.py --lang ru
+```
+
+The script will clear existing recipes and add a predefined set to your database, which you can then query via the API.
 
 ## Search Capabilities
 
