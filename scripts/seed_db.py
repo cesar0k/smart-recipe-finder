@@ -6,17 +6,15 @@ from pathlib import Path
 
 from sqlalchemy import delete
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from app.core.vector_store import vector_store
 from app.db.session import AsyncSessionLocal
 from app.models.recipe import Recipe
 from app.schemas.recipe_create import RecipeCreate
 from app.services import recipe_service
 
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
-
-
-DATASETS_PATH = project_root / "datasets"
+DATASETS_PATH = Path(__file__).resolve().parents[1] / "datasets"
 
 
 async def seed(lang: str) -> None:
