@@ -160,10 +160,19 @@ One of the core goals of this project is to quantitatively compare different sea
 - **ZRR (Zero Result Rate):** Percentage of queries returning no results.
 
 ### How to Run Benchmarks
-**Run Evaluation Script**:
+The evaluation script can be run for different languages. Use the `--lang` flag to specify which dataset to use.
+
+**Run Evaluation Script (English - Default)**:
 ```bash
-docker compose exec app python scripts/evaluate.py
+docker compose exec app python scripts/evaluate.py --lang en
 ```
+
+**Run Evaluation Script (Russian)**:
+```bash
+docker compose exec app python scripts/evaluate.py --lang ru
+```
+
+This will run a series of tests and generate a performance comparison chart.
 
 ## Visual Results
 Upon running the evaluation script, a graph file **`evaluation_results.png`** will be generated in the project root.

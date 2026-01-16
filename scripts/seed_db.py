@@ -25,7 +25,7 @@ async def seed(lang: str) -> None:
     """
     print(f"Seeding database with '{lang}' recipes...")
 
-    recipes_file = f"recipe_samples_{lang}.json"
+    recipes_file = "recipe_samples.json"
     recipes_path = DATASETS_PATH / lang / recipes_file
 
     if not recipes_path.exists():
