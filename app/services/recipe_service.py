@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.sql.selectable import Select
 
+from app.core.s3_client import s3_client
 from app.core.text_utils import get_word_forms
 from app.core.vector_store import vector_store
 from app.models import Recipe
@@ -140,6 +141,24 @@ async def update_recipe(
 ) -> Recipe:
     update_data = recipe_in.model_dump(exclude_unset=True)
 
+    if "image_urls" in update_data:
+        raw_urls = update_data.pop("image_urls")
+
+        if raw_urls is None:
+            new_urls_list = []
+        else:
+            new_urls_list = [str(url) for url in raw_urls]
+
+        current_urls = set(db_recipe.image_urls) if db_recipe.image_urls else set()
+        new_urls = set(new_urls_list)
+
+        urls_to_delete = current_urls - new_urls
+
+        db_recipe.image_urls = new_urls_list
+
+        for url in urls_to_delete:
+            await s3_client.delete_image_from_s3(url)
+
     if "ingredients" in update_data:
         raw_ingredients = update_data.pop("ingredients")
         json_ingredients = [{"name": i} for i in raw_ingredients]
@@ -176,6 +195,34 @@ async def delete_recipe(db: AsyncSession, *, recipe_id: int) -> Optional[Recipe]
         await db.commit()
 
         await vector_store.delete_recipe(recipe_id)
+    return db_recipe
+
+
+async def delete_recipe_images(
+    db: AsyncSession, *, recipe_id: int, urls_to_delete: list[str]
+) -> Recipe | None:
+    db_recipe = await get_recipe_by_id(db=db, recipe_id=recipe_id)
+    if not db_recipe:
+        return None
+
+    current_urls = set(db_recipe.image_urls) if db_recipe.image_urls else set()
+    target_urls = set(urls_to_delete)
+
+    urls_to_proccess = current_urls.intersection(target_urls)
+
+    if not urls_to_proccess:
+        return db_recipe
+
+    remaining_urls = list(current_urls - urls_to_proccess)
+
+    db_recipe.image_urls = remaining_urls
+    db.add(db_recipe)
+    await db.commit()
+    await db.refresh(db_recipe)
+
+    for url in urls_to_proccess:
+        await s3_client.delete_image_from_s3(url)
+
     return db_recipe
 
 

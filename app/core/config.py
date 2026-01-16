@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     S3_SECRET_KEY: str = ""
     S3_BUCKET_NAME: str = "recipe-images"
 
-    MAX_FILE_SIZE_MB: int = 5
+    MAX_FILE_SIZE_MB: int = 10
     ALLOWED_IMAGE_TYPES: list[str] = ["image/jpeg", "image/png", "image/webp"]
     MAX_IMAGE_WIDTH: int = 8192
     MAX_IMAGE_HEIGHT: int = 8192

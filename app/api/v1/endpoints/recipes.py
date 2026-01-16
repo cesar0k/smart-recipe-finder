@@ -1,13 +1,11 @@
 import asyncio
 import uuid
 from typing import Annotated, List, Optional
-from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import models, schemas
-from app.core.config import settings
 from app.core.s3_client import s3_client
 from app.db.session import get_db
 from app.services import image_service, recipe_service
@@ -128,9 +126,10 @@ async def search_recipes(
     operation_id="upload_recipe_images",
 )
 async def upload_recipe_images(
+    *,
+    db: Annotated[AsyncSession, Depends(get_db)],
     recipe_id: int,
     files: Annotated[List[UploadFile], File(...)],
-    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> schemas.Recipe:
     recipe = await recipe_service.get_recipe_by_id(db=db, recipe_id=recipe_id)
     if not recipe:
@@ -167,44 +166,21 @@ async def upload_recipe_images(
 @router.delete(
     "/{recipe_id}/images",
     response_model=schemas.Recipe,
-    operation_id="delete_recipe_image",
+    operation_id="delete_recipe_images",
 )
-async def delete_recipe_image(
-    recipe_id: int,
-    image_data: schemas.RecipeImageDelete,
+async def delete_recipe_images(
+    *,
     db: Annotated[AsyncSession, Depends(get_db)],
+    recipe_id: int,
+    delete_data: schemas.RecipeImagesDelete,
 ) -> schemas.Recipe:
-    recipe = await recipe_service.get_recipe_by_id(db=db, recipe_id=recipe_id)
-    if not recipe:
+    urls_as_strings = [str(url) for url in delete_data.image_urls]
+
+    updated_recipe = await recipe_service.delete_recipe_images(
+        db=db, recipe_id=recipe_id, urls_to_delete=urls_as_strings
+    )
+
+    if not updated_recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    target_url = str(image_data.image_url)
-
-    current_images = list(recipe.image_urls)
-
-    if target_url not in current_images:
-        raise HTTPException(
-            status_code=404, detail="Image url not found in this recipe"
-        )
-
-    updated_images = [url for url in current_images if url != target_url]
-
-    recipe.image_urls = updated_images
-    db.add(recipe)
-    await db.commit()
-    await db.refresh(recipe)
-
-    try:
-        parsed_url = urlparse(target_url)
-        path_parts = parsed_url.path.lstrip("/").split("/", 1)
-
-        if len(path_parts) == 2 and path_parts[0] == settings.S3_BUCKET_NAME:
-            object_key = path_parts[1]
-            await s3_client.delete_file(object_key)
-        else:
-            print(f"Warning: could not parse S3 key from url {target_url}")
-
-    except Exception as ex:
-        print(f"Error deleting file from S3: {ex}")
-
-    return schemas.Recipe.model_validate(recipe)
+    return schemas.Recipe.model_validate(updated_recipe)

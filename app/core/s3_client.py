@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from typing import BinaryIO
+from urllib.parse import urlparse
 
 import boto3
 from botocore.client import Config
@@ -54,6 +55,19 @@ class S3Client:
         except ClientError as ex:
             logger.error(f"S3 file delete failed: {ex}")
             raise ex
+
+    async def delete_image_from_s3(self, file_url: str) -> None:
+        try:
+            parsed = urlparse(file_url)
+            path_parts = parsed.path.lstrip("/").split("/", 1)
+
+            if len(path_parts) == 2 and path_parts[0] == settings.S3_BUCKET_NAME:
+                object_key = path_parts[1]
+                await self.delete_file(object_key)
+            else:
+                pass
+        except Exception as ex:
+            logger.error(f"S3 image delete failed: {ex}")
 
     async def ensure_bucket_exists(self) -> None:
         try:
