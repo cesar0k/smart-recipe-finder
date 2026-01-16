@@ -13,19 +13,26 @@ from app.schemas import RecipeCreate
 from app.services import recipe_service
 
 BASE_DIR = Path(__file__).parents[3]
+DATASETS_DIR = BASE_DIR / "datasets"
 
-FILTER_DATASET_PATH = BASE_DIR / "datasets" / "filter_test_data.json"
-RECIPES_SOURCE_PATH = BASE_DIR / "datasets" / "recipe_samples.json"
-NLS_DATASET_PATH = BASE_DIR / "datasets" / "evaluation_nls_queries.json"
 
-with open(FILTER_DATASET_PATH) as f:
-    filter_data = json.load(f)
+def load_test_data_for_lang(
+    lang: str,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    lang_dir = DATASETS_DIR / lang
+    filter_dataset_path = lang_dir / "filter_test_data.json"
+    recipes_source_path = lang_dir / "recipe_samples.json"
+    nls_dataset_path = lang_dir / "evaluation_nls_queries.json"
 
-with open(RECIPES_SOURCE_PATH) as f:
-    recipes_sample = json.load(f)
+    with open(filter_dataset_path, encoding="utf-8") as f:
+        filter_data = json.load(f)
 
-with open(NLS_DATASET_PATH) as f:
-    natural_search_data = json.load(f)
+    with open(recipes_source_path, encoding="utf-8") as f:
+        recipes_sample = json.load(f)
+
+    with open(nls_dataset_path, encoding="utf-8") as f:
+        natural_search_data = json.load(f)
+
     id_to_title = {r["id"]: r["title"] for r in recipes_sample}
     for q in natural_search_data:
         expected_ids = q.get("expected_ids")
@@ -36,6 +43,16 @@ with open(NLS_DATASET_PATH) as f:
             id_to_title.get(eid) for eid in expected_ids if id_to_title.get(eid)
         }
         q["should_contain"] = list(expected_titles) if expected_titles else []
+
+    return filter_data, recipes_sample, natural_search_data
+
+
+filter_data_en, recipes_sample_en, natural_search_data_en = load_test_data_for_lang(
+    "en"
+)
+filter_data_ru, recipes_sample_ru, natural_search_data_ru = load_test_data_for_lang(
+    "ru"
+)
 
 
 @pytest.mark.crud
@@ -160,7 +177,10 @@ class TestRecipeOperations:
 @pytest.mark.no_db_cleanup
 @pytest.mark.eval
 @pytest.mark.asyncio
-class TestRecipeEvaluation:
+class BaseTestRecipeEvaluation:
+    __test__ = False
+    recipes_sample: list[dict[str, Any]] = []
+
     @pytest.fixture(scope="class", autouse=True)
     async def setup_search_db(
         self, db_engine: AsyncEngine, test_vector_store: VectorStore
@@ -172,11 +192,12 @@ class TestRecipeEvaluation:
             bind=db_engine, class_=AsyncSession, expire_on_commit=False
         )
 
+        test_vector_store.clear()
         async with TestSessionLocal() as session:
             await session.execute(delete(Recipe))
             await session.commit()
 
-            for recipe in recipes_sample:
+            for recipe in self.recipes_sample:
                 r_data = recipe.copy()
                 if "id" in r_data:
                     del r_data["id"]
@@ -188,7 +209,6 @@ class TestRecipeEvaluation:
 
         recipe_service.vector_store = original_store
 
-    @pytest.mark.parametrize("testcase", filter_data)
     async def test_filtering(
         self, async_client: AsyncClient, testcase: Dict[str, Any]
     ) -> None:
@@ -212,7 +232,6 @@ class TestRecipeEvaluation:
             f"Filter testcase {testcase['id']} failed. Found unwanted: {found_unwanted}"
         )
 
-    @pytest.mark.parametrize("testcase", natural_search_data)
     async def test_natural_search_quality(
         self, async_client: AsyncClient, testcase: Dict[str, Any]
     ) -> None:
@@ -229,6 +248,40 @@ class TestRecipeEvaluation:
         found_expected = expected.intersection(found_titles)
 
         assert found_expected or not expected, (
-            f"Query: {testcase['query']} failed. expected one of {expected}, "
-            f"but found {found_titles}"
+            f"Query: '{testcase['query']}' failed. Expected one of {expected}",
+            f" but found {found_titles}",
         )
+
+
+class TestRecipeEvaluationEn(BaseTestRecipeEvaluation):
+    __test__ = True
+    recipes_sample = recipes_sample_en
+
+    @pytest.mark.parametrize("testcase", filter_data_en)
+    async def test_filtering(
+        self, async_client: AsyncClient, testcase: Dict[str, Any]
+    ) -> None:
+        await super().test_filtering(async_client, testcase)
+
+    @pytest.mark.parametrize("testcase", natural_search_data_en)
+    async def test_natural_search_quality(
+        self, async_client: AsyncClient, testcase: Dict[str, Any]
+    ) -> None:
+        await super().test_natural_search_quality(async_client, testcase)
+
+
+class TestRecipeEvaluationRu(BaseTestRecipeEvaluation):
+    __test__ = True
+    recipes_sample = recipes_sample_ru
+
+    @pytest.mark.parametrize("testcase", filter_data_ru)
+    async def test_filtering(
+        self, async_client: AsyncClient, testcase: Dict[str, Any]
+    ) -> None:
+        await super().test_filtering(async_client, testcase)
+
+    @pytest.mark.parametrize("testcase", natural_search_data_ru)
+    async def test_natural_search_quality(
+        self, async_client: AsyncClient, testcase: Dict[str, Any]
+    ) -> None:
+        await super().test_natural_search_quality(async_client, testcase)
