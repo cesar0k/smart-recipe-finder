@@ -1,6 +1,5 @@
 import asyncio
 import os
-from pathlib import Path
 from typing import AsyncGenerator, Generator
 
 import httpx
@@ -22,8 +21,6 @@ from alembic import command
 from app.core.vector_store import VectorStore
 from app.models.recipe import Recipe
 from tests.testing_config import testing_settings
-
-RECIPES_SOURCE_PATH = Path(__file__).parent.parent / "datasets" / "recipe_samples.json"
 
 
 @pytest.fixture(scope="session")
