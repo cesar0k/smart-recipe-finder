@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import json
 import os
@@ -38,11 +39,6 @@ matplotlib.use("Agg")
 TEST_COLLECTION_NAME = "recipes_test_collection"
 
 BASE_PATH = Path(__file__).resolve().parents[1]
-DATASETS_PATH = BASE_PATH / "datasets"
-
-NLS_QUIERIES_PATH = DATASETS_PATH / "evaluation_nls_queries.json"
-FILTER_QUERIES_PATH = DATASETS_PATH / "filter_test_data.json"
-RECIPES_PATH = DATASETS_PATH / "recipe_samples.json"
 
 LIMIT_TOP_K = 5
 
@@ -77,8 +73,8 @@ def teardown_test_db() -> None:
         drop_database(testing_settings.SYNC_TEST_DATABASE_ADMIN_URL)
 
 
-async def seed_eval_data(session: AsyncSession) -> None:
-    with open(RECIPES_PATH) as f:
+async def seed_eval_data(session: AsyncSession, recipes_path: Path) -> None:
+    with open(recipes_path) as f:
         recipe_samples = json.load(f)
 
     print("Seeding recipes into test DB...")
@@ -222,7 +218,7 @@ async def evaluate_nls_method(
         cat_acc = (stats["passed"] / stats["total"]) * 100
         cat_f1 = stats["total_f1"] / stats["total"]
         print(
-            f" - {cat:25}: {cat_acc:6.2f}% | F1: {cat_f1:.4f} "
+            f" - {cat:32}: {cat_acc:6.2f}% | F1: {cat_f1:.4f} "
             f"({stats['passed']}/{stats['total']})"
         )
     print(f"Overall Accuracy: {accuracy}% ({passed}/{total})")
@@ -441,6 +437,23 @@ def plot_evaluation_results(
 
 
 async def main() -> None:
+    parser = argparse.ArgumentParser(description="Evaluate search and filter methods.")
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default="en",
+        choices=["en", "ru"],
+        help="Language of the dataset to use for evaluation.",
+    )
+    args = parser.parse_args()
+    lang = args.lang
+    print(f"Using '{lang}' language for evaluation.")
+
+    datasets_path = BASE_PATH / "datasets" / lang
+    nls_queries_path = datasets_path / "evaluation_nls_queries.json"
+    filter_queries_path = datasets_path / "filter_test_data.json"
+    recipes_path = datasets_path / "recipe_samples.json"
+
     await setup_test_db()
 
     eval_vector_store = VectorStore(
@@ -459,13 +472,13 @@ async def main() -> None:
 
     try:
         async with SessionLocal() as db:
-            await seed_eval_data(db)
+            await seed_eval_data(db, recipes_path)
 
-            with open(NLS_QUIERIES_PATH) as f:
+            with open(nls_queries_path) as f:
                 nls_queries = json.load(f)
-            with open(FILTER_QUERIES_PATH) as f:
+            with open(filter_queries_path) as f:
                 filter_queries = json.load(f)
-            with open(RECIPES_PATH) as f:
+            with open(recipes_path) as f:
                 recipes = json.load(f)
 
             id_to_title = {r["id"]: r["title"] for r in recipes}
