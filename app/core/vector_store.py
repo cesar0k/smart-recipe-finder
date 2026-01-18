@@ -16,8 +16,6 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdo
 
 logger = logging.getLogger(__name__)
 
-EMBEDDING_MODEL = "google/embeddinggemma-300m"
-
 
 class VectorStore:
     _instance: Optional[Self] = None
@@ -63,9 +61,11 @@ class VectorStore:
 
     def preload_model(self) -> None:
         if self.model is None:
-            logger.info(f"Pre-load embedding model: {EMBEDDING_MODEL}...")
+            logger.info(f"Pre-load embedding model: {settings.EMBEDDING_MODEL}...")
             self.model = SentenceTransformer(
-                EMBEDDING_MODEL, trust_remote_code=True, token=settings.HF_TOKEN
+                settings.EMBEDDING_MODEL,
+                trust_remote_code=True,
+                token=settings.HF_TOKEN,
             )
             logger.info("Embedding model pre-loaded successfully.")
 

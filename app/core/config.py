@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     MAX_IMAGE_WIDTH: int = 8192
     MAX_IMAGE_HEIGHT: int = 8192
 
+    EMBEDDING_MODEL: str = "google/embeddinggemma-300m"
+
     @model_validator(mode="after")
     def check_required_fields(self) -> Self:
         missing_fields = []
