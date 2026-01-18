@@ -1,7 +1,10 @@
-from typing import Any, List, Optional, Sequence, Tuple, cast
+import re
+from typing import Any, List, Optional, Sequence, Tuple
+from typing import cast as t_cast
 
 import inflect
-from sqlalchemy import not_, or_
+from sqlalchemy import String, not_, or_
+from sqlalchemy import cast as sa_cast
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.sql.selectable import Select
@@ -36,7 +39,7 @@ def _create_semantic_document(recipe: Recipe) -> tuple[str, dict[str, Any]]:
         time_description = "Slow cooked, long preparation"
 
     ingredients_str = ""
-    ingredients = cast(Any, recipe.ingredients)
+    ingredients = t_cast(Any, recipe.ingredients)
     if ingredients:
         names = [item.get("name", "") for item in ingredients]
         ingredients_str = ", ".join(names)
@@ -68,21 +71,31 @@ def _apply_ingredient_filter(
     """
     Apply include/exclude filters to sqlalchemy object
     """
+    json_as_text = sa_cast(Recipe.ingredients, String)
+
     if include_str:
         raw_items = [i.strip() for i in include_str.split(",") if i.strip()]
         for item in raw_items:
             terms = get_word_forms(item)
 
-            or_condtitions = [Recipe.ingredients.contains([{"name": t}]) for t in terms]
-            query = query.where(or_(*or_condtitions))
+            term_conditions = []
+            for term in terms:
+                safe_term = re.escape(term)
+                pattern = f"\\y{safe_term}\\y"
+
+                term_conditions.append(json_as_text.op("~*")(pattern))
+
+            query = query.where(or_(*term_conditions))
 
     if exclude_str:
         raw_items = [i.strip() for i in exclude_str.split(",") if i.strip()]
         exclude_conditions = []
         for item in raw_items:
             terms = get_word_forms(item)
-            for t in terms:
-                exclude_conditions.append(Recipe.ingredients.contains([{"name": t}]))
+            for term in terms:
+                safe_term = re.escape(term)
+                pattern = f"\\y{safe_term}\\y"
+                exclude_conditions.append(json_as_text.op("~*")(pattern))
 
         if exclude_conditions:
             query = query.where(not_(or_(*exclude_conditions)))
