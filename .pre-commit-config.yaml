@@ -11,15 +11,15 @@ repos:
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.10
     hooks:
-      - id: ruff-check
+    -   id: ruff
         args: [ --fix ]
-      - id: ruff-format
+    -   id: ruff-format
 
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1
+-   repo: local
     hooks:
-      - id: mypy
-        entry: uv run mypy
+    -   id: mypy-docker
+        name: mypy (inside docker)
+        entry: docker compose exec -T app mypy
         language: system
         types: [python]
         require_serial: true
