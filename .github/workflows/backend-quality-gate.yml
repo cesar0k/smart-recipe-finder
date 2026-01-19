@@ -45,7 +45,7 @@ jobs:
           echo "CHROMA_COLLECTION_NAME=${{ secrets.CHROMA_COLLECTION_NAME }}" >> .env
 
           echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
-          echo "EMBEDDING_MODEL=google/embeddinggemma-300m" >> .env
+          echo "EMBEDDING_MODEL=intfloat/multilingual-e5-large-instruct" >> .env
 
           echo "S3_ACCESS_KEY=${{ secrets.MINIO_ROOT_USER }}" >> .env
           echo "S3_SECRET_KEY=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
