@@ -29,7 +29,7 @@ Follow these steps to get the application running locally.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/cesar0k/smart-recipe-finder.git
+git clone https://github.com/cesar0k/smart-recipe-finder-backend.git
 cd smart-recipe-finder
 ```
 
